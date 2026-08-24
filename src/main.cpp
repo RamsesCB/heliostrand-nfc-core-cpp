@@ -26,5 +26,5 @@ void loop() {
     // Apaga el LED
     digitalWrite(LED_BUILTIN, LOW);
     Serial.println("[ESTADO] LED Apagado (LOW)");
-    delay(1000); // Espera 1 segundo
+    delay(1000); 
 }
