@@ -1,0 +1,6 @@
+{
+    "code-runner.executorMap": {
+        "cpp": "pio run",
+        "c": "pio run"
+    }
+}
