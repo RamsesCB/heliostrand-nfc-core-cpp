@@ -21,7 +21,7 @@ void loop() {
     // Enciende el LED
     digitalWrite(LED_BUILTIN, HIGH);
     Serial.println("[ESTADO] LED Encendido (HIGH)");
-    delay(1000); // Espera 1 segundo
+    delay(1000); 
 
     // Apaga el LED
     digitalWrite(LED_BUILTIN, LOW);
