@@ -1,8 +1,8 @@
-package com.mycompany.aplicacionjava;
+package com.ramsescb.heliostrand.desktop;
 
 import com.formdev.flatlaf.FlatLightLaf;
 import com.theojansen.nfc.core.NfcServiceManager;
-import com.mycompany.aplicacionjava.ui.controller.TrackerUiController;
+import com.ramsescb.heliostrand.desktop.ui.controller.TrackerUiController;
 
 import javax.swing.SwingUtilities;
 
