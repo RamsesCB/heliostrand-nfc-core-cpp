@@ -1,0 +1,31 @@
+#!/usr/bin/env sh
+set -eu
+
+MAVEN_VERSION="3.9.9"
+MAVEN_SHA256="7a9cdf674fc1703d6382f5f330b3d110ea1b512b51f1652846d9e4e8a588d766"
+BASE_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+CACHE_DIR="$BASE_DIR/.mvn"
+MAVEN_HOME="$CACHE_DIR/apache-maven-$MAVEN_VERSION"
+ARCHIVE="$CACHE_DIR/apache-maven-$MAVEN_VERSION-bin.tar.gz"
+URL="https://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz"
+
+verify_archive() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    printf '%s  %s\n' "$MAVEN_SHA256" "$ARCHIVE" | sha256sum -c - >/dev/null
+  else
+    actual=$(shasum -a 256 "$ARCHIVE" | awk '{print $1}')
+    [ "$actual" = "$MAVEN_SHA256" ]
+  fi
+}
+
+if [ ! -x "$MAVEN_HOME/bin/mvn" ]; then
+  mkdir -p "$CACHE_DIR"
+  if [ ! -f "$ARCHIVE" ] || ! verify_archive; then
+    rm -f "$ARCHIVE"
+    curl -fL "$URL" -o "$ARCHIVE"
+    verify_archive
+  fi
+  tar -xzf "$ARCHIVE" -C "$CACHE_DIR"
+fi
+
+exec "$MAVEN_HOME/bin/mvn" "$@"

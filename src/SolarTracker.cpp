@@ -1,5 +1,27 @@
 #include "SolarTracker.h"
 
+#if defined(__AVR__)
+#include <avr/io.h>
+#endif
+
+namespace {
+uint16_t readVccMilliVolts() {
+#if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega168__)
+    const uint8_t previousAdmux = ADMUX;
+    ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
+    delay(2);
+    ADCSRA |= _BV(ADSC);
+    while (bit_is_set(ADCSRA, ADSC)) {}
+    const uint16_t adc = ADC;
+    ADMUX = previousAdmux;
+    if (adc == 0) return (uint16_t)ADC_REF_MV_FALLBACK;
+    return (uint16_t)(1125300UL / adc);
+#else
+    return (uint16_t)ADC_REF_MV_FALLBACK;
+#endif
+}
+}
+
 SolarTracker::SolarTracker()
     : currentPitch(SERVO_PITCH_DEFAULT),
       currentYaw(SERVO_YAW_DEFAULT),
@@ -54,28 +76,49 @@ uint8_t SolarTracker::readLdr8Bit(uint8_t pin) {
 }
 
 void SolarTracker::readPowerSensors() {
-    int rawVoltage = analogRead(PIN_BATTERY_SENSE);
-    
-    // Si la lectura es inferior al umbral, el sensor está desconectado o en cortocircuito
+    // Discard the first sample after channel switching, then average multiple
+    // samples. A 100 nF capacitor from A4 to GND is part of the documented
+    // divider network and improves settling/noise performance.
+    (void)analogRead(PIN_BATTERY_SENSE);
+    delayMicroseconds(ADC_SETTLING_US);
+
+    uint32_t total = 0;
+    for (uint8_t i = 0; i < BATTERY_SAMPLE_COUNT; ++i) {
+        total += (uint16_t)analogRead(PIN_BATTERY_SENSE);
+    }
+    const uint16_t rawVoltage = (uint16_t)(total / BATTERY_SAMPLE_COUNT);
+
     if (rawVoltage < BATTERY_CUTOFF_ADC) {
         voltageMilliVolts = 0;
         batteryPercent = 0;
         batteryValid = false;
-    } else {
-        // Cálculo eléctrico real a través del divisor de tensión (R1=100k, R2=100k)
-        // Vadc = Vin * R2 / (R1 + R2)  ==> Vin = Vadc * (R1 + R2) / R2
-        uint32_t adcMillivolts = ((uint32_t)rawVoltage * ADC_REF_MV) / 1023UL;
-        voltageMilliVolts = (uint16_t)((adcMillivolts * (R1_OHM + R2_OHM)) / R2_OHM);
-        batteryValid = true;
+        return;
+    }
 
-        // Porcentaje para batería Li-ion (Rango estándar: 3.0V a 4.2V)
-        if (voltageMilliVolts >= BATTERY_MAX_MV) {
-            batteryPercent = 100;
-        } else if (voltageMilliVolts <= BATTERY_MIN_MV) {
-            batteryPercent = 0;
-        } else {
-            batteryPercent = (uint8_t)(((uint32_t)(voltageMilliVolts - BATTERY_MIN_MV) * 100UL) / (BATTERY_MAX_MV - BATTERY_MIN_MV));
-        }
+    const uint32_t vccMv = readVccMilliVolts();
+    const uint32_t adcMillivolts = ((uint32_t)rawVoltage * vccMv) / 1023UL;
+    const uint32_t batteryMv =
+        (adcMillivolts * (R1_OHM + R2_OHM)) / R2_OHM;
+
+    if (batteryMv < BATTERY_VALID_MIN_MV ||
+        batteryMv > BATTERY_VALID_MAX_MV) {
+        voltageMilliVolts = 0;
+        batteryPercent = 0;
+        batteryValid = false;
+        return;
+    }
+
+    voltageMilliVolts = (uint16_t)batteryMv;
+    batteryValid = true;
+
+    if (voltageMilliVolts >= BATTERY_MAX_MV) {
+        batteryPercent = 100;
+    } else if (voltageMilliVolts <= BATTERY_MIN_MV) {
+        batteryPercent = 0;
+    } else {
+        batteryPercent = (uint8_t)(
+            ((uint32_t)(voltageMilliVolts - BATTERY_MIN_MV) * 100UL) /
+            (BATTERY_MAX_MV - BATTERY_MIN_MV));
     }
 }
 
@@ -100,7 +143,6 @@ void SolarTracker::computeLightDirection() {
         lightDirection = DIR_ESTE;
     }
     if (ldrOeste > maxVal) {
-        maxVal = ldrOeste;
         lightDirection = DIR_OESTE;
     }
 }

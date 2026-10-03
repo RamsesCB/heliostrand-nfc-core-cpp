@@ -1,12 +1,12 @@
 
-package com.mycompany.aplicacionjava;
+package com.ramsescb.heliostrand.desktop;
 
 import com.theojansen.nfc.core.NfcDeviceException;
 import com.theojansen.nfc.core.NfcServiceManager;
 import com.theojansen.nfc.model.LightDirection;
 import com.theojansen.nfc.model.MotorState;
 import com.theojansen.nfc.model.RobotTelemetry;
-import com.mycompany.aplicacionjava.ui.controller.TrackerUiController;
+import com.ramsescb.heliostrand.desktop.ui.controller.TrackerUiController;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.jfree.chart.ChartFactory;
@@ -275,6 +275,7 @@ public class MainTrackerFrame extends javax.swing.JFrame {
     // Campos y logica agregados manualmente (fuera del area protegida)
     // ------------------------------------------------------------------
 
+    private static final int MAX_IN_MEMORY_SAMPLES = 500;
     private DefaultCategoryDataset ldrDataset;
     private boolean scanning = false;
     private final List<RobotTelemetry> sessionHistory = new ArrayList<>();
@@ -337,28 +338,50 @@ public class MainTrackerFrame extends javax.swing.JFrame {
         simulationThread = new Thread(() -> {
             Random random = new Random();
             int reversals = 0;
+            int sequence = 0;
+            final String simulatedUid = "SIM-TAG-DESKTOP-0001";
+            MotorState mState = MotorState.ADELANTE;
+
             while (simulationActive) {
                 int[] ldr = {
-                        random.nextInt(256), // Norte
-                        random.nextInt(256), // Sur
-                        random.nextInt(256), // Oeste
-                        random.nextInt(256)  // Este
+                        random.nextInt(256),
+                        random.nextInt(256),
+                        random.nextInt(256),
+                        random.nextInt(256)
                 };
-                int maxLdr = Math.max(Math.max(ldr[0], ldr[1]), Math.max(ldr[2], ldr[3]));
-                LightDirection dir;
-                if (maxLdr == ldr[0]) dir = LightDirection.NORTE;
-                else if (maxLdr == ldr[1]) dir = LightDirection.SUR;
-                else if (maxLdr == ldr[2]) dir = LightDirection.OESTE;
-                else dir = LightDirection.ESTE;
 
-                int pitch = 45 + random.nextInt(90);
-                int yaw = random.nextInt(181);
-                reversals += (random.nextInt(5) == 0 ? 1 : 0);
-                MotorState mState = (reversals % 2 == 0) ? MotorState.ADELANTE : MotorState.ATRAS;
-                double voltage = 4.80 + (random.nextDouble() * 0.45);
-                int battery = 75 + random.nextInt(25);
+                LightDirection dir;
+                if (random.nextInt(10) == 0) {
+                    int balanced = 100 + random.nextInt(40);
+                    java.util.Arrays.fill(ldr, balanced);
+                    dir = LightDirection.EQUILIBRADO;
+                } else {
+                    int maxLdr = Math.max(Math.max(ldr[0], ldr[1]), Math.max(ldr[2], ldr[3]));
+                    if (maxLdr == ldr[0]) dir = LightDirection.NORTE;
+                    else if (maxLdr == ldr[1]) dir = LightDirection.SUR;
+                    else if (maxLdr == ldr[2]) dir = LightDirection.OESTE;
+                    else dir = LightDirection.ESTE;
+                }
+
+                int pitch = 15 + random.nextInt(151);
+                int yaw = 10 + random.nextInt(161);
+
+                if (random.nextInt(8) == 0) {
+                    mState = mState == MotorState.ADELANTE
+                            ? MotorState.ATRAS : MotorState.ADELANTE;
+                    reversals = (reversals + 1) & 0xFF;
+                } else if (random.nextInt(12) == 0) {
+                    mState = MotorState.DETENIDO;
+                }
+
+                int voltageMv = 3200 + random.nextInt(1001);
+                double voltage = voltageMv / 1000.0;
+                int battery = Math.max(0, Math.min(100,
+                        ((voltageMv - 3000) * 100) / 1200));
 
                 RobotTelemetry telemetry = new RobotTelemetry(
+                        2,
+                        sequence++ & 0xFF,
                         ldr,
                         (ldr[0] + ldr[1] + ldr[2] + ldr[3]) / 4.0,
                         dir,
@@ -368,8 +391,9 @@ public class MainTrackerFrame extends javax.swing.JFrame {
                         mState,
                         voltage,
                         battery,
+                        true,
                         System.currentTimeMillis(),
-                        "SIM-TAG-4B82"
+                        simulatedUid
                 );
 
                 if (uiController != null) {
@@ -445,9 +469,15 @@ public class MainTrackerFrame extends javax.swing.JFrame {
         lblReversalsCount.setText("Inversiones: " + telemetry.getPolarityReversalsCount());
 
         // 4. Potencia y batería
-        lblVoltage.setText(String.format(java.util.Locale.US, "%.2f V", telemetry.getOperatingVoltage()));
-        barBattery.setValue(telemetry.getBatteryLevelPercent());
-        barBattery.setString(telemetry.getBatteryLevelPercent() + "%");
+        if (telemetry.isBatteryValid()) {
+            lblVoltage.setText(String.format(java.util.Locale.US, "%.2f V", telemetry.getOperatingVoltage()));
+            barBattery.setValue(telemetry.getBatteryLevelPercent());
+            barBattery.setString(telemetry.getBatteryLevelPercent() + "%");
+        } else {
+            lblVoltage.setText("N/D");
+            barBattery.setValue(0);
+            barBattery.setString("N/D");
+        }
 
         // 5. Historial en JTable
         DefaultTableModel model = (DefaultTableModel) historyTable.getModel();
@@ -462,6 +492,12 @@ public class MainTrackerFrame extends javax.swing.JFrame {
         });
 
         sessionHistory.add(telemetry);
+        while (sessionHistory.size() > MAX_IN_MEMORY_SAMPLES) {
+            sessionHistory.remove(0);
+        }
+        while (model.getRowCount() > MAX_IN_MEMORY_SAMPLES) {
+            model.removeRow(0);
+        }
     }
 
     /** Muestra un error de dispositivo en un diálogo no bloqueante. */

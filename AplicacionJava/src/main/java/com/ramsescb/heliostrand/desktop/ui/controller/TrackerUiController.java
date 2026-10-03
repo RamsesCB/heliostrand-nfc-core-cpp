@@ -1,8 +1,8 @@
-package com.mycompany.aplicacionjava.ui.controller;
+package com.ramsescb.heliostrand.desktop.ui.controller;
 
 import com.theojansen.nfc.core.NfcEventListener;
 import com.theojansen.nfc.model.RobotTelemetry;
-import com.mycompany.aplicacionjava.MainTrackerFrame;
+import com.ramsescb.heliostrand.desktop.MainTrackerFrame;
 
 import javax.swing.SwingUtilities;
 

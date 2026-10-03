@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.ramsescb</groupId>
     <artifactId>AplicacionJava</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>21</maven.compiler.release>
-        <exec.mainClass>com.mycompany.aplicacionjava.Main</exec.mainClass>
+        <exec.mainClass>com.ramsescb.heliostrand.desktop.Main</exec.mainClass>
     </properties>
     <distributionManagement>
         <repository>
@@ -89,7 +89,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.mycompany.aplicacionjava.Main</mainClass>
+                            <mainClass>com.ramsescb.heliostrand.desktop.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

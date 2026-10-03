@@ -4,20 +4,24 @@ import com.theojansen.nfc.model.RobotTelemetry;
 import com.theojansen.nfc.parser.TheoJansenDataParser;
 
 import javax.smartcardio.*;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * Gestor del hardware NFC mediante el estándar PC/SC (javax.smartcardio).
- * Garantiza cierre seguro de recursos en finally y obtención de UID real mediante APDU FF CA.
- */
 public class NfcServiceManager {
+    private static final int SLOT_A_BASE_PAGE = 4;
+    private static final int SLOT_B_BASE_PAGE = 8;
 
     private final TheoJansenDataParser parser;
+    private final Map<String, Integer> lastSequenceByTag = new ConcurrentHashMap<>();
     private CardTerminal terminal;
     private ExecutorService executorService;
     private volatile boolean scanningActive = false;
+
+    private record NfcSlot(byte[] payload, int generation) {}
 
     public NfcServiceManager() {
         this.parser = new TheoJansenDataParser();
@@ -27,31 +31,27 @@ public class NfcServiceManager {
         try {
             TerminalFactory factory = TerminalFactory.getDefault();
             List<CardTerminal> terminals = factory.terminals().list();
-
             if (terminals.isEmpty()) {
-                throw new NfcDeviceException("No se detectaron lectores NFC PC/SC conectados por USB.");
+                throw new NfcDeviceException("No se detectaron lectores NFC PC/SC.");
             }
 
-            if (preferredTerminalName != null && !preferredTerminalName.isEmpty()) {
-                for (CardTerminal t : terminals) {
-                    if (t.getName().contains(preferredTerminalName)) {
-                        this.terminal = t;
+            terminal = null;
+            if (preferredTerminalName != null && !preferredTerminalName.isBlank()) {
+                for (CardTerminal candidate : terminals) {
+                    if (candidate.getName().contains(preferredTerminalName)) {
+                        terminal = candidate;
                         break;
                     }
                 }
             }
-
-            if (this.terminal == null) {
-                this.terminal = terminals.get(0); // Tomar el primer lector disponible
-            }
+            if (terminal == null) terminal = terminals.get(0);
         } catch (CardException e) {
-            throw new NfcDeviceException("Error al inicializar la subcapa de tarjeta inteligente PC/SC.", e);
+            throw new NfcDeviceException("Error al inicializar PC/SC.", e);
         }
     }
 
     public void startContinuousScan(NfcEventListener listener) {
         if (scanningActive) return;
-
         scanningActive = true;
         executorService = Executors.newSingleThreadExecutor();
 
@@ -63,16 +63,10 @@ public class NfcServiceManager {
                         card = terminal.connect("*");
                         CardChannel channel = card.getBasicChannel();
 
-                        // UID real del Tag NFC mediante APDU estándar FF CA 00 00 00
                         String tagUid = readRealUid(channel, card);
+                        RobotTelemetry telemetry = readLatestTelemetry(channel, tagUid);
 
-                        // Lectura de los 12 bytes de telemetría (Páginas 4 a 6)
-                        byte[] rawPayload = readRawTelemetryBlocks(channel);
-
-                        // Decodificación y validación de integridad
-                        RobotTelemetry telemetry = parser.decodeTelemetryPayload(rawPayload, tagUid);
-
-                        if (listener != null) {
+                        if (isFreshForTag(telemetry) && listener != null) {
                             listener.onTelemetryReceived(telemetry);
                         }
 
@@ -87,12 +81,98 @@ public class NfcServiceManager {
                         try {
                             card.disconnect(false);
                         } catch (CardException ignored) {
-                            // Ignorar error al desconectar tarjeta retirada
+                            // Tag may already have left the RF field.
                         }
                     }
                 }
             }
         });
+    }
+
+    private RobotTelemetry readLatestTelemetry(CardChannel channel, String tagUid)
+            throws Exception {
+        NfcSlot slotA = readSlot(channel, SLOT_A_BASE_PAGE);
+        NfcSlot slotB = readSlot(channel, SLOT_B_BASE_PAGE);
+
+        if (slotA == null && slotB == null) {
+            throw new CardException("No existe ningún slot Heliostrand válido en el NTAG213.");
+        }
+
+        NfcSlot primary;
+        NfcSlot fallback;
+        if (slotA == null) {
+            primary = slotB;
+            fallback = null;
+        } else if (slotB == null) {
+            primary = slotA;
+            fallback = null;
+        } else if (generationNewer(slotA.generation(), slotB.generation())) {
+            primary = slotA;
+            fallback = slotB;
+        } else {
+            primary = slotB;
+            fallback = slotA;
+        }
+
+        try {
+            return parser.decodeTelemetryPayload(primary.payload(), tagUid);
+        } catch (Exception primaryFailure) {
+            if (fallback != null) {
+                return parser.decodeTelemetryPayload(fallback.payload(), tagUid);
+            }
+            throw primaryFailure;
+        }
+    }
+
+    private NfcSlot readSlot(CardChannel channel, int basePage) throws CardException {
+        byte[] raw = readPages(channel, basePage);
+        if (raw == null || raw.length < 16) return null;
+
+        int magic0 = raw[12] & 0xFF;
+        int magic1 = raw[13] & 0xFF;
+        int generation = raw[14] & 0xFF;
+        int complement = raw[15] & 0xFF;
+
+        if (magic0 != 0x48 || magic1 != 0x53 ||
+                complement != ((~generation) & 0xFF)) {
+            return null;
+        }
+
+        byte[] payload = Arrays.copyOfRange(raw, 0, 12);
+        if (!parser.verifyCrc8(payload, payload[11])) return null;
+        return new NfcSlot(payload, generation);
+    }
+
+    private byte[] readPages(CardChannel channel, int basePage) throws CardException {
+        CommandAPDU bulk = new CommandAPDU(0xFF, 0xB0, 0x00, basePage, 16);
+        ResponseAPDU response = channel.transmit(bulk);
+        if (response.getSW() == 0x9000 && response.getData().length >= 16) {
+            return Arrays.copyOf(response.getData(), 16);
+        }
+
+        byte[] out = new byte[16];
+        for (int page = 0; page < 4; page++) {
+            CommandAPDU single =
+                    new CommandAPDU(0xFF, 0xB0, 0x00, basePage + page, 4);
+            ResponseAPDU part = channel.transmit(single);
+            if (part.getSW() != 0x9000 || part.getData().length < 4) {
+                return null;
+            }
+            System.arraycopy(part.getData(), 0, out, page * 4, 4);
+        }
+        return out;
+    }
+
+    private static boolean generationNewer(int candidate, int reference) {
+        int diff = (candidate - reference) & 0xFF;
+        return diff != 0 && diff < 128;
+    }
+
+    private boolean isFreshForTag(RobotTelemetry telemetry) {
+        String uid = telemetry.getTagUid();
+        int sequence = telemetry.getSequenceNumber();
+        Integer previous = lastSequenceByTag.put(uid, sequence);
+        return previous == null || previous != sequence;
     }
 
     public void stopContinuousScan() {
@@ -104,43 +184,21 @@ public class NfcServiceManager {
 
     private String readRealUid(CardChannel channel, Card card) {
         try {
-            // APDU estándar PC/SC para obtener UID de tarjeta sin contacto (FF CA 00 00 00)
             CommandAPDU getUidCmd = new CommandAPDU(0xFF, 0xCA, 0x00, 0x00, 0x00);
-            ResponseAPDU resp = channel.transmit(getUidCmd);
-            if (resp.getSW() == 0x9000 && resp.getData().length > 0) {
-                return bytesToHex(resp.getData());
+            ResponseAPDU response = channel.transmit(getUidCmd);
+            if (response.getSW() == 0x9000 && response.getData().length > 0) {
+                return bytesToHex(response.getData());
             }
         } catch (Exception ignored) {
-            // Fallback en lectores que no soportan FF CA
+            // Some PC/SC readers do not implement FF CA.
         }
-
-        // Fallback seguro: usar ATR solo si la APDU no responde
-        byte[] atrBytes = card.getATR().getBytes();
-        return "ATR-" + bytesToHex(atrBytes);
+        return "ATR-" + bytesToHex(card.getATR().getBytes());
     }
 
-    private byte[] readRawTelemetryBlocks(CardChannel channel) throws CardException {
-        // Comando APDU genérico de lectura de bloque de memoria (FF B0 00 [Block] [Length])
-        CommandAPDU readCommand = new CommandAPDU(0xFF, 0xB0, 0x00, 0x04, 12);
-        ResponseAPDU response = channel.transmit(readCommand);
-
-        if (response.getSW() == 0x9000) {
-            return response.getData();
-        } else {
-            throw new CardException("Fallo al ejecutar APDU de lectura. Status Word: " + Integer.toHexString(response.getSW()));
-        }
-    }
-
-    /**
-     * Verifica si el terminal USB está reconocido y disponible por el sistema.
-     */
     public boolean isReaderAvailable() {
         return terminal != null;
     }
 
-    /**
-     * Verifica si hay una tarjeta o tag NFC presente sobre el lector.
-     */
     public boolean isTagPresent() {
         try {
             return terminal != null && terminal.isCardPresent();
@@ -162,10 +220,8 @@ public class NfcServiceManager {
     }
 
     private String bytesToHex(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format("%02X", b));
-        }
+        StringBuilder sb = new StringBuilder(bytes.length * 2);
+        for (byte b : bytes) sb.append(String.format("%02X", b));
         return sb.toString();
     }
 }

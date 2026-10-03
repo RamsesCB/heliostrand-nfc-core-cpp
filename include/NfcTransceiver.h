@@ -1,28 +1,20 @@
 #ifndef NFC_TRANSCEIVER_H
 #define NFC_TRANSCEIVER_H
 
+#include <Adafruit_PN532.h>
 #include <Arduino.h>
 #include <SPI.h>
-#include <Adafruit_PN532.h>
-#include "TelemetryTransport.h"
-#include "TheoJansenConfig.h"
-#include "TheoJansenTelemetry.h"
 
-/**
- * Transceptor NFC para controlador PN532 en bus SPI Hardware.
- * Implementa grabación controlada de páginas 4, 5 y 6 en NTAG213 con política anti-desgaste.
- */
+#include "TelemetryTransport.h"
+#include "NfcWritePolicy.h"
+#include "TheoJansenConfig.h"
+
 class NfcTransceiver : public TelemetryTransport {
 public:
     NfcTransceiver();
 
     bool begin() override;
     bool publish(const uint8_t *payload, size_t length) override;
-
-    // Métodos de compatibilidad y diagnóstico
-    void publishTelemetry(const uint8_t *payload12Bytes);
-    void printHumanReadable(const TelemetryPacket &packet, const uint8_t *payload12Bytes);
-    bool checkSerialCommands(char &outCommand);
 
     bool isHardwareDetected() const { return pn532Detected; }
     uint32_t getFirmwareVersion() const { return firmwareVersion; }
@@ -31,10 +23,24 @@ private:
     Adafruit_PN532 nfc;
     bool pn532Detected;
     uint32_t firmwareVersion;
-    unsigned long lastWriteMillis;
-    uint8_t lastWrittenCrc;
 
-    void printHexByte(uint8_t b);
+    bool hasWrittenTelemetry;
+    unsigned long lastWriteMillis;
+    unsigned long lastAttemptMillis;
+    uint8_t lastWrittenPayload[TELEMETRY_PAYLOAD_SIZE];
+
+    bool tagLocked;
+    uint8_t lockedUid[7];
+    uint8_t lockedUidLength;
+
+    bool isMeaningfulChange(const uint8_t *payload) const;
+    bool validateNtag213();
+    bool uidAllowed(const uint8_t *uid, uint8_t uidLength);
+
+    bool readSlot(uint8_t basePage, uint8_t *payload, uint8_t &generation);
+    bool writeSlot(uint8_t basePage, const uint8_t *payload, uint8_t generation);
+    bool writeDoubleBuffered(const uint8_t *payload);
+
 };
 
-#endif // NFC_TRANSCEIVER_H
+#endif

@@ -3,77 +3,74 @@
 
 #include <Arduino.h>
 
-// ====================================================================
-// CONFIGURACIÓN DE PINES DE HARDWARE (Arduino Uno R3 - Pinout Definitivo)
-// ====================================================================
+// Hardware target: Arduino Uno R3 / ATmega328P
+#define PIN_LDR_NORTE        A0
+#define PIN_LDR_SUR          A1
+#define PIN_LDR_OESTE        A2
+#define PIN_LDR_ESTE         A3
+#define PIN_BATTERY_SENSE    A4
 
-// Sensores de Luz LDR (Entradas Analógicas)
-#define PIN_LDR_NORTE        A0  // LDR Arriba (Norte)
-#define PIN_LDR_SUR          A1  // LDR Abajo (Sur)
-#define PIN_LDR_OESTE        A2  // LDR Izquierda (Oeste)
-#define PIN_LDR_ESTE         A3  // LDR Derecha (Este)
+#define PIN_SERVO_PITCH      9
+#define PIN_SERVO_YAW        10
 
-// Sensor de Tensión Batería (Entrada Analógica con divisor resistivo 1:2)
-#define PIN_BATTERY_SENSE    A4  // Divisor 100k / 100k
+#define PIN_MOTOR_IN1        5
+#define PIN_MOTOR_IN2        6
+#define PIN_MOTOR_ENABLE     3
 
-// Servomotores de Seguimiento Solar (PWM Timer 1)
-#define PIN_SERVO_PITCH      9   // Servo Vertical (Elevación)
-#define PIN_SERVO_YAW        10  // Servo Horizontal (Acimut)
+#define PIN_PN532_CS         4
+#define PIN_PN532_MOSI       11
+#define PIN_PN532_MISO       12
+#define PIN_PN532_SCK        13
+#define PIN_PN532_IRQ        2
 
-// Motor DC para Mecanismo Theo Jansen (Puente H L298N)
-#define PIN_MOTOR_IN1        5   // Control Dirección 1
-#define PIN_MOTOR_IN2        6   // Control Dirección 2
-#define PIN_MOTOR_ENABLE     3   // PWM de velocidad (Timer 2)
+#define PIN_STATUS_LED       7
 
-// Transceptor NFC PN532 (Bus SPI Hardware)
-#define PIN_PN532_CS         4   // Chip Select (D4 dedicado, libera D10)
-#define PIN_PN532_MOSI       11  // SPI MOSI Hardware
-#define PIN_PN532_MISO       12  // SPI MISO Hardware
-#define PIN_PN532_SCK        13  // SPI SCK Hardware
-#define PIN_PN532_IRQ        2   // Interrupción externa INT0 (opcional)
-
-// Indicador de Estado del Sistema (Reasignado a D7 para liberar SCK D13)
-#define PIN_STATUS_LED       7   
-
-// ====================================================================
-// CONSTANTES Y PARÁMETROS OPERATIVOS
-// ====================================================================
-
-// Versión del Protocolo de Telemetría
 #define PROTOCOL_VERSION_V2  2
 
-// Rango de movimiento de los servomotores (grados)
 #define SERVO_PITCH_MIN      15
 #define SERVO_PITCH_MAX      165
 #define SERVO_PITCH_DEFAULT  90
-
 #define SERVO_YAW_MIN        10
 #define SERVO_YAW_MAX        170
 #define SERVO_YAW_DEFAULT    90
 
-// Umbral de tolerancia de luz para seguimiento solar (0 - 255)
 #define LIGHT_DEADBAND       12
 #define SERVO_STEP_SIZE      2
 
-// Calibración eléctrica de batería Li-ion (1S)
-#define ADC_REF_MV           5000UL
-#define R1_OHM               100000UL
-#define R2_OHM               100000UL
-#define BATTERY_MIN_MV       3000   // 0% Li-ion
-#define BATTERY_MAX_MV       4200   // 100% Li-ion
-#define BATTERY_CUTOFF_ADC   50     // Debajo de este ADC se considera desconectado
+// Battery hardware: 1S Li-ion, 20k/20k divider + 100 nF from A4 to GND.
+// 20k || 20k = 10k source impedance, matching the ATmega328P ADC guidance.
+#define R1_OHM                   20000UL
+#define R2_OHM                   20000UL
+#define BATTERY_MIN_MV           3000
+#define BATTERY_MAX_MV           4200
+#define BATTERY_VALID_MIN_MV     2500
+#define BATTERY_VALID_MAX_MV     5000
+#define BATTERY_CUTOFF_ADC       25
+#define BATTERY_SAMPLE_COUNT     8
+#define ADC_SETTLING_US          250
+#define ADC_REF_MV_FALLBACK      5000UL
 
-// Tamaño exacto de la trama de telemetría en bytes
-#define TELEMETRY_PAYLOAD_SIZE 12
+#define TELEMETRY_PAYLOAD_SIZE   12
+#define SERIAL_BAUD_RATE         115200
 
-// Velocidad de transmisión serial para debug / enlace directo
-#define SERIAL_BAUD_RATE     115200
+#define TRACKING_INTERVAL_MS     250
+#define TELEMETRY_INTERVAL_MS    1000
 
-// Intervalo de ciclo de tracking y telemetría
-#define TRACKING_INTERVAL_MS 250
-#define TELEMETRY_INTERVAL_MS 1000
+// NTAG213 endurance policy.
+// First write is immediate. Subsequent writes require at least 5 minutes.
+// Unchanged state is refreshed only every 15 minutes.
+#define NFC_WRITE_MIN_INTERVAL_MS        300000UL
+#define NFC_PERIODIC_REFRESH_MS          900000UL
+#define NFC_WRITE_RETRY_BACKOFF_MS       5000UL
+#define NFC_LDR_DELTA_THRESHOLD          8
+#define NFC_SERVO_DELTA_DEG              5
+#define NFC_BATTERY_DELTA_MV             50
+#define NFC_ENFORCE_EXPECTED_UID          0
+#if NFC_ENFORCE_EXPECTED_UID
+static const uint8_t NFC_EXPECTED_UID[7] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+#endif
+#define NFC_LOCK_FIRST_TAG_PER_BOOT      1
 
-// Política anti-desgaste EEPROM NTAG213 (mínimo intervalo en ms entre escrituras)
-#define NFC_WRITE_THROTTLE_MS 30000UL // Máximo 1 escritura cada 30 segundos si cambia estado
-
-#endif // THEO_JANSEN_CONFIG_H
+#endif

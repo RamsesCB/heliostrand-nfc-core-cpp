@@ -8,3 +8,9 @@
 *.hex
 **/target/
 .nb-gradle/
+
+AplicacionJava/.mvn/apache-maven-*/
+AplicacionJava/.mvn/*-bin.tar.gz
+
+test/generated/
+heliostrand_app/android/build/

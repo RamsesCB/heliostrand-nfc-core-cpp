@@ -5,12 +5,15 @@ import '../models/light_direction.dart';
 import '../models/motor_state.dart';
 import '../models/robot_telemetry.dart';
 
-/// Servicio de simulación de telemetría para pruebas sin hardware físico.
 class SimulationService {
   Timer? _timer;
   final math.Random _random = math.Random();
   int _reversals = 0;
+  int _sequence = 0;
   bool _active = false;
+  MotorState _motorState = MotorState.adelante;
+
+  static const String _simulatedUid = 'SIM-TAG-MOBILE-0001';
 
   final StreamController<RobotTelemetry> _telemetryController =
       StreamController<RobotTelemetry>.broadcast();
@@ -23,48 +26,53 @@ class SimulationService {
     _active = true;
 
     _timer = Timer.periodic(interval, (_) {
-      final int norte = _random.nextInt(256);
-      final int sur = _random.nextInt(256);
-      final int oeste = _random.nextInt(256);
-      final int este = _random.nextInt(256);
-      final ldr = [norte, sur, oeste, este];
+      final ldr = List<int>.generate(4, (_) => _random.nextInt(256));
 
-      final maxVal = math.max(math.max(norte, sur), math.max(oeste, este));
-      LightDirection dir;
-      if (maxVal == norte) {
-        dir = LightDirection.norte;
-      } else if (maxVal == sur) {
-        dir = LightDirection.sur;
-      } else if (maxVal == oeste) {
-        dir = LightDirection.oeste;
+      final LightDirection direction;
+      if (_random.nextInt(10) == 0) {
+        final balanced = 100 + _random.nextInt(40);
+        for (var i = 0; i < ldr.length; i++) {
+          ldr[i] = balanced;
+        }
+        direction = LightDirection.equilibrado;
       } else {
-        dir = LightDirection.este;
+        final maxValue = ldr.reduce(math.max);
+        final index = ldr.indexOf(maxValue);
+        direction = <LightDirection>[
+          LightDirection.norte,
+          LightDirection.sur,
+          LightDirection.oeste,
+          LightDirection.este,
+        ][index];
       }
 
-      final int pitch = 45 + _random.nextInt(90);
-      final int yaw = _random.nextInt(181);
-
-      if (_random.nextInt(4) == 0) {
-        _reversals++;
+      if (_random.nextInt(8) == 0) {
+        _motorState = _motorState == MotorState.adelante
+            ? MotorState.atras
+            : MotorState.adelante;
+        _reversals = (_reversals + 1) & 0xFF;
+      } else if (_random.nextInt(12) == 0) {
+        _motorState = MotorState.detenido;
       }
-      final motorState =
-          (_reversals % 2 == 0) ? MotorState.adelante : MotorState.atras;
 
-      final double voltage = 4.85 + (_random.nextDouble() * 0.40);
-      final int battery = 70 + _random.nextInt(31);
+      final voltageMv = 3200 + _random.nextInt(1001);
+      final battery = (((voltageMv - 3000) * 100) ~/ 1200).clamp(0, 100);
 
       final telemetry = RobotTelemetry(
+        version: 2,
+        sequenceNumber: _sequence++ & 0xFF,
         ldrValues: ldr,
-        ldrAverage: (norte + sur + oeste + este) / 4.0,
-        primaryLightDirection: dir,
-        servoPitchAngle: pitch,
-        servoYawAngle: yaw,
+        ldrAverage: ldr.reduce((a, b) => a + b) / 4.0,
+        primaryLightDirection: direction,
+        servoPitchAngle: 15 + _random.nextInt(151),
+        servoYawAngle: 10 + _random.nextInt(161),
         polarityReversalsCount: _reversals,
-        motorDirection: motorState,
-        operatingVoltage: double.parse(voltage.toStringAsFixed(2)),
+        motorDirection: _motorState,
+        operatingVoltage: voltageMv / 1000.0,
         batteryLevelPercent: battery,
+        batteryValid: true,
         timestamp: DateTime.now().millisecondsSinceEpoch,
-        tagUid: 'SIM-TAG-MOB-${_random.nextInt(9999).toString().padLeft(4, "0")}',
+        tagUid: _simulatedUid,
       );
 
       _telemetryController.add(telemetry);

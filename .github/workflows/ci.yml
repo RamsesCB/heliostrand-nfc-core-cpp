@@ -1,10 +1,10 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -12,76 +12,62 @@ permissions:
 
 jobs:
   firmware:
-    name: C++ Firmware (PlatformIO)
+    name: Firmware C++ / Protocol Contract
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Install PlatformIO
-        run: |
-          python -m pip install --upgrade pip
-          pip install --upgrade platformio
-
-      - name: Compile Arduino Uno Firmware
-        run: pio run
-
-      - name: Static Analysis
-        run: pio check --skip-packages
+      - name: Install pinned PlatformIO
+        run: python -m pip install platformio==6.1.19
+      - name: Generate C++ vectors from normative JSON
+        run: python tools/generate_golden_vectors_header.py
+      - name: Build Arduino Uno firmware
+        run: pio run -e uno
+      - name: Run native protocol tests
+        run: pio test -e native
+      - name: Static analysis
+        run: pio check -e uno --skip-packages
 
   java:
-    name: Java Desktop App (JDK 21)
+    name: Java Desktop / JDK 21
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'temurin'
-
-      - name: Build and Test Java App
-        run: |
-          cd AplicacionJava
-          mvn clean test package
-
-      - name: Upload Java Executable JAR
-        uses: actions/upload-artifact@v4
+          distribution: temurin
+          cache: maven
+          cache-dependency-path: AplicacionJava/pom.xml
+      - name: Test and package
+        working-directory: AplicacionJava
+        run: ./mvnw --batch-mode clean test package
+      - uses: actions/upload-artifact@v4
         with:
-          name: AplicacionJava-1.0.0
+          name: AplicacionJava-1.1.0
           path: AplicacionJava/target/*-jar-with-dependencies.jar
 
   flutter:
-    name: Flutter Mobile App
+    name: Flutter Mobile / 3.47.2
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          flutter-version: '3.47.2'
+          channel: stable
           cache: true
-
-      - name: Install Flutter Dependencies
-        run: |
-          cd heliostrand_app
-          flutter pub get
-
-      - name: Analyze Flutter Code
-        run: |
-          cd heliostrand_app
-          flutter analyze
-
-      - name: Run Flutter Unit Tests
-        run: |
-          cd heliostrand_app
-          flutter test
+      - name: Resolve dependencies
+        working-directory: heliostrand_app
+        run: flutter pub get
+      - name: Analyze
+        working-directory: heliostrand_app
+        run: flutter analyze
+      - name: Test
+        working-directory: heliostrand_app
+        run: flutter test
+      - name: Build debug APK as compile check
+        working-directory: heliostrand_app
+        run: flutter build apk --debug

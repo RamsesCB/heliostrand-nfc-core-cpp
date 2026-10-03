@@ -7,7 +7,7 @@
 ---
 
 ## 1. Introducción
-La aplicación **Theo Jansen Solar Tracker** ha sido desarrollada como una herramienta de código abierto para el monitoreo educativo y científico de telemetría de robots solares bio-inspirados tipo Theo Jansen. Esta Política de Privacidad describe el tratamiento de datos y los permisos utilizados en la aplicación móvil y de escritorio, en estricto cumplimiento con las normativas de **Google Play Store**.
+La aplicación **Theo Jansen Solar Tracker** ha sido desarrollada como una herramienta de código abierto para el monitoreo educativo y científico de telemetría de robots solares bio-inspirados tipo Theo Jansen. Esta Política de Privacidad describe el tratamiento de datos y los permisos utilizados por la aplicación. La distribución mediante una tienda concreta, cuando exista, se rige adicionalmente por las políticas vigentes de esa plataforma.
 
 ---
 
