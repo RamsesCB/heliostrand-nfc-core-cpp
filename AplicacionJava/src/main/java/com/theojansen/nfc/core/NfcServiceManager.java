@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 
 /**
  * Gestor del hardware NFC mediante el estándar PC/SC (javax.smartcardio).
+ * Garantiza cierre seguro de recursos en finally y obtención de UID real mediante APDU FF CA.
  */
 public class NfcServiceManager {
 
@@ -56,19 +57,19 @@ public class NfcServiceManager {
 
         executorService.submit(() -> {
             while (scanningActive) {
+                Card card = null;
                 try {
                     if (terminal != null && terminal.waitForCardPresent(1000)) {
-                        Card card = terminal.connect("*");
+                        card = terminal.connect("*");
                         CardChannel channel = card.getBasicChannel();
 
-                        // UID del Tag NFC
-                        byte[] uidBytes = card.getATR().getBytes();
-                        String tagUid = bytesToHex(uidBytes);
+                        // UID real del Tag NFC mediante APDU estándar FF CA 00 00 00
+                        String tagUid = readRealUid(channel, card);
 
-                        // Lectura APDU
+                        // Lectura de los 12 bytes de telemetría (Páginas 4 a 6)
                         byte[] rawPayload = readRawTelemetryBlocks(channel);
 
-                        // Parseo de telemetría
+                        // Decodificación y validación de integridad
                         RobotTelemetry telemetry = parser.decodeTelemetryPayload(rawPayload, tagUid);
 
                         if (listener != null) {
@@ -76,11 +77,18 @@ public class NfcServiceManager {
                         }
 
                         terminal.waitForCardAbsent(2000);
-                        card.disconnect(false);
                     }
                 } catch (Exception e) {
                     if (scanningActive && listener != null) {
                         listener.onErrorEncountered(e);
+                    }
+                } finally {
+                    if (card != null) {
+                        try {
+                            card.disconnect(false);
+                        } catch (CardException ignored) {
+                            // Ignorar error al desconectar tarjeta retirada
+                        }
                     }
                 }
             }
@@ -92,6 +100,23 @@ public class NfcServiceManager {
         if (executorService != null && !executorService.isShutdown()) {
             executorService.shutdownNow();
         }
+    }
+
+    private String readRealUid(CardChannel channel, Card card) {
+        try {
+            // APDU estándar PC/SC para obtener UID de tarjeta sin contacto (FF CA 00 00 00)
+            CommandAPDU getUidCmd = new CommandAPDU(0xFF, 0xCA, 0x00, 0x00, 0x00);
+            ResponseAPDU resp = channel.transmit(getUidCmd);
+            if (resp.getSW() == 0x9000 && resp.getData().length > 0) {
+                return bytesToHex(resp.getData());
+            }
+        } catch (Exception ignored) {
+            // Fallback en lectores que no soportan FF CA
+        }
+
+        // Fallback seguro: usar ATR solo si la APDU no responde
+        byte[] atrBytes = card.getATR().getBytes();
+        return "ATR-" + bytesToHex(atrBytes);
     }
 
     private byte[] readRawTelemetryBlocks(CardChannel channel) throws CardException {
@@ -106,12 +131,26 @@ public class NfcServiceManager {
         }
     }
 
-    public boolean isReaderConnected() {
+    /**
+     * Verifica si el terminal USB está reconocido y disponible por el sistema.
+     */
+    public boolean isReaderAvailable() {
+        return terminal != null;
+    }
+
+    /**
+     * Verifica si hay una tarjeta o tag NFC presente sobre el lector.
+     */
+    public boolean isTagPresent() {
         try {
             return terminal != null && terminal.isCardPresent();
         } catch (CardException e) {
             return false;
         }
+    }
+
+    public boolean isReaderConnected() {
+        return isReaderAvailable();
     }
 
     public boolean isScanningActive() {

@@ -3,9 +3,11 @@ package com.theojansen.nfc.model;
 import java.util.Arrays;
 
 /**
- * Objeto de dominio inmutable que encapsula las lecturas del robot en un instante determinado.
+ * Objeto de dominio inmutable que encapsula las lecturas del robot (Protocolo V2).
  */
 public final class RobotTelemetry {
+    private final int version;
+    private final int sequenceNumber;
     private final int[] ldrValues;
     private final double ldrAverage;
     private final LightDirection primaryLightDirection;
@@ -15,13 +17,16 @@ public final class RobotTelemetry {
     private final MotorState motorDirection;
     private final double operatingVoltage;
     private final int batteryLevelPercent;
+    private final boolean batteryValid;
     private final long timestamp;
     private final String tagUid;
 
-    public RobotTelemetry(int[] ldrValues, double ldrAverage, LightDirection primaryLightDirection,
-                          int servoPitchAngle, int servoYawAngle, int polarityReversalsCount,
-                          MotorState motorDirection, double operatingVoltage, int batteryLevelPercent,
-                          long timestamp, String tagUid) {
+    public RobotTelemetry(int version, int sequenceNumber, int[] ldrValues, double ldrAverage,
+                          LightDirection primaryLightDirection, int servoPitchAngle, int servoYawAngle,
+                          int polarityReversalsCount, MotorState motorDirection, double operatingVoltage,
+                          int batteryLevelPercent, boolean batteryValid, long timestamp, String tagUid) {
+        this.version = version;
+        this.sequenceNumber = sequenceNumber;
         this.ldrValues = ldrValues != null ? ldrValues.clone() : new int[0];
         this.ldrAverage = ldrAverage;
         this.primaryLightDirection = primaryLightDirection;
@@ -31,8 +36,27 @@ public final class RobotTelemetry {
         this.motorDirection = motorDirection;
         this.operatingVoltage = operatingVoltage;
         this.batteryLevelPercent = batteryLevelPercent;
+        this.batteryValid = batteryValid;
         this.timestamp = timestamp;
         this.tagUid = tagUid;
+    }
+
+    // Constructor de retrocompatibilidad
+    public RobotTelemetry(int[] ldrValues, double ldrAverage, LightDirection primaryLightDirection,
+                          int servoPitchAngle, int servoYawAngle, int polarityReversalsCount,
+                          MotorState motorDirection, double operatingVoltage, int batteryLevelPercent,
+                          long timestamp, String tagUid) {
+        this(2, 0, ldrValues, ldrAverage, primaryLightDirection, servoPitchAngle, servoYawAngle,
+                polarityReversalsCount, motorDirection, operatingVoltage, batteryLevelPercent,
+                operatingVoltage > 0.05, timestamp, tagUid);
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public int getSequenceNumber() {
+        return sequenceNumber;
     }
 
     public int[] getLdrValues() {
@@ -71,6 +95,10 @@ public final class RobotTelemetry {
         return batteryLevelPercent;
     }
 
+    public boolean isBatteryValid() {
+        return batteryValid;
+    }
+
     public long getTimestamp() {
         return timestamp;
     }
@@ -82,13 +110,16 @@ public final class RobotTelemetry {
     @Override
     public String toString() {
         return "RobotTelemetry{" +
-                "tagUid='" + tagUid + '\'' +
+                "version=" + version +
+                ", seq=" + sequenceNumber +
+                ", tagUid='" + tagUid + '\'' +
                 ", ldrAverage=" + ldrAverage +
-                ", primaryLightDirection=" + primaryLightDirection +
-                ", servoPitch=" + servoPitchAngle +
-                "°, servoYaw=" + servoYawAngle +
-                "°, voltage=" + operatingVoltage + "V" +
-                ", battery=" + batteryLevelPercent + "%" +
+                ", direction=" + primaryLightDirection +
+                ", motor=" + motorDirection +
+                ", pitch=" + servoPitchAngle + "°" +
+                ", yaw=" + servoYawAngle + "°" +
+                ", voltage=" + (batteryValid ? operatingVoltage + "V" : "N/D") +
+                ", battery=" + (batteryValid ? batteryLevelPercent + "%" : "N/D") +
                 '}';
     }
 }
