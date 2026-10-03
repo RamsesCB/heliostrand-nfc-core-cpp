@@ -1,6 +1,7 @@
 # 📜 Licencia Pública de Atribución Obligatoria, Uso Ético y Protección de Autoría (LICENSE.md)
 
 **Proyecto**: Heliostrand NFC Core  
+**Tipo de Licencia**: Source-Available con Atribución Obligatoria (HELS-AEL 1.0) — *Licencia institucional personalizada (no OSI-approved) para salvaguarda de autoría académica y prevención de apropiación indebida.*  
 **Titular del Derecho de Autor (Copyright Holder)**: RamsesCB & Colaboradores Oficiales del Proyecto  
 **Repositorio Oficial**: [https://github.com/RamsesCB/heliostrand-nfc-core-cpp](https://github.com/RamsesCB/heliostrand-nfc-core-cpp)  
 **Vigencia**: 2026 en adelante  

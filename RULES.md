@@ -40,20 +40,23 @@
 
 ---
 
-## 2. Invariante del Protocolo de Telemetría (CRC-8)
+## 2. Invariantes del Protocolo de Telemetría (Protocolo V2 & CRC-8)
 
 Cualquier propuesta que modifique la estructura binaria de la trama debe respetar estrictamente:
 
-1. **Longitud**: 12 bytes exactamente.
-2. **Endianness**: Little-Endian (Byte bajo primero) para campos de 16 bits.
+1. **Longitud Fija**: 12 bytes exactamente. Queda prohibida la aceptación de tramas de tamaño arbitrario.
+2. **Endianness**: Big-Endian (Byte más significativo primero) para magnitudes multibyte (ej. voltaje en milivoltios en Bytes 8 y 9).
 3. **Algoritmo CRC-8**:
-   - Polinomio: `0x07` ($x^8 + x^2 + x^1 + 1$)
-   - Valor inicial: `0x00`
+   - Polinomio canónico: `0x07` ($x^8 + x^2 + x^1 + 1$).
+   - Valor inicial: `0x00`.
    - Campo de verificación: Byte 11 (calculado sobre los primeros 11 bytes: 0 a 10).
-4. **Sincronización Triple**: Cualquier cambio debe actualizarse simultáneamente en:
+4. **Protección de Desgaste EEPROM**: Cualquier rutina de escritura hacia el transpondedor NFC NTAG213 debe implementar un filtro de estrangulamiento temporal (mínimo 30 segundos) o detección de cambio de estado delta, protegiendo el límite de vida útil de 100,000 ciclos de escritura.
+5. **Mapeo Físico Invariante**: Ninguna modificación de firmware debe reintroducir conflictos de pines sobre el bus SPI (`D4 CS`, `D11 MOSI`, `D12 MISO`, `D13 SCK`) ni sobre los canales analógicos (`A0-A3 LDR`, `A4 Batería`).
+6. **Sincronización Cuádruple**: Cualquier cambio de protocolo debe actualizarse y validarse simultáneamente en:
    - `include/TheoJansenTelemetry.h` y `src/TheoJansenTelemetry.cpp` (C++)
-   - `TheoJansenDataParser.java` (Java)
-   - `theo_jansen_data_parser.dart` (Dart)
+   - `TheoJansenDataParser.java` y `TheoJansenDataParserTest.java` (Java)
+   - `theo_jansen_data_parser.dart` y `theo_jansen_data_parser_test.dart` (Dart)
+   - `test/vectors/golden_telemetry_vectors.json` (Vectores Dorados de Referencia)
 
 ---
 
@@ -86,8 +89,9 @@ Los mensajes de confirmación deben seguir el formato:
 Antes de enviar un Pull Request, es obligatorio ejecutar y verificar localmente los siguientes comandos:
 
 ```bash
-# 1. Verificar Firmware Arduino
+# 1. Verificar Firmware Arduino (Compilación y Análisis Estático)
 pio run
+pio check --skip-packages
 
 # 2. Verificar y compilar Aplicación Java (Tests JUnit incluidos)
 cd AplicacionJava
