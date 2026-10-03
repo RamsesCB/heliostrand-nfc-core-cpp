@@ -21,7 +21,7 @@
   - `com.theojansen.nfc.model`: Clases de dominio inmutables o POJOs.
   - `com.theojansen.nfc.core`: Servicios de conexión PC/SC, listeners de eventos.
   - `com.theojansen.nfc.parser`: Parser binario y cálculo de CRC-8.
-  - `com.mycompany.aplicacionjava`: Controladores y vistas de la interfaz Swing.
+  - `com.ramsescb.heliostrand.desktop`: Controladores y vistas de la interfaz Swing.
 - **Concurrencia UI**: Toda mutación visual sobre componentes Swing **debe realizarse en el Event Dispatch Thread (EDT)**:
   ```java
   SwingUtilities.invokeLater(() -> {
@@ -50,7 +50,7 @@ Cualquier propuesta que modifique la estructura binaria de la trama debe respeta
    - Polinomio canónico: `0x07` ($x^8 + x^2 + x^1 + 1$).
    - Valor inicial: `0x00`.
    - Campo de verificación: Byte 11 (calculado sobre los primeros 11 bytes: 0 a 10).
-4. **Protección de Desgaste EEPROM**: Cualquier rutina de escritura hacia el transpondedor NFC NTAG213 debe implementar un filtro de estrangulamiento temporal (mínimo 30 segundos) o detección de cambio de estado delta, protegiendo el límite de vida útil de 100,000 ciclos de escritura.
+4. **Protección de Desgaste EEPROM**: Primera escritura inmediata; las posteriores requieren al menos 5 minutos y un cambio significativo, o 15 minutos para refresh sin cambios. sequenceNumber y CRC quedan excluidos del detector de cambios. Toda escritura se verifica mediante read-back antes de actualizar el estado del writer.
 5. **Mapeo Físico Invariante**: Ninguna modificación de firmware debe reintroducir conflictos de pines sobre el bus SPI (`D4 CS`, `D11 MOSI`, `D12 MISO`, `D13 SCK`) ni sobre los canales analógicos (`A0-A3 LDR`, `A4 Batería`).
 6. **Sincronización Cuádruple**: Cualquier cambio de protocolo debe actualizarse y validarse simultáneamente en:
    - `include/TheoJansenTelemetry.h` y `src/TheoJansenTelemetry.cpp` (C++)

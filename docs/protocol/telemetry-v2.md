@@ -1,72 +1,74 @@
-# 📡 Especificación Normativa: Protocolo de Telemetría Heliostrand V2
+# Heliostrand Telemetry Protocol V2 — Especificación normativa
 
-> **Documento Normativo**: Única fuente de la verdad para el empaquetado y decodificación binaria de telemetría.  
-> **Ámbito de Aplicación**: Firmware Arduino C++, Estación de Escritorio Java 21 y Aplicación Móvil Flutter.
+> Fuente única de verdad. Cualquier implementación C++, Java o Dart debe ajustarse a este documento y a test/vectors/golden_telemetry_vectors.json.
 
----
+## 1. Contrato binario
 
-## 1. Características Generales
+- Longitud: 12 bytes exactos.
+- Enteros de 16 bits: Big-Endian.
+- Integridad: CRC-8, polinomio 0x07, init 0x00, calculado sobre bytes 0..10.
+- Payload: 3 páginas de 4 bytes. Persistencia robusta: slot A en páginas 4-7 y slot B en páginas 8-11; la cuarta página de cada slot es un commit.
+- CRC-8 detecta errores accidentales; no es autenticación y no garantiza detectar toda modificación posible.
 
-- **Longitud Invariable**: 12 bytes exactamente ($D_0$ a $D_{11}$).
-- **Compatibilidad de Almacenamiento**: Compatible con 3 páginas de memoria de usuario (Páginas 4, 5 y 6) en etiquetas **NTAG213 / ISO 14443-A** (4 bytes por página).
-- **Endianness**: Big-Endian (Byte más significativo primero) para valores enteros de 16 bits.
-- **Checksum**: CRC-8 sobre los primeros 11 bytes ($D_0$ a $D_{10}$) con polinomio canónico `0x07`.
+| Offset | Campo | Tipo | Semántica normativa |
+|---|---|---|---|
+| 0 | headerFlags | uint8 | bits 7-6: versión (0b10=V2); bits 5-4: motor (00 detenido, 01 adelante, 10 atrás, 11 reservado); bits 3-0: luz (0 equilibrado, 1 norte, 2 sur, 3 este, 4 oeste; 5..15 reservados) |
+| 1 | sequenceNumber | uint8 | contador circular del productor, 0..255 |
+| 2 | ldrNorth | uint8 | ADC de 10 bits cuantizado con raw >> 2 |
+| 3 | ldrSouth | uint8 | idem |
+| 4 | ldrWest | uint8 | idem |
+| 5 | ldrEast | uint8 | idem |
+| 6 | servoPitch | uint8 | protocolo 0..180 grados; firmware actual 15..165 |
+| 7 | servoYaw | uint8 | protocolo 0..180 grados; firmware actual 10..170 |
+| 8-9 | batteryMilliVolts | uint16 BE | 0 = no disponible; campo 0..65535; hardware 1S admite 2500..5000 mV y opera nominalmente en 3000..4200 mV |
+| 10 | polarityReversals | uint8 | inversiones directas ADELANTE ↔ ATRÁS |
+| 11 | crc8 | uint8 | CRC-8 de bytes 0..10 |
 
----
+## 2. Validación obligatoria
 
-## 2. Estructura de la Trama de 12 Bytes
+El receptor debe, en este orden:
 
-| Offset | Nombre del Campo | Tipo | Rango Físico / Valores | Descripción / Máscara de Bits |
-| :---: | :--- | :---: | :---: | :--- |
-| `Byte 0` | `headerFlags` | `uint8_t` | `0x00 - 0xFF` | **Bits 7-6**: Protocol Version (`0b10` = V2)<br>**Bits 5-4**: Estado Motor (`00`=DETENIDO, `01`=ADELANTE, `10`=ATRAS)<br>**Bits 3-0**: Dirección Luz (`0`=EQUILIBRADO, `1`=NORTE, `2`=SUR, `3`=ESTE, `4`=OESTE) |
-| `Byte 1` | `sequenceNumber` | `uint8_t` | `0 - 255` | Contador incremental circular de tramas (detección de frescura en lecturas NFC). |
-| `Byte 2` | `ldrNorth` | `uint8_t` | `0 - 255` | Intensidad lumínica Norte (ADC 10 bits cuantizado con shift a la derecha `raw >> 2`). |
-| `Byte 3` | `ldrSouth` | `uint8_t` | `0 - 255` | Intensidad lumínica Sur (`raw >> 2`). |
-| `Byte 4` | `ldrWest` | `uint8_t` | `0 - 255` | Intensidad lumínica Oeste (`raw >> 2`). |
-| `Byte 5` | `ldrEast` | `uint8_t` | `0 - 255` | Intensidad lumínica Este (`raw >> 2`). |
-| `Byte 6` | `servoPitch` | `uint8_t` | $0 - 180^\circ$ | Ángulo de elevación vertical del seguidor solar. |
-| `Byte 7` | `servoYaw` | `uint8_t` | $0 - 180^\circ$ | Ángulo de azimut horizontal del seguidor solar. |
-| `Bytes 8-9`| `batteryMilliVolts`| `uint16_t` (BE)| $0 - 6000\text{ mV}$ | Tensión real de batería en milivoltios. Byte 8: MSB, Byte 9: LSB.<br>**Nota**: Un valor de `0` indica sensor desconectado / no disponible. |
-| `Byte 10` | `polarityReversals`| `uint8_t` | `0 - 255` | Contador acumulado de inversiones directas de marcha (`ADELANTE \leftrightarrow ATRAS`). |
-| `Byte 11` | `crc8` | `uint8_t` | `0x00 - 0xFF` | Verificación de redundancia cíclica calculada sobre Bytes 0 a 10. |
+1. Exigir length == 12.
+2. Verificar CRC-8.
+3. Exigir version == 2.
+4. Rechazar motorCode == 3.
+5. Rechazar lightDirection fuera de 0..4.
+6. Rechazar ángulos mayores a 180.
+7. Aceptar batería 0 como N/D; si es distinta de cero, exigir 2500..5000 mV.
 
----
+Java y Dart implementan estas reglas con excepciones explícitas. Los mismos vectores JSON se consumen en C++, Java y Dart.
 
-## 3. Algoritmo de Verificación CRC-8
+## 3. Frescura
 
-El algoritmo de redundancia cíclica opera con:
-- **Polinomio Generador**: $P(x) = x^8 + x^2 + x^1 + 1$ (`0x07`)
-- **Valor Inicial**: `0x00`
-- **Operación**: Desplazamiento a la izquierda con XOR condicional ante el bit 7.
+sequenceNumber identifica una muestra distinta de la última observada para el mismo UID. Los clientes mantienen el último número de secuencia por tag y no vuelven a insertar una lectura si el mismo UID conserva la misma secuencia.
 
-```text
-Entrada: Buffer D[0..10]
-Salida: Checksum esperado en D[11]
+La secuencia es modular y no es un reloj absoluto. El timestamp creado por un cliente significa hora de recepción, no hora física de captura.
 
-crc = 0x00
-para cada byte b en D[0..10]:
-    crc ^= b
-    para i de 0 a 7:
-        si (crc & 0x80) != 0:
-            crc = (crc << 1) ^ 0x07
-        sino:
-            crc = (crc << 1)
-        crc &= 0xFF
-retornar crc
-```
+## 4. CRC-8
 
----
+Algoritmo:
 
-## 4. Reglas Semánticas y Validación en Clientes
+    crc = 0x00
+    for byte in D[0..10]:
+        crc ^= byte
+        repeat 8:
+            if crc & 0x80:
+                crc = ((crc << 1) ^ 0x07) & 0xFF
+            else:
+                crc = (crc << 1) & 0xFF
 
-Cualquier parser (Java, Dart o C++) debe aplicar obligatoriamente dos niveles de validación secuencial:
+## 5. Persistencia NTAG213
 
-1. **Nivel 1: Integridad Física de la Trama**:
-   - Longitud estricta: `buffer.length == 12` (rechazar tramas menores o mayores).
-   - Verificación CRC: Si $\text{CRC-8}(D_0 \dots D_{10}) \neq D_{11}$, rechazar la trama y lanzar `CorruptedPayloadException`.
+Cada slot ocupa cuatro páginas: tres de payload y una de commit. El writer alterna entre slot A (4-7) y slot B (8-11). El slot anterior permanece válido mientras se escribe el nuevo; el commit se escribe al final. El firmware reduce el riesgo mediante:
 
-2. **Nivel 2: Validación Semántica de Límites Físicos**:
-   - Versión de protocolo: Bits 7-6 del Byte 0 deben corresponder a versión soportada (`2`).
-   - Ángulos de servos: `servoPitch <= 180` y `servoYaw <= 180`.
-   - Tensión de batería: Si `batteryMilliVolts > 0`, debe estar dentro del rango admisible ($2500 - 5500\text{ mV}$). Si está fuera de rango, lanzar `InvalidTelemetryException`.
-   - Si `batteryMilliVolts == 0`, la UI debe mostrar estado "N/D" (Sensor Desconectado) sin fabricar porcentajes ficticios.
+- validación del Capability Container NTAG213 E1 10 12;
+- bloqueo al primer UID NTAG213 válido detectado durante el arranque;
+- escritura inicial inmediata;
+- intervalo mínimo de 5 minutos entre escrituras posteriores;
+- refresh de un estado sin cambios solo después de 15 minutos;
+- detección de cambios significativos sobre estado, LDR, servos, batería e inversiones;
+- exclusión deliberada de sequenceNumber y crc8 del detector de cambios;
+- read-after-write del payload antes del commit y verificación posterior del commit;\n- selección por contador de generación modular, con fallback al slot anterior válido;
+- backoff de reintentos ante fallo.
+
+El CRC se usa solo para integridad, nunca como detector de cambio de estado.

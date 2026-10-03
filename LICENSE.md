@@ -44,10 +44,9 @@ El incumplimiento de cualquiera de las cláusulas anteriores constituye una viol
 
 ---
 
-## 5. Distribución Oficial en Google Play Store y Transparencia
+## 5. Privacidad y distribución
 
-1. Se hace constar que la versión móvil oficial de este ecosistema se distribuye de manera pública y transparente a través de la plataforma **Google Play Store**.
-2. Dicha aplicación cumple con todas las políticas de privacidad y protección al usuario, opera sin recopilación encubierta de datos personales y garantiza que el tratamiento de las señales de telemetría NFC se realice con fines exclusivamente de monitoreo robótico, conforme a lo establecido en [PRIVACY_POLICY.md](heliostrand_app/PRIVACY_POLICY.md).
+La publicación de binarios en tiendas o canales de terceros, si se realiza, está sujeta a las políticas vigentes de esas plataformas. Esta licencia no certifica una publicación, aprobación o cumplimiento de una tienda específica. La política funcional de privacidad se mantiene en heliostrand_app/PRIVACY_POLICY.md.
 
 ---
 
