@@ -6,3 +6,5 @@
 *.o
 *.elf
 *.hex
+**/target/
+.nb-gradle/
