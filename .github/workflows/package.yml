@@ -24,14 +24,13 @@ jobs:
           server-id: github
           settings-path: ${{ github.workspace }}
 
-      - name: Build and Test Java Desktop App
+      - name: Build and Package Java Desktop App
         run: |
           cd AplicacionJava
           mvn clean test package
 
-      - name: Publish to GitHub Packages
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          cd AplicacionJava
-          mvn deploy -DskipTests -s ${{ github.workspace }}/settings.xml
+      - name: Upload Java Executable JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: AplicacionJava-Desktop
+          path: AplicacionJava/target/*-jar-with-dependencies.jar
