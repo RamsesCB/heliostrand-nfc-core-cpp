@@ -13,6 +13,16 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+val releaseTaskRequested = gradle.startParameter.taskNames.any {
+    it.contains("release", ignoreCase = true)
+}
+if (releaseTaskRequested && !keystorePropertiesFile.exists()) {
+    throw org.gradle.api.GradleException(
+        "Release build requested but android/key.properties is missing. " +
+            "Configure a production keystore; debug signing is never used for release."
+    )
+}
+
 android {
     namespace = "com.theojansen.heliostrand_app"
     compileSdk = flutter.compileSdkVersion

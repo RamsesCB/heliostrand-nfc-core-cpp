@@ -1,7 +1,7 @@
-# Configuración de Firma de Producción para Google Play Store
-# Renombra este archivo a 'key.properties' en esta misma carpeta y completa tus credenciales:
+# Production release signing template.
+# Copy to android/key.properties locally. Never commit real credentials.
 
-storePassword=TU_PASSWORD_DE_KEYSTORE
-keyPassword=TU_PASSWORD_DEL_ALIAS
+storePassword=CHANGE_ME
+keyPassword=CHANGE_ME
 keyAlias=upload
-storeFile=/home/ramsescb/upload-keystore.jks
+storeFile=upload-keystore.jks
