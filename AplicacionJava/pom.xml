@@ -17,6 +17,13 @@
         <maven.compiler.release>21</maven.compiler.release>
         <exec.mainClass>com.mycompany.aplicacionjava.Main</exec.mainClass>
     </properties>
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/RamsesCB/heliostrand-nfc-core-cpp</url>
+        </repository>
+    </distributionManagement>
     <dependencies>
         <!-- Motor Grafico Estadistico JFreeChart -->
         <dependency>
