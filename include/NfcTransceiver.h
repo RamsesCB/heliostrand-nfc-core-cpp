@@ -2,25 +2,38 @@
 #define NFC_TRANSCEIVER_H
 
 #include <Arduino.h>
+#include <SPI.h>
+#include <Adafruit_PN532.h>
+#include "TelemetryTransport.h"
 #include "TheoJansenConfig.h"
 #include "TheoJansenTelemetry.h"
 
-class NfcTransceiver {
+/**
+ * Transceptor NFC para controlador PN532 en bus SPI Hardware.
+ * Implementa grabación controlada de páginas 4, 5 y 6 en NTAG213 con política anti-desgaste.
+ */
+class NfcTransceiver : public TelemetryTransport {
 public:
     NfcTransceiver();
 
-    void begin();
-    
-    // Transmite el búfer de 12 bytes al transpondedor NFC y a través de USB Serial
+    bool begin() override;
+    bool publish(const uint8_t *payload, size_t length) override;
+
+    // Métodos de compatibilidad y diagnóstico
     void publishTelemetry(const uint8_t *payload12Bytes);
-
-    // Muestra un resumen legible en Serial Monitor
     void printHumanReadable(const TelemetryPacket &packet, const uint8_t *payload12Bytes);
-
-    // Procesa comandos entrantes desde el puerto Serial
     bool checkSerialCommands(char &outCommand);
 
+    bool isHardwareDetected() const { return pn532Detected; }
+    uint32_t getFirmwareVersion() const { return firmwareVersion; }
+
 private:
+    Adafruit_PN532 nfc;
+    bool pn532Detected;
+    uint32_t firmwareVersion;
+    unsigned long lastWriteMillis;
+    uint8_t lastWrittenCrc;
+
     void printHexByte(uint8_t b);
 };
 

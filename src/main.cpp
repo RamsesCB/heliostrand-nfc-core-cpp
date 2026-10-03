@@ -47,8 +47,8 @@ void loop() {
         // Empaquetar en los 12 bytes con CRC-8
         packTelemetry(snapshot, telemetryBuffer);
 
-        // Publicar por NFC y enlace Serial para la aplicación Java
-        nfc.publishTelemetry(telemetryBuffer);
+        // Publicar por NFC (con control anti-desgaste) y enlace Serial
+        nfc.publish(telemetryBuffer, TELEMETRY_PAYLOAD_SIZE);
         nfc.printHumanReadable(snapshot, telemetryBuffer);
 
         // Parpadeo de latido (Heartbeat) en el LED

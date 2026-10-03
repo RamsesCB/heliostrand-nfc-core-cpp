@@ -18,33 +18,41 @@ uint8_t computeCRC8(const uint8_t *data, size_t length) {
 void packTelemetry(const TelemetryPacket &packet, uint8_t *buffer) {
     if (!buffer) return;
 
-    // Bytes 0 a 3: Sensores LDR (uint8)
-    buffer[0] = packet.ldrNorte;
-    buffer[1] = packet.ldrSur;
-    buffer[2] = packet.ldrOeste;
-    buffer[3] = packet.ldrEste;
+    // Byte 0: Version (Bits 7-6) | MotorState (Bits 5-4) | LightDirection (Bits 3-0)
+    uint8_t ver = (packet.version & 0x03) << 6;
+    uint8_t mot = ((uint8_t)packet.motorState & 0x03) << 4;
+    uint8_t dir = (uint8_t)packet.lightDirection & 0x0F;
+    buffer[0] = ver | mot | dir;
 
-    // Bytes 4 y 5: Ángulos de servomotores (uint8)
-    buffer[4] = packet.servoPitch;
-    buffer[5] = packet.servoYaw;
+    // Byte 1: Número de secuencia (0 a 255)
+    buffer[1] = packet.sequenceNumber;
 
-    // Bytes 6 y 7: Inversiones de polaridad (uint16 Big-Endian)
-    buffer[6] = (uint8_t)((packet.polarityReversals >> 8) & 0xFF);
-    buffer[7] = (uint8_t)(packet.polarityReversals & 0xFF);
+    // Bytes 2 a 5: Sensores LDR (uint8)
+    buffer[2] = packet.ldrNorte;
+    buffer[3] = packet.ldrSur;
+    buffer[4] = packet.ldrOeste;
+    buffer[5] = packet.ldrEste;
 
-    // Bytes 8 y 9: Voltaje de operación en milivoltios (uint16 Big-Endian)
-    buffer[8] = (uint8_t)((packet.voltageMilliVolts >> 8) & 0xFF);
-    buffer[9] = (uint8_t)(packet.voltageMilliVolts & 0xFF);
+    // Bytes 6 y 7: Ángulos de servomotores (uint8, 0 a 180 deg)
+    buffer[6] = packet.servoPitch;
+    buffer[7] = packet.servoYaw;
 
-    // Byte 10: Porcentaje de batería (uint8)
-    buffer[10] = packet.batteryPercent;
+    // Bytes 8 y 9: Voltaje de batería en milivoltios (uint16 Big-Endian)
+    // Si la lectura no es válida, se transmite 0
+    uint16_t vToSend = packet.batteryValid ? packet.voltageMilliVolts : 0;
+    buffer[8] = (uint8_t)((vToSend >> 8) & 0xFF);
+    buffer[9] = (uint8_t)(vToSend & 0xFF);
+
+    // Byte 10: Inversiones de polaridad (uint8)
+    buffer[10] = packet.polarityReversals;
 
     // Byte 11: Checksum CRC-8 calculado sobre los primeros 11 bytes (0..10)
     buffer[11] = computeCRC8(buffer, 11);
 }
 
 bool verifyTelemetryCRC(const uint8_t *buffer, size_t length) {
-    if (!buffer || length < TELEMETRY_PAYLOAD_SIZE) return false;
+    // Contrato estricto: requiere exactamente TELEMETRY_PAYLOAD_SIZE (12 bytes)
+    if (!buffer || length != TELEMETRY_PAYLOAD_SIZE) return false;
     uint8_t expected = computeCRC8(buffer, 11);
     return (buffer[11] == expected);
 }

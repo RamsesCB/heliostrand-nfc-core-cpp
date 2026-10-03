@@ -6,12 +6,6 @@
 #include "TheoJansenConfig.h"
 #include "TheoJansenTelemetry.h"
 
-enum TheoJansenMotorState {
-    MOTOR_ADELANTE = 0,
-    MOTOR_ATRAS = 1,
-    MOTOR_DETENIDO = 2
-};
-
 class SolarTracker {
 public:
     SolarTracker();
@@ -27,8 +21,9 @@ public:
 
     uint8_t getPitchAngle() const { return currentPitch; }
     uint8_t getYawAngle() const { return currentYaw; }
-    uint16_t getReversalsCount() const { return polarityReversals; }
+    uint8_t getReversalsCount() const { return polarityReversals; }
     TheoJansenMotorState getMotorState() const { return motorState; }
+    TheoJansenLightDirection getLightDirection() const { return lightDirection; }
 
 private:
     Servo pitchServo;
@@ -44,12 +39,16 @@ private:
 
     uint16_t voltageMilliVolts;
     uint8_t batteryPercent;
+    bool batteryValid;
 
-    uint16_t polarityReversals;
+    uint8_t polarityReversals;
+    uint8_t sequenceNumber;
     TheoJansenMotorState motorState;
+    TheoJansenLightDirection lightDirection;
 
     uint8_t readLdr8Bit(uint8_t pin);
     void readPowerSensors();
+    void computeLightDirection();
 };
 
 #endif // SOLAR_TRACKER_H
