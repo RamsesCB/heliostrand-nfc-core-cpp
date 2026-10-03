@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "protocol": "Heliostrand Telemetry Protocol V2",
+  "payload_size_bytes": 12,
+  "polynomial": "0x07",
+  "vectors": [
+    {
+      "id": "vector_01_nominal_forward_east",
+      "description": "Condición nominal soleada con marcha adelante hacia el este",
+      "hex": "9301647882915A5C0F0A026A",
+      "expected": {
+        "version": 2,
+        "motor_state": "FORWARD",
+        "light_direction": "EAST",
+        "sequence_number": 1,
+        "ldr_north": 100,
+        "ldr_south": 120,
+        "ldr_west": 130,
+        "ldr_east": 145,
+        "servo_pitch": 90,
+        "servo_yaw": 92,
+        "battery_millivolts": 3850,
+        "battery_valid": true,
+        "polarity_reversals": 2,
+        "crc8": 106,
+        "valid": true
+      }
+    },
+    {
+      "id": "vector_02_stopped_balanced",
+      "description": "Robot detenido bajo iluminación solar equilibrada",
+      "hex": "8002969696965A5A1004009F",
+      "expected": {
+        "version": 2,
+        "motor_state": "STOPPED",
+        "light_direction": "BALANCED",
+        "sequence_number": 2,
+        "ldr_north": 150,
+        "ldr_south": 150,
+        "ldr_west": 150,
+        "ldr_east": 150,
+        "servo_pitch": 90,
+        "servo_yaw": 90,
+        "battery_millivolts": 4100,
+        "battery_valid": true,
+        "polarity_reversals": 0,
+        "crc8": 159,
+        "valid": true
+      }
+    },
+    {
+      "id": "vector_03_reverse_south_lowbat",
+      "description": "Marcha atrás hacia el sur con batería baja (3300 mV)",
+      "hex": "A20A32DC50462D870CE4053A",
+      "expected": {
+        "version": 2,
+        "motor_state": "REVERSE",
+        "light_direction": "SOUTH",
+        "sequence_number": 10,
+        "ldr_north": 50,
+        "ldr_south": 220,
+        "ldr_west": 80,
+        "ldr_east": 70,
+        "servo_pitch": 45,
+        "servo_yaw": 135,
+        "battery_millivolts": 3300,
+        "battery_valid": true,
+        "polarity_reversals": 5,
+        "crc8": 58,
+        "valid": true
+      }
+    },
+    {
+      "id": "vector_04_battery_disconnected",
+      "description": "Sensor de batería desconectado (0 mV, sensor inválido)",
+      "hex": "8014646464645A5A000001AA",
+      "expected": {
+        "version": 2,
+        "motor_state": "STOPPED",
+        "light_direction": "BALANCED",
+        "sequence_number": 20,
+        "ldr_north": 100,
+        "ldr_south": 100,
+        "ldr_west": 100,
+        "ldr_east": 100,
+        "servo_pitch": 90,
+        "servo_yaw": 90,
+        "battery_millivolts": 0,
+        "battery_valid": false,
+        "polarity_reversals": 1,
+        "crc8": 170,
+        "valid": true
+      }
+    },
+    {
+      "id": "vector_05_corrupted_crc",
+      "description": "Trama con checksum corrupto (debe ser rechazada)",
+      "hex": "9301647882915A5C0F0A02FF",
+      "expected": {
+        "valid": false,
+        "error_type": "CORRUPTED_CRC"
+      }
+    }
+  ]
+}
