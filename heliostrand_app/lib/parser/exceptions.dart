@@ -6,6 +6,14 @@ class CorruptedPayloadException implements Exception {
   String toString() => 'CorruptedPayloadException: $message';
 }
 
+class InvalidTelemetryException implements Exception {
+  final String message;
+  const InvalidTelemetryException(this.message);
+
+  @override
+  String toString() => 'InvalidTelemetryException: $message';
+}
+
 class NfcDeviceException implements Exception {
   final String message;
   final dynamic cause;

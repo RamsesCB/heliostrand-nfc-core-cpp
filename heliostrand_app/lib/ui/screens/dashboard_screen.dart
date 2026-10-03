@@ -43,12 +43,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _setupListeners();
   }
 
+  void _addToHistory(RobotTelemetry telemetry) {
+    _history.add(telemetry);
+    if (_history.length > 500) {
+      _history.removeAt(0);
+    }
+  }
+
   void _setupListeners() {
     // Escucha de telemetría real NFC
     _telemetrySub = _nfcService.onTelemetryReceived.listen((telemetry) {
       setState(() {
         _latestTelemetry = telemetry;
-        _history.add(telemetry);
+        _addToHistory(telemetry);
         _statusMessage = 'Telemetría NFC recibida (${telemetry.tagUid})';
       });
     });
@@ -57,7 +64,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _simTelemetrySub = _simulationService.telemetryStream.listen((telemetry) {
       setState(() {
         _latestTelemetry = telemetry;
-        _history.add(telemetry);
+        _addToHistory(telemetry);
       });
     });
 
@@ -201,10 +208,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
           if (_history.isNotEmpty)
-            IconButton(
+            PopupMenuButton<String>(
               icon: const Icon(Icons.share, size: 20),
-              tooltip: 'Exportar Reporte JSON',
-              onPressed: () => ReportService.shareReport(_history),
+              tooltip: 'Exportar Reporte',
+              onSelected: (val) {
+                if (val == 'csv') {
+                  ReportService.shareCsvReport(_history);
+                } else {
+                  ReportService.shareReport(_history);
+                }
+              },
+              itemBuilder: (ctx) => [
+                const PopupMenuItem(
+                  value: 'json',
+                  child: Row(
+                    children: [
+                      Icon(Icons.data_object, size: 18),
+                      SizedBox(width: 8),
+                      Text('Exportar JSON'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'csv',
+                  child: Row(
+                    children: [
+                      Icon(Icons.table_chart, size: 18),
+                      SizedBox(width: 8),
+                      Text('Exportar CSV'),
+                    ],
+                  ),
+                ),
+              ],
             ),
         ],
       ),
