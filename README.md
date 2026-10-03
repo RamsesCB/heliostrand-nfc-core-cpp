@@ -15,11 +15,11 @@
 
 ### 📥 Enlaces Directos de Descarga (Releases)
 
-| Plataforma | Binario / Instalador | Estado & Requisitos | Enlace de Descarga |
+| Plataforma | Binario / Instalador | Estado & Requisitos | Enlace de Descarga Directa |
 | :--- | :--- | :--- | :---: |
-| 📱 **App Móvil (Android)** | `heliostrand-app.apk` | Android 7.0+ (NFC activado) | [⬇️ **Descargar APK Android**](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/releases/latest/download/heliostrand-app.apk) |
-| ☕ **App Desktop (PC/Mac/Linux)** | `AplicacionJava-1.0-SNAPSHOT-jar-with-dependencies.jar` | Java 21 LTS (Standalone) | [⬇️ **Descargar JAR Desktop**](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/releases/latest/download/AplicacionJava-1.0-SNAPSHOT-jar-with-dependencies.jar) |
-| 📦 **Repositorio de Releases** | Códigos fuente y activos empaquetados | GitHub Releases | [📂 **Ver todas las versiones**](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/releases) |
+| 📱 **App Móvil (Android)** | `heliostrand-app.apk` | Android 7.0+ (NFC activado) | [⬇️ **Descargar APK Android**](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/releases/download/v1.0.0/heliostrand-app.apk) |
+| ☕ **App Desktop (PC/Mac/Linux)** | `AplicacionJava-1.0-SNAPSHOT-jar-with-dependencies.jar` | Java 21 LTS (Standalone) | [⬇️ **Descargar JAR Desktop**](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/releases/download/v1.0.0/AplicacionJava-1.0-SNAPSHOT-jar-with-dependencies.jar) |
+| 📦 **Repositorio de Releases** | Registro de binarios y notas | GitHub Releases | [📂 **Ver Release v1.0.0**](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/releases/tag/v1.0.0) |
 
 ---
 
