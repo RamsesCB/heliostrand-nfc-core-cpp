@@ -53,6 +53,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void _setupListeners() {
     // Escucha de telemetría real NFC
     _telemetrySub = _nfcService.onTelemetryReceived.listen((telemetry) {
+      if (!mounted) return;
       setState(() {
         _latestTelemetry = telemetry;
         _addToHistory(telemetry);
@@ -62,6 +63,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     // Escucha de simulación
     _simTelemetrySub = _simulationService.telemetryStream.listen((telemetry) {
+      if (!mounted) return;
       setState(() {
         _latestTelemetry = telemetry;
         _addToHistory(telemetry);
@@ -70,6 +72,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     // Estados y errores
     _statusSub = _nfcService.onStatusChanged.listen((msg) {
+      if (!mounted) return;
       setState(() => _statusMessage = msg);
     });
 
@@ -92,7 +95,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _simulationService.stop();
       } else {
         await _nfcService.stopScan();
+        if (!mounted) return;
       }
+      if (!mounted) return;
       setState(() {
         _isScanning = false;
         _statusMessage = 'Escaneo pausado.';
@@ -107,8 +112,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         });
       } else {
         final available = await _nfcService.isNfcAvailable();
+        if (!mounted) return;
         if (!available) {
-          if (!mounted) return;
           _showNfcUnavailableDialog();
           return;
         }
@@ -163,7 +168,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _simTelemetrySub?.cancel();
     _statusSub?.cancel();
     _errorSub?.cancel();
-    _nfcService.dispose();
+    unawaited(_nfcService.dispose());
     _simulationService.dispose();
     super.dispose();
   }
@@ -177,8 +182,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final yaw = _latestTelemetry?.servoYawAngle ?? 90;
     final motorState = _latestTelemetry?.motorDirection ?? MotorState.detenido;
     final reversals = _latestTelemetry?.polarityReversalsCount ?? 0;
-    final voltage = _latestTelemetry?.operatingVoltage ?? 5.0;
-    final battery = _latestTelemetry?.batteryLevelPercent ?? 100;
+    final voltage = _latestTelemetry?.operatingVoltage ?? 0.0;
+    final battery = _latestTelemetry?.batteryLevelPercent ?? 0;
+    final batteryValid = _latestTelemetry?.batteryValid ?? false;
 
     return Scaffold(
       appBar: AppBar(
@@ -272,6 +278,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               reversals: reversals,
               voltage: voltage,
               battery: battery,
+              batteryValid: batteryValid,
             ),
             const SizedBox(height: 12),
 

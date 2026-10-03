@@ -1,17 +1,31 @@
-# heliostrand_app
+# Heliostrand Mobile
 
-A new Flutter project.
+Cliente Flutter del sistema Heliostrand NFC Core.
 
-## Getting Started
+## Responsabilidades
 
-This project is a starting point for a Flutter application.
+- leer los dos slots de telemetría del NTAG213;
+- validar commit, generación, CRC-8 y semántica del Protocolo V2;
+- elegir el slot válido más reciente y usar el anterior como fallback;
+- deduplicar muestras por UID + sequenceNumber;
+- mostrar batería desconectada como N/D;
+- conservar hasta 500 muestras en memoria;
+- exportar JSON y CSV;
+- ofrecer un generador sintético coherente con V2.
 
-A few resources to get you started if this is your first Flutter project:
+## Entorno de referencia
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+- Flutter 3.47.2
+- Dart 3.13.2
+- Android con NFC para lectura real
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Verificación
+
+    flutter pub get
+    flutter analyze
+    flutter test
+    flutter build apk --debug
+
+Los builds release requieren android/key.properties y una keystore de producción. No existe fallback a firma debug.
+
+La especificación normativa del protocolo está en ../docs/protocol/telemetry-v2.md.

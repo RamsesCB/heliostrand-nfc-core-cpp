@@ -8,6 +8,7 @@ class MotorBatteryCard extends StatelessWidget {
   final int reversals;
   final double voltage;
   final int battery;
+  final bool batteryValid;
 
   const MotorBatteryCard({
     super.key,
@@ -15,27 +16,37 @@ class MotorBatteryCard extends StatelessWidget {
     required this.reversals,
     required this.voltage,
     required this.battery,
+    required this.batteryValid,
   });
 
   @override
   Widget build(BuildContext context) {
+    final batteryColor =
+        batteryValid ? _getBatteryColor(battery) : Colors.white54;
+
     return Row(
       children: [
-        // Tarjeta de Tracción Theo Jansen
         Expanded(
           child: Card(
             child: Padding(
-              padding: const EdgeInsets.all(14.0),
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.directions_walk, color: SolarTrackerTheme.accentGreen, size: 18),
+                      Icon(
+                        Icons.directions_walk,
+                        color: SolarTrackerTheme.accentGreen,
+                        size: 18,
+                      ),
                       SizedBox(width: 6),
                       Text(
                         'Theo Jansen',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
                     ],
                   ),
@@ -62,7 +73,10 @@ class MotorBatteryCard extends StatelessWidget {
                   const SizedBox(height: 10),
                   Text(
                     'Inversiones: $reversals',
-                    style: const TextStyle(fontSize: 12, color: Colors.white70),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.white70,
+                    ),
                   ),
                 ],
               ),
@@ -70,21 +84,27 @@ class MotorBatteryCard extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        // Tarjeta de Potencia y Batería
         Expanded(
           child: Card(
             child: Padding(
-              padding: const EdgeInsets.all(14.0),
+              padding: const EdgeInsets.all(14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.bolt, color: SolarTrackerTheme.primaryAmber, size: 18),
+                      Icon(
+                        Icons.bolt,
+                        color: SolarTrackerTheme.primaryAmber,
+                        size: 18,
+                      ),
                       SizedBox(width: 6),
                       Text(
                         'Potencia',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
                     ],
                   ),
@@ -93,7 +113,7 @@ class MotorBatteryCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '${voltage.toStringAsFixed(2)} V',
+                        batteryValid ? '${voltage.toStringAsFixed(2)} V' : 'N/D',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -103,15 +123,17 @@ class MotorBatteryCard extends StatelessWidget {
                       Row(
                         children: [
                           Icon(
-                            _getBatteryIcon(battery),
+                            batteryValid
+                                ? _getBatteryIcon(battery)
+                                : Icons.battery_unknown,
                             size: 16,
-                            color: _getBatteryColor(battery),
+                            color: batteryColor,
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '$battery%',
+                            batteryValid ? '$battery%' : 'N/D',
                             style: TextStyle(
-                              color: _getBatteryColor(battery),
+                              color: batteryColor,
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
                             ),
@@ -124,10 +146,12 @@ class MotorBatteryCard extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: (battery / 100.0).clamp(0.0, 1.0),
+                      value: batteryValid
+                          ? (battery / 100.0).clamp(0.0, 1.0)
+                          : 0.0,
                       minHeight: 6,
                       backgroundColor: Colors.white12,
-                      valueColor: AlwaysStoppedAnimation<Color>(_getBatteryColor(battery)),
+                      valueColor: AlwaysStoppedAnimation<Color>(batteryColor),
                     ),
                   ),
                 ],
