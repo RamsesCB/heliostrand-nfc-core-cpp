@@ -100,7 +100,7 @@ Versión de referencia: Flutter 3.47.2.
     flutter test
     flutter build apk --debug
 
-Un build release exige android/key.properties y una clave de producción. No existe fallback a firma debug.
+Un build release exige android/key.properties y una clave de firma configurada explícitamente. No existe fallback automático a firma debug. Para v1.1.0 se conserva el mismo certificado de v1.0.0 para mantener compatibilidad de actualización.
 
 ## Contratos de cliente
 
@@ -116,6 +116,19 @@ Java y Flutter:
 - limitan el historial UI a 500 muestras.
 
 Los tests Java y Dart leen directamente el JSON normativo. C++ genera su cabecera de prueba desde ese mismo archivo.
+
+## Descargas v1.1.0
+
+Cuando el tag v1.1.0 esté publicado, estos enlaces apuntan a los artefactos construidos desde ese mismo commit:
+
+- [Android APK](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/releases/download/v1.1.0/heliostrand-app.apk)
+- [Java 21 JAR](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/releases/download/v1.1.0/AplicacionJava-1.1.0-jar-with-dependencies.jar)
+- [Firmware Arduino HEX](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/releases/download/v1.1.0/heliostrand-firmware.hex)
+- [SHA-256 checksums](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/releases/download/v1.1.0/SHA256SUMS.txt)
+
+El artefacto Java también se publica en GitHub Packages con coordenadas Maven:
+
+    com.github.ramsescb:AplicacionJava:1.1.0
 
 ## Release 1.1.0
 

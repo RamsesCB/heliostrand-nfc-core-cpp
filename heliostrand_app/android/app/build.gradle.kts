@@ -19,7 +19,7 @@ val releaseTaskRequested = gradle.startParameter.taskNames.any {
 if (releaseTaskRequested && !keystorePropertiesFile.exists()) {
     throw org.gradle.api.GradleException(
         "Release build requested but android/key.properties is missing. " +
-            "Configure a production keystore; debug signing is never used for release."
+            "Configure an explicit release signing keystore; no automatic debug-signing fallback is allowed."
     )
 }
 
