@@ -25,7 +25,7 @@ android {
 
     defaultConfig {
         applicationId = "com.theojansen.heliostrand_app"
-        minSdk = 21 // Soporte para Android 5.0+ con NFC
+        minSdk = flutter.minSdkVersion // Soporte para Android 5.0+ con NFC
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
