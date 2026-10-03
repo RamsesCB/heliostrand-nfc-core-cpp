@@ -128,7 +128,7 @@ Cuando el tag v1.1.0 esté publicado, estos enlaces apuntan a los artefactos con
 
 El artefacto Java también se publica en GitHub Packages con coordenadas Maven:
 
-    com.github.ramsescb:AplicacionJava:1.1.0
+    com.github.ramsescb:aplicacion-java:1.1.0
 
 ## Release 1.1.0
 
