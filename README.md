@@ -36,8 +36,9 @@
   - [3. Aplicación Móvil Flutter (`heliostrand_app/`)](#3-aplicación-móvil-flutter-heliostrand_app)
   - [4. Diagramas de Diseño y UML (`docs/diagrams/`)](#4-diagramas-de-diseño-y-uml-docsdiagrams)
 - [Guía de Compilación, Pruebas y Despliegue](#-guía-de-compilación-pruebas-y-despliegue)
+- [Documentación Técnica y Manuales de Usuario](#-documentación-técnica-y-manuales-de-usuario)
 - [Gobernanza y Contribución](#-gobernanza-y-contribución)
-- [Licencia y Créditos](#-licencia-y-créditos)
+- [Licencia, Atribución Obligatoria y Protección Legal](#-licencia-atribución-obligatoria-y-protección-legal)
 
 ---
 
@@ -163,6 +164,9 @@ heliostrand-nfc-core-cpp/
 │       ├── Diagrama_lector_NFC.asta # Diagrama de secuencia y arquitectura lector NFC
 │       └── NFC_2.asta         # Diagrama de componentes NFC
 ├── CONSTITUTION.md           # Constitución, principios inmutables y gobernanza
+├── CONTRIBUTING.md           # Guía rápida para colaboradores
+├── DOCUMENTS.md              # Documentación técnica exhaustiva y Manual de Usuario
+├── LICENSE.md                # Licencia de atribución obligatoria y protección legal
 ├── RULES.md                  # Reglas de contribución, estilos de código y commits
 └── platformio.ini            # Configuración de compilación embebida PlatformIO
 ```
@@ -216,17 +220,33 @@ flutter build apk --release
 
 ---
 
+## 📖 Documentación Técnica y Manuales de Usuario
+
+Consulte el documento maestro [**DOCUMENTS.md**](file:///home/ramsescb/Projects/arduino_app_Fundamentos/DOCUMENTS.md) para acceder a:
+- **Especificación de Ingeniería**: Cinemática de Theo Jansen, mapeo de memoria en bloques NTAG213 y cálculo matemático de CRC-8.
+- **Manual de Usuario Desktop (Java 21)**: Puesta en marcha, terminales PC/SC (`javax.smartcardio`), visualización en vivo con FlatLaf y resolución de problemas.
+- **Manual de Usuario Mobile (Flutter)**: Procedimiento de lectura NFC en campo, navegación del dashboard reactivo, exportación CSV/JSON y modo simulación.
+
+---
+
 ## 🏛️ Gobernanza y Contribución
 
 Agradecemos las contribuciones de la comunidad académica y de código abierto. Antes de enviar cualquier propuesta o Pull Request, revise detenidamente los siguientes documentos normativos:
 
 1. [**CONSTITUTION.md**](file:///home/ramsescb/Projects/arduino_app_Fundamentos/CONSTITUTION.md): Principios arquitectónicos inmutables, derechos de autoría y gobernanza técnica.
 2. [**RULES.md**](file:///home/ramsescb/Projects/arduino_app_Fundamentos/RULES.md): Estándares de nombrado, formato de commits convencionales, invariantes de telemetría y lista de comprobación pre-PR.
+3. [**CONTRIBUTING.md**](file:///home/ramsescb/Projects/arduino_app_Fundamentos/CONTRIBUTING.md): Flujo de trabajo rápido para apertura de ramas y envío de Pull Requests.
 
 ---
 
-## 📄 Licencia y Créditos
+## ⚖️ Licencia, Atribución Obligatoria y Protección Legal
 
-- **Autor Principal**: [RamsesCB](https://github.com/RamsesCB)
-- **Repositorio**: [heliostrand-nfc-core-cpp](https://github.com/RamsesCB/heliostrand-nfc-core-cpp)
-- **Licencia**: MIT License - Código abierto para fines académicos, de investigación y desarrollo robótico.
+Este proyecto opera bajo los términos de la **Licencia Pública de Atribución Obligatoria, Uso Ético y Protección de Autoría (LICENSE.md)**:
+
+- **Código Público y Transparente**: El código fuente es de libre acceso para fines formativos, de investigación y robótica.
+- **Atribución Obligatoria**: Cualquier uso, bifurcación (*fork*), adaptación o distribución exige **otorgar créditos explícitos y visibles a RamsesCB y al repositorio oficial**:  
+  `https://github.com/RamsesCB/heliostrand-nfc-core-cpp`
+- **Prohibición de Uso Indebido & Derecho de Acciones Legales**: Queda terminantemente prohibido el plagio, la remoción de créditos o el uso fraudulento de la telemetría. En caso de incumplimiento, los autores **se reservan el derecho irrestricto de solicitar la baja inmediata de repositorios infractores (DMCA Takedown) e iniciar las demandas judiciales pertinentes**.
+- **Distribución Transparente en Google Play Store**: La app móvil oficial se distribuye a través de Google Play Store garantizando total transparencia, integridad de datos y protección al usuario.
+
+Para el texto legal íntegro, consulte [**LICENSE.md**](file:///home/ramsescb/Projects/arduino_app_Fundamentos/LICENSE.md).
