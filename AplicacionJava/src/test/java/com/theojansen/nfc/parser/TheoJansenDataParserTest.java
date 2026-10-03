@@ -1,141 +1,169 @@
 package com.theojansen.nfc.parser;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.theojansen.nfc.model.LightDirection;
 import com.theojansen.nfc.model.MotorState;
 import com.theojansen.nfc.model.RobotTelemetry;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class TheoJansenDataParserTest {
+    private static final TheoJansenDataParser PARSER = new TheoJansenDataParser();
 
-    private byte[] hexToBytes(String s) {
-        int len = s.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                    + Character.digit(s.charAt(i + 1), 16));
-        }
-        return data;
-    }
-
-    @Test
-    @DisplayName("Golden Vector 1: Condición nominal soleada con marcha adelante hacia el este")
-    void testGoldenVector1NominalForwardEast() throws Exception {
-        TheoJansenDataParser parser = new TheoJansenDataParser();
-        byte[] payload = hexToBytes("9301647882915A5C0F0A026A");
-
-        RobotTelemetry t = parser.decodeTelemetryPayload(payload, "UID-GOLDEN-01");
-
-        assertNotNull(t);
-        assertEquals(2, t.getVersion());
-        assertEquals(1, t.getSequenceNumber());
-        assertEquals(MotorState.ADELANTE, t.getMotorDirection());
-        assertEquals(LightDirection.ESTE, t.getPrimaryLightDirection());
-        assertEquals(90, t.getServoPitchAngle());
-        assertEquals(92, t.getServoYawAngle());
-        assertEquals(3.85, t.getOperatingVoltage(), 0.001);
-        assertTrue(t.isBatteryValid());
-        assertEquals(2, t.getPolarityReversalsCount());
-    }
-
-    @Test
-    @DisplayName("Golden Vector 2: Robot detenido bajo iluminación solar equilibrada")
-    void testGoldenVector2StoppedBalanced() throws Exception {
-        TheoJansenDataParser parser = new TheoJansenDataParser();
-        byte[] payload = hexToBytes("8002969696965A5A1004009F");
-
-        RobotTelemetry t = parser.decodeTelemetryPayload(payload, "UID-GOLDEN-02");
-
-        assertNotNull(t);
-        assertEquals(2, t.getVersion());
-        assertEquals(2, t.getSequenceNumber());
-        assertEquals(MotorState.DETENIDO, t.getMotorDirection());
-        assertEquals(LightDirection.EQUILIBRADO, t.getPrimaryLightDirection());
-        assertEquals(90, t.getServoPitchAngle());
-        assertEquals(90, t.getServoYawAngle());
-        assertEquals(4.10, t.getOperatingVoltage(), 0.001);
-        assertTrue(t.isBatteryValid());
-        assertEquals(0, t.getPolarityReversalsCount());
-    }
-
-    @Test
-    @DisplayName("Golden Vector 3: Marcha atrás hacia el sur con batería baja (3300 mV)")
-    void testGoldenVector3ReverseSouthLowBat() throws Exception {
-        TheoJansenDataParser parser = new TheoJansenDataParser();
-        byte[] payload = hexToBytes("A20A32DC50462D870CE4053A");
-
-        RobotTelemetry t = parser.decodeTelemetryPayload(payload, "UID-GOLDEN-03");
-
-        assertNotNull(t);
-        assertEquals(2, t.getVersion());
-        assertEquals(10, t.getSequenceNumber());
-        assertEquals(MotorState.ATRAS, t.getMotorDirection());
-        assertEquals(LightDirection.SUR, t.getPrimaryLightDirection());
-        assertEquals(45, t.getServoPitchAngle());
-        assertEquals(135, t.getServoYawAngle());
-        assertEquals(3.30, t.getOperatingVoltage(), 0.001);
-        assertTrue(t.isBatteryValid());
-        assertEquals(5, t.getPolarityReversalsCount());
-    }
-
-    @Test
-    @DisplayName("Golden Vector 4: Sensor de batería desconectado (0 mV, sensor inválido)")
-    void testGoldenVector4BatteryDisconnected() throws Exception {
-        TheoJansenDataParser parser = new TheoJansenDataParser();
-        byte[] payload = hexToBytes("8014646464645A5A000001AA");
-
-        RobotTelemetry t = parser.decodeTelemetryPayload(payload, "UID-GOLDEN-04");
-
-        assertNotNull(t);
-        assertEquals(20, t.getSequenceNumber());
-        assertEquals(0.0, t.getOperatingVoltage(), 0.001);
-        assertFalse(t.isBatteryValid());
-        assertEquals(0, t.getBatteryLevelPercent());
-    }
-
-    @Test
-    @DisplayName("Debe rechazar estrictamente tramas con longitud distinta de 12 bytes")
-    void testStrictPayloadLengthValidation() {
-        TheoJansenDataParser parser = new TheoJansenDataParser();
-        byte[] shortPayload = new byte[11];
-        byte[] longPayload = new byte[13];
-
-        assertThrows(CorruptedPayloadException.class, () -> parser.decodeTelemetryPayload(shortPayload, "SHORT"));
-        assertThrows(CorruptedPayloadException.class, () -> parser.decodeTelemetryPayload(longPayload, "LONG"));
-        assertThrows(CorruptedPayloadException.class, () -> parser.decodeTelemetryPayload(null, "NULL"));
-    }
-
-    @Test
-    @DisplayName("Debe lanzar CorruptedPayloadException si el CRC-8 no coincide")
-    void testCorruptedCrc() {
-        TheoJansenDataParser parser = new TheoJansenDataParser();
-        byte[] corrupted = hexToBytes("9301647882915A5C0F0A02FF");
-
-        assertThrows(CorruptedPayloadException.class, () -> parser.decodeTelemetryPayload(corrupted, "CORRUPT"));
-    }
-
-    @Test
-    @DisplayName("Debe lanzar InvalidTelemetryException ante valores fuera de límites físicos")
-    void testSemanticRangeValidation() {
-        TheoJansenDataParser parser = new TheoJansenDataParser();
-        // Pitch = 200° (> 180°), CRC recalculado
-        byte[] invalidAngle = new byte[]{
-                (byte) 0x80, (byte) 0x01, (byte) 100, (byte) 100, (byte) 100, (byte) 100,
-                (byte) 200, (byte) 90, (byte) 0x0F, (byte) 0x00, (byte) 0x00, (byte) 0x00
+    private static JsonObject loadVectorDocument() throws IOException {
+        Path[] candidates = {
+                Path.of("../test/vectors/golden_telemetry_vectors.json"),
+                Path.of("test/vectors/golden_telemetry_vectors.json")
         };
-        // Calcular CRC correcto para que pase Nivel 1 y falle Nivel 2
-        int crc = 0;
-        for (int i = 0; i < 11; i++) {
-            crc ^= (invalidAngle[i] & 0xFF);
-            for (int j = 0; j < 8; j++) {
-                if ((crc & 0x80) != 0) crc = ((crc << 1) ^ 0x07) & 0xFF;
-                else crc = (crc << 1) & 0xFF;
+        for (Path candidate : candidates) {
+            if (Files.exists(candidate)) {
+                return JsonParser.parseString(Files.readString(candidate)).getAsJsonObject();
             }
         }
-        invalidAngle[11] = (byte) crc;
+        throw new IOException("No se encontró test/vectors/golden_telemetry_vectors.json");
+    }
 
-        assertThrows(InvalidTelemetryException.class, () -> parser.decodeTelemetryPayload(invalidAngle, "PHYSICAL-FAIL"));
+    private static byte[] hexToBytes(String hex) {
+        if ((hex.length() & 1) != 0) throw new IllegalArgumentException("hex impar");
+        byte[] out = new byte[hex.length() / 2];
+        for (int i = 0; i < hex.length(); i += 2) {
+            out[i / 2] = (byte) Integer.parseInt(hex.substring(i, i + 2), 16);
+        }
+        return out;
+    }
+
+    private static MotorState expectedMotor(String value) {
+        return switch (value) {
+            case "STOPPED" -> MotorState.DETENIDO;
+            case "FORWARD" -> MotorState.ADELANTE;
+            case "REVERSE" -> MotorState.ATRAS;
+            default -> throw new IllegalArgumentException(value);
+        };
+    }
+
+    private static LightDirection expectedDirection(String value) {
+        return switch (value) {
+            case "BALANCED" -> LightDirection.EQUILIBRADO;
+            case "NORTH" -> LightDirection.NORTE;
+            case "SOUTH" -> LightDirection.SUR;
+            case "EAST" -> LightDirection.ESTE;
+            case "WEST" -> LightDirection.OESTE;
+            default -> throw new IllegalArgumentException(value);
+        };
+    }
+
+    @Test
+    void sharedGoldenVectorsAreDecodedFromJson() throws Exception {
+        JsonArray vectors = loadVectorDocument().getAsJsonArray("vectors");
+        int checked = 0;
+        for (var element : vectors) {
+            JsonObject vector = element.getAsJsonObject();
+            JsonObject expected = vector.getAsJsonObject("expected");
+            if (!expected.has("valid") || !expected.get("valid").getAsBoolean()) continue;
+
+            RobotTelemetry t = PARSER.decodeTelemetryPayload(
+                    hexToBytes(vector.get("hex").getAsString()),
+                    "UID-" + vector.get("id").getAsString());
+
+            assertEquals(expected.get("version").getAsInt(), t.getVersion());
+            assertEquals(expected.get("sequence_number").getAsInt(), t.getSequenceNumber());
+            assertEquals(expectedMotor(expected.get("motor_state").getAsString()), t.getMotorDirection());
+            assertEquals(expectedDirection(expected.get("light_direction").getAsString()), t.getPrimaryLightDirection());
+            assertEquals(expected.get("servo_pitch").getAsInt(), t.getServoPitchAngle());
+            assertEquals(expected.get("servo_yaw").getAsInt(), t.getServoYawAngle());
+            assertEquals(expected.get("battery_millivolts").getAsInt() / 1000.0,
+                    t.getOperatingVoltage(), 0.001);
+            assertEquals(expected.get("battery_valid").getAsBoolean(), t.isBatteryValid());
+            assertEquals(expected.get("polarity_reversals").getAsInt(), t.getPolarityReversalsCount());
+            checked++;
+        }
+        assertEquals(4, checked);
+    }
+
+    @Test
+    void corruptedVectorFromSharedJsonIsRejected() throws Exception {
+        JsonArray vectors = loadVectorDocument().getAsJsonArray("vectors");
+        for (var element : vectors) {
+            JsonObject vector = element.getAsJsonObject();
+            JsonObject expected = vector.getAsJsonObject("expected");
+            if (expected.has("error_type")
+                    && "CORRUPTED_CRC".equals(expected.get("error_type").getAsString())) {
+                byte[] payload = hexToBytes(vector.get("hex").getAsString());
+                assertThrows(CorruptedPayloadException.class,
+                        () -> PARSER.decodeTelemetryPayload(payload, "CRC-BAD"));
+                return;
+            }
+        }
+        fail("No existe vector CORRUPTED_CRC en el JSON compartido");
+    }
+
+    @Test
+    void requiresExactlyTwelveBytes() {
+        assertThrows(CorruptedPayloadException.class,
+                () -> PARSER.decodeTelemetryPayload(new byte[11], "SHORT"));
+        assertThrows(CorruptedPayloadException.class,
+                () -> PARSER.decodeTelemetryPayload(new byte[13], "LONG"));
+        assertThrows(CorruptedPayloadException.class,
+                () -> PARSER.decodeTelemetryPayload(null, "NULL"));
+    }
+
+    @Test
+    void rejectsUnsupportedProtocolVersion() {
+        byte[] payload = validBasePayload();
+        payload[0] = (byte) ((1 << 6) | (1 << 4) | 3);
+        repairCrc(payload);
+        assertThrows(UnsupportedProtocolVersionException.class,
+                () -> PARSER.decodeTelemetryPayload(payload, "V1"));
+    }
+
+    @Test
+    void rejectsReservedMotorCode() {
+        byte[] payload = validBasePayload();
+        payload[0] = (byte) ((2 << 6) | (3 << 4) | 3);
+        repairCrc(payload);
+        assertThrows(InvalidTelemetryException.class,
+                () -> PARSER.decodeTelemetryPayload(payload, "MOTOR-RESERVED"));
+    }
+
+    @Test
+    void rejectsReservedDirectionCode() {
+        byte[] payload = validBasePayload();
+        payload[0] = (byte) ((2 << 6) | (1 << 4) | 5);
+        repairCrc(payload);
+        assertThrows(InvalidTelemetryException.class,
+                () -> PARSER.decodeTelemetryPayload(payload, "DIR-RESERVED"));
+    }
+
+    @Test
+    void rejectsPhysicalRangeViolations() {
+        byte[] angleBad = validBasePayload();
+        angleBad[6] = (byte) 200;
+        repairCrc(angleBad);
+        assertThrows(InvalidTelemetryException.class,
+                () -> PARSER.decodeTelemetryPayload(angleBad, "ANGLE-BAD"));
+
+        byte[] voltageBad = validBasePayload();
+        voltageBad[8] = 0x17;
+        voltageBad[9] = 0x70; // 6000 mV
+        repairCrc(voltageBad);
+        assertThrows(InvalidTelemetryException.class,
+                () -> PARSER.decodeTelemetryPayload(voltageBad, "VOLT-BAD"));
+    }
+
+    private static byte[] validBasePayload() {
+        byte[] payload = hexToBytes("9301647882915A5C0F0A026A");
+        repairCrc(payload);
+        return payload;
+    }
+
+    private static void repairCrc(byte[] payload) {
+        payload[11] = (byte) TheoJansenDataParser.computeCrc8(payload, 11);
     }
 }
