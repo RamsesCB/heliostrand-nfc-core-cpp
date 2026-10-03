@@ -1,141 +1,226 @@
 #include "NfcTransceiver.h"
 
+#include <string.h>
+
+namespace {
+constexpr uint8_t SLOT_A_BASE_PAGE = 4;
+constexpr uint8_t SLOT_B_BASE_PAGE = 8;
+constexpr uint8_t SLOT_COMMIT_OFFSET = 3;
+constexpr uint8_t COMMIT_MAGIC_0 = 0x48; // H
+constexpr uint8_t COMMIT_MAGIC_1 = 0x53; // S
+}
+
 NfcTransceiver::NfcTransceiver()
     : nfc(PIN_PN532_CS),
       pn532Detected(false),
       firmwareVersion(0),
+      hasWrittenTelemetry(false),
       lastWriteMillis(0),
-      lastWrittenCrc(0) {}
+      lastAttemptMillis(0),
+      lastWrittenPayload{0},
+      tagLocked(false),
+      lockedUid{0},
+      lockedUidLength(0) {}
 
 bool NfcTransceiver::begin() {
-    Serial.begin(SERIAL_BAUD_RATE);
-    delay(100);
-
-    Serial.println(F("[NFC] Inicializando PN532 en bus SPI (CS: D4)..."));
     nfc.begin();
-
     firmwareVersion = nfc.getFirmwareVersion();
     if (!firmwareVersion) {
-        Serial.println(F("[WARN] PN532 no detectado en bus SPI. Operando en modo Serial exclusivo."));
         pn532Detected = false;
         return false;
     }
-
-    Serial.print(F("[INFO] Chip PN532 detectado. Firmware v"));
-    Serial.print((firmwareVersion >> 16) & 0xFF, DEC);
-    Serial.print('.');
-    Serial.println((firmwareVersion >> 8) & 0xFF, DEC);
-
-    // Configurar para lectura/escritura de tarjetas RFID/NFC
     nfc.SAMConfig();
     pn532Detected = true;
     return true;
 }
 
-void NfcTransceiver::printHexByte(uint8_t b) {
-    if (b < 0x10) Serial.print('0');
-    Serial.print(b, HEX);
+bool NfcTransceiver::isMeaningfulChange(const uint8_t *payload) const {
+    if (!hasWrittenTelemetry) return true;
+    return nfcPayloadMeaningfullyChanged(
+        payload,
+        lastWrittenPayload,
+        NFC_LDR_DELTA_THRESHOLD,
+        NFC_SERVO_DELTA_DEG,
+        NFC_BATTERY_DELTA_MV);
 }
 
-bool NfcTransceiver::publish(const uint8_t *payload, size_t length) {
-    if (!payload || length != TELEMETRY_PAYLOAD_SIZE) return false;
+bool NfcTransceiver::validateNtag213() {
+    uint8_t cc[4] = {0};
+    if (!nfc.ntag2xx_ReadPage(3, cc)) return false;
+    return cc[0] == 0xE1 && cc[1] == 0x10 && cc[2] == 0x12;
+}
 
-    // Emisión Serial delimitada simultánea
-    publishTelemetry(payload);
+bool NfcTransceiver::uidAllowed(const uint8_t *uid, uint8_t uidLength) {
+    if (!uid || uidLength != 7) return false;
 
-    if (!pn532Detected) {
+#if NFC_ENFORCE_EXPECTED_UID
+    return memcmp(uid, NFC_EXPECTED_UID, 7) == 0;
+#elif NFC_LOCK_FIRST_TAG_PER_BOOT
+    if (!tagLocked) {
+        memcpy(lockedUid, uid, uidLength);
+        lockedUidLength = uidLength;
+        tagLocked = true;
+        return true;
+    }
+    return uidLength == lockedUidLength &&
+           memcmp(uid, lockedUid, uidLength) == 0;
+#else
+    (void)uid;
+    (void)uidLength;
+    return true;
+#endif
+}
+
+bool NfcTransceiver::readSlot(
+    uint8_t basePage,
+    uint8_t *payload,
+    uint8_t &generation) {
+    if (!payload) return false;
+
+    uint8_t page[4] = {0};
+    for (uint8_t i = 0; i < 3; ++i) {
+        if (!nfc.ntag2xx_ReadPage((uint8_t)(basePage + i), page)) {
+            return false;
+        }
+        memcpy(payload + i * 4, page, 4);
+    }
+
+    uint8_t commit[4] = {0};
+    if (!nfc.ntag2xx_ReadPage((uint8_t)(basePage + SLOT_COMMIT_OFFSET), commit)) {
         return false;
     }
 
-    // Política anti-desgaste EEPROM NTAG213:
-    // Solo escribir en páginas si han pasado al menos NFC_WRITE_THROTTLE_MS
-    // O si el contenido ha variado (verificado mediante CRC)
-    unsigned long now = millis();
-    bool contentChanged = (payload[11] != lastWrittenCrc);
-    bool timeElapsed = (now - lastWriteMillis >= NFC_WRITE_THROTTLE_MS);
-
-    if (!contentChanged && !timeElapsed) {
-        return true; // Throttle activo, no sobreescribir innecesariamente
+    if (commit[0] != COMMIT_MAGIC_0 ||
+        commit[1] != COMMIT_MAGIC_1 ||
+        commit[3] != (uint8_t)~commit[2]) {
+        return false;
     }
 
-    // Comprobar presencia de etiqueta NTAG213 con timeout corto (40 ms) para no trabar el ciclo
-    uint8_t uid[7];
-    uint8_t uidLength = 0;
-    bool success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength, 40);
+    if (!verifyTelemetryCRC(payload, TELEMETRY_PAYLOAD_SIZE)) {
+        return false;
+    }
 
-    if (success && uidLength > 0) {
-        // NTAG213 organiza la memoria de usuario en páginas de 4 bytes:
-        // Página 4: Bytes 0..3
-        // Página 5: Bytes 4..7
-        // Página 6: Bytes 8..11
-        uint8_t page4[4] = { payload[0], payload[1], payload[2], payload[3] };
-        uint8_t page5[4] = { payload[4], payload[5], payload[6], payload[7] };
-        uint8_t page6[4] = { payload[8], payload[9], payload[10], payload[11] };
+    generation = commit[2];
+    return true;
+}
 
-        bool w4 = nfc.ntag2xx_WritePage(4, page4);
-        bool w5 = nfc.ntag2xx_WritePage(5, page5);
-        bool w6 = nfc.ntag2xx_WritePage(6, page6);
+bool NfcTransceiver::writeSlot(
+    uint8_t basePage,
+    const uint8_t *payload,
+    uint8_t generation) {
+    uint8_t page[4] = {0};
 
-        if (w4 && w5 && w6) {
-            lastWriteMillis = now;
-            lastWrittenCrc = payload[11];
-            Serial.println(F("[NFC] Telemetria grabada con exito en NTAG213 (Paginas 4-6)."));
-            return true;
-        } else {
-            Serial.println(F("[WARN] Error escribiendo paginas en NTAG213."));
+    // Payload first; commit page is written last.
+    for (uint8_t i = 0; i < 3; ++i) {
+        memcpy(page, payload + i * 4, 4);
+        if (!nfc.ntag2xx_WritePage((uint8_t)(basePage + i), page)) {
             return false;
         }
     }
 
-    return false;
-}
-
-void NfcTransceiver::publishTelemetry(const uint8_t *payload12Bytes) {
-    if (!payload12Bytes) return;
-
-    // Emisión binaria pura delimitada para Java / Mobile
-    Serial.write(0xAA);
-    Serial.write(0x55);
-    Serial.write(payload12Bytes, TELEMETRY_PAYLOAD_SIZE);
-    Serial.write(0x0D);
-    Serial.write(0x0A);
-}
-
-void NfcTransceiver::printHumanReadable(const TelemetryPacket &p, const uint8_t *payload) {
-    Serial.print(F("[FRAME_HEX]:"));
-    for (size_t i = 0; i < TELEMETRY_PAYLOAD_SIZE; i++) {
-        printHexByte(payload[i]);
-        if (i < TELEMETRY_PAYLOAD_SIZE - 1) Serial.print(' ');
-    }
-    Serial.println();
-
-    Serial.print(F("  Seq: ")); Serial.print(p.sequenceNumber);
-    Serial.print(F(" | Motor: "));
-    if (p.motorState == MOTOR_ADELANTE) Serial.print(F("ADELANTE"));
-    else if (p.motorState == MOTOR_ATRAS) Serial.print(F("ATRAS"));
-    else Serial.print(F("DETENIDO"));
-
-    Serial.print(F(" | Dir: ")); Serial.print((int)p.lightDirection);
-    Serial.print(F(" | Pitch: ")); Serial.print(p.servoPitch);
-    Serial.print(F(" | Yaw: ")); Serial.print(p.servoYaw);
-
-    Serial.print(F(" | Bat: "));
-    if (p.batteryValid) {
-        Serial.print(p.voltageMilliVolts); Serial.print(F("mV"));
-    } else {
-        Serial.print(F("N/D"));
+    // Verify payload before committing the slot.
+    for (uint8_t i = 0; i < 3; ++i) {
+        if (!nfc.ntag2xx_ReadPage((uint8_t)(basePage + i), page)) {
+            return false;
+        }
+        if (memcmp(page, payload + i * 4, 4) != 0) {
+            return false;
+        }
     }
 
-    Serial.print(F(" | CRC: 0x"));
-    printHexByte(payload[11]);
-    bool valid = verifyTelemetryCRC(payload, TELEMETRY_PAYLOAD_SIZE);
-    Serial.println(valid ? F(" (CRC VERIFICADO OK)") : F(" (CRC ERROR)"));
+    uint8_t commit[4] = {
+        COMMIT_MAGIC_0,
+        COMMIT_MAGIC_1,
+        generation,
+        (uint8_t)~generation
+    };
+    if (!nfc.ntag2xx_WritePage((uint8_t)(basePage + SLOT_COMMIT_OFFSET), commit)) {
+        return false;
+    }
+
+    uint8_t verifyCommit[4] = {0};
+    return nfc.ntag2xx_ReadPage(
+               (uint8_t)(basePage + SLOT_COMMIT_OFFSET),
+               verifyCommit) &&
+           memcmp(commit, verifyCommit, 4) == 0;
 }
 
-bool NfcTransceiver::checkSerialCommands(char &outCommand) {
-    if (Serial.available() > 0) {
-        outCommand = (char)Serial.read();
+bool NfcTransceiver::writeDoubleBuffered(const uint8_t *payload) {
+    uint8_t payloadA[TELEMETRY_PAYLOAD_SIZE] = {0};
+    uint8_t payloadB[TELEMETRY_PAYLOAD_SIZE] = {0};
+    uint8_t genA = 0;
+    uint8_t genB = 0;
+
+    const bool validA = readSlot(SLOT_A_BASE_PAGE, payloadA, genA);
+    const bool validB = readSlot(SLOT_B_BASE_PAGE, payloadB, genB);
+
+    uint8_t targetBase = SLOT_A_BASE_PAGE;
+    uint8_t nextGeneration = 0;
+
+    if (validA && validB) {
+        if (nfcGenerationNewer(genA, genB)) {
+            targetBase = SLOT_B_BASE_PAGE;
+            nextGeneration = (uint8_t)(genA + 1);
+        } else {
+            targetBase = SLOT_A_BASE_PAGE;
+            nextGeneration = (uint8_t)(genB + 1);
+        }
+    } else if (validA) {
+        targetBase = SLOT_B_BASE_PAGE;
+        nextGeneration = (uint8_t)(genA + 1);
+    } else if (validB) {
+        targetBase = SLOT_A_BASE_PAGE;
+        nextGeneration = (uint8_t)(genB + 1);
+    }
+
+    return writeSlot(targetBase, payload, nextGeneration);
+}
+
+bool NfcTransceiver::publish(const uint8_t *payload, size_t length) {
+    if (!payload || length != TELEMETRY_PAYLOAD_SIZE || !pn532Detected) {
+        return false;
+    }
+
+    const unsigned long now = millis();
+
+    if (lastAttemptMillis != 0 &&
+        now - lastAttemptMillis < NFC_WRITE_RETRY_BACKOFF_MS) {
         return true;
     }
-    return false;
+
+    const unsigned long elapsed =
+        hasWrittenTelemetry ? now - lastWriteMillis : 0;
+    const bool meaningfulChange = isMeaningfulChange(payload);
+    if (!nfcShouldWrite(
+            hasWrittenTelemetry,
+            elapsed,
+            meaningfulChange,
+            NFC_WRITE_MIN_INTERVAL_MS,
+            NFC_PERIODIC_REFRESH_MS)) {
+        return true;
+    }
+
+    uint8_t uid[7] = {0};
+    uint8_t uidLength = 0;
+    if (!nfc.readPassiveTargetID(
+            PN532_MIFARE_ISO14443A,
+            uid,
+            &uidLength,
+            40)) {
+        return false;
+    }
+
+    if (!validateNtag213() || !uidAllowed(uid, uidLength)) {
+        return false;
+    }
+
+    lastAttemptMillis = now;
+    if (!writeDoubleBuffered(payload)) {
+        return false;
+    }
+
+    memcpy(lastWrittenPayload, payload, TELEMETRY_PAYLOAD_SIZE);
+    hasWrittenTelemetry = true;
+    lastWriteMillis = now;
+    return true;
 }
