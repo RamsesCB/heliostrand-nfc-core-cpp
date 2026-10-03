@@ -5,6 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 src = ROOT / "test/vectors/golden_telemetry_vectors.json"
 dst = ROOT / "test/generated/golden_vectors.h"
+dst.parent.mkdir(parents=True, exist_ok=True)
 
 motor_map = {"STOPPED": 0, "FORWARD": 1, "REVERSE": 2}
 dir_map = {"BALANCED": 0, "NORTH": 1, "SOUTH": 2, "EAST": 3, "WEST": 4}
