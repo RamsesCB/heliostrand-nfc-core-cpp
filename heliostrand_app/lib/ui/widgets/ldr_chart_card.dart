@@ -36,30 +36,31 @@ class LdrChartCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
-                  children: [
-                    Icon(Icons.wb_sunny, color: SolarTrackerTheme.primaryAmber, size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      'Sensores LDR (Luz)',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                  ],
+                const Icon(Icons.wb_sunny, color: SolarTrackerTheme.primaryAmber, size: 20),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text(
+                    'Sensores LDR (Luz)',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
+                const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: SolarTrackerTheme.primaryAmber.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(12),
+                    color: SolarTrackerTheme.primaryAmber.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: SolarTrackerTheme.primaryAmber),
                   ),
                   child: Text(
-                    'Predominante: ${dominantDirection.displayName}',
+                    dominantDirection == LightDirection.equilibrado
+                        ? 'EQUILIBRADO'
+                        : 'PREDOM: ${dominantDirection.displayName}',
                     style: const TextStyle(
                       color: SolarTrackerTheme.primaryAmber,
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
