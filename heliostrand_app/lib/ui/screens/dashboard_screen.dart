@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/light_direction.dart';
 import '../../models/motor_state.dart';
@@ -232,19 +233,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ],
           ),
-          if (_history.isNotEmpty)
-            PopupMenuButton<String>(
-              icon: const Icon(Icons.share, size: 20),
-              tooltip: 'Exportar Reporte',
-              padding: EdgeInsets.zero,
-              onSelected: (val) {
-                if (val == 'csv') {
-                  ReportService.shareCsvReport(_history);
-                } else {
-                  ReportService.shareReport(_history);
-                }
-              },
-              itemBuilder: (ctx) => [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert, size: 22),
+            tooltip: 'Opciones',
+            padding: EdgeInsets.zero,
+            onSelected: (val) {
+              if (val == 'csv') {
+                ReportService.shareCsvReport(_history);
+              } else if (val == 'json') {
+                ReportService.shareReport(_history);
+              } else if (val == 'privacy') {
+                final uri = Uri.parse(
+                  'https://github.com/RamsesCB/heliostrand-nfc-core-cpp/blob/main/heliostrand_app/PRIVACY_POLICY.md',
+                );
+                launchUrl(uri, mode: LaunchMode.externalApplication);
+              }
+            },
+            itemBuilder: (ctx) => [
+              if (_history.isNotEmpty) ...[
                 const PopupMenuItem(
                   value: 'json',
                   child: Row(
@@ -265,8 +271,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ],
                   ),
                 ),
+                const PopupMenuDivider(),
               ],
-            ),
+              const PopupMenuItem(
+                value: 'privacy',
+                child: Row(
+                  children: [
+                    Icon(Icons.privacy_tip_outlined, size: 18),
+                    SizedBox(width: 8),
+                    Text('Política de Privacidad'),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
       body: SingleChildScrollView(
