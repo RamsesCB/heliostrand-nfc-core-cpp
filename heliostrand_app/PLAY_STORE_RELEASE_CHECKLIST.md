@@ -69,8 +69,8 @@ cd /home/ramsescb/Projects/arduino_app_Fundamentos/heliostrand_app
 /home/ramsescb/flutter/bin/flutter analyze
 /home/ramsescb/flutter/bin/flutter test
 /home/ramsescb/flutter/bin/flutter build appbundle --release \
-  --dart-define=VERSION_POLICY_URL=https://TU-DOMINIO/heliostrand-version.json \
-  --dart-define=SENTRY_DSN=https://TU-DSN-REAL \
+  --dart-define=VERSION_POLICY_URL=https://raw.githubusercontent.com/RamsesCB/heliostrand-nfc-core-cpp/main/heliostrand-version.json \
+  --dart-define=SENTRY_DSN=https://26678fe557eb866e598cb92f2d290ed0@o4512218036764672.ingest.de.sentry.io/4512218045743184 \
   --dart-define=APP_ENV=production
 ```
 

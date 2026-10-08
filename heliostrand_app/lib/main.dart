@@ -6,8 +6,11 @@ import 'ui/screens/version_gate.dart';
 import 'ui/theme.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  const sentryDsn = String.fromEnvironment('SENTRY_DSN');
+  const sentryDsn = String.fromEnvironment(
+    'SENTRY_DSN',
+    defaultValue:
+        'https://26678fe557eb866e598cb92f2d290ed0@o4512218036764672.ingest.de.sentry.io/4512218045743184',
+  );
 
   if (sentryDsn.isEmpty) {
     // Los reportes remotos se activan al configurar un DSN valido.
