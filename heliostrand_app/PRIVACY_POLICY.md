@@ -14,28 +14,38 @@ La aplicación **Theo Jansen Solar Tracker** ha sido desarrollada como una herra
 ## 2. Recopilación y Uso de Información Personal
 - **Cero Recopilación de Datos Personales:** La aplicación **NO recopila, almacena, transmite ni comparte ningún dato personal** identificable de los usuarios (tales como nombre, correo electrónico, número de teléfono, ubicación geográfica, identificadores de publicidad ni contactos).
 - **Sin Cuentas de Usuario:** No se requiere registro, creación de cuentas ni autenticación en servidores externos para utilizar la aplicación.
-- **Sin Rastreo ni Telemetría de Usuario:** La aplicación no incluye bibliotecas de analítica comercial, rastreadores de terceros ni plataformas de publicidad.
+- **Sin Rastreo Publicitario:** La aplicación no incluye bibliotecas de analítica comercial, rastreadores con fines publicitarios ni anuncios.
 
 ---
 
-## 3. Uso de Sensores y Permisos del Dispositivo
-La aplicación solicita únicamente los permisos estrictamente necesarios para su funcionamiento local con el robot:
+## 3. Uso de Sensores, Conectividad y Diagnósticos
 
 ### A. Comunicación de Campo Cercano (NFC) — `android.permission.NFC`
 - **Propósito:** Leer localmente el búfer binario de 12 bytes emitido por el transpondedor NFC montado en el robot (sensores de luz LDR, ángulos de servomotores, inversiones de polaridad del motor, voltaje y porcentaje de batería).
-- **Destino:** Toda la decodificación se procesa en la memoria RAM del propio dispositivo mediante el algoritmo CRC-8. Ninguna lectura se envía a servidores en la nube.
+- **Destino:** Toda la decodificación se procesa exclusivamente en la memoria local del dispositivo mediante CRC-8. Las lecturas de telemetría no se transmiten a servidores externos.
 
-### B. Almacenamiento Local y Compartir Archivos
-- **Propósito:** Permitir al usuario exportar manualmente sus sesiones de telemetría a formato JSON (`.json`) para análisis estadístico propio o académico.
-- **Acceso:** Solo se crea un archivo temporal cuando el usuario pulsa explícitamente el botón "Exportar / Compartir".
+### B. Reporte Técnico de Fallos y Estabilidad (Sentry) — `android.permission.INTERNET`
+- **Propósito:** Monitorear la estabilidad y resolver caídas imprevistas de la aplicación mediante la plataforma de código abierto Sentry.
+- **Datos técnicos procesados:** Pila de llamadas de error (stack trace), modelo de dispositivo, arquitectura de procesador y versión de Android.
+- **Seguridad:** Los datos técnicos se transmiten mediante conexión cifrada HTTPS/TLS y no contienen datos personales identificables (PII).
+
+### C. Consulta de Versión Mínima Requerida — `android.permission.INTERNET`
+- **Propósito:** Consultar un archivo JSON público por HTTPS para notificar al usuario cuando una actualización obligatoria esté disponible en Google Play Store. No se envía ninguna información del usuario en esta consulta.
+
+### D. Exportación Local de Datos
+- **Propósito:** Permitir al usuario exportar manualmente sus sesiones de telemetría a formato CSV o JSON para análisis académico o personal. Solo se genera el archivo cuando el usuario pulsa explícitamente el botón de exportación.
 
 ---
 
-## 4. Declaración de Seguridad de Datos (Google Play Data Safety)
-Para efectos del formulario de Seguridad de los Datos de Google Play Console:
-- **¿La app recopila o comparte datos de usuario?** NO.
-- **¿Los datos se transfieren a través de una conexión segura?** No se transfieren datos a la red.
-- **¿El usuario puede solicitar la eliminación de datos?** Los datos se almacenan exclusivamente de forma local y se eliminan al desinstalar la app o limpiar la caché.
+## 4. Declaración de Seguridad de los Datos (Google Play Data Safety)
+
+Para efectos del cuestionario oficial de Google Play Console:
+- **¿La app recopila o comparte datos del usuario?**
+  - Datos personales: **NO**.
+  - Diagnósticos y rendimiento (Información sobre fallos / Crash logs): **SÍ**, recopilados automáticamente por Sentry exclusivamente con fines de corrección de errores y funcionalidad de la app.
+- **¿Los datos se transfieren a través de una conexión segura?** **SÍ**, todos los reportes técnicos se transmiten mediante HTTPS/TLS cifrado.
+- **¿Los datos se comparten con terceros?** **NO**, no se venden ni se comparten con redes publicitarias ni intermediarios de datos.
+- **¿El usuario puede solicitar la eliminación de datos?** Los datos de telemetría son locales y se eliminan al limpiar datos o desinstalar la app. Los registros de diagnóstico de fallos en Sentry rotan y se eliminan periódicamente según políticas de retención técnica.
 
 ---
 
@@ -43,3 +53,4 @@ Para efectos del formulario de Seguridad de los Datos de Google Play Console:
 Si tienes preguntas o inquietudes acerca de esta Política de Privacidad o del funcionamiento del proyecto, puedes abrir un issue o comunicarte a través del repositorio oficial de GitHub:
 - **Repositorio:** [https://github.com/RamsesCB/heliostrand-nfc-core-cpp](https://github.com/RamsesCB/heliostrand-nfc-core-cpp)
 - **Autor:** RamsesCB
+
