@@ -188,28 +188,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.solar_power, color: SolarTrackerTheme.primaryAmber, size: 22),
-            SizedBox(width: 8),
-            Text('Theo Jansen Solar Tracker'),
-          ],
+        titleSpacing: 12,
+        title: const FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.solar_power, color: SolarTrackerTheme.primaryAmber, size: 20),
+              SizedBox(width: 8),
+              Text(
+                'Theo Jansen Solar Tracker',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ],
+          ),
         ),
         actions: [
-          // Switch para alternar Modo Simulación / NFC Real
+          // Switch compacto para alternar Modo Simulación / NFC Real
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Simular', style: TextStyle(fontSize: 12, color: Colors.white70)),
-              Switch(
-                value: _isSimulationMode,
-                activeThumbColor: SolarTrackerTheme.primaryAmber,
-                onChanged: (val) {
-                  if (_isScanning) {
-                    _toggleScan(); // Detener antes de cambiar modo
-                  }
-                  setState(() => _isSimulationMode = val);
-                },
+              Text(
+                _isSimulationMode ? 'Simular' : 'NFC',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: _isSimulationMode ? SolarTrackerTheme.primaryAmber : Colors.white60,
+                ),
+              ),
+              Transform.scale(
+                scale: 0.75,
+                child: Switch(
+                  value: _isSimulationMode,
+                  activeThumbColor: SolarTrackerTheme.primaryAmber,
+                  onChanged: (val) {
+                    if (_isScanning) {
+                      _toggleScan(); // Detener antes de cambiar modo
+                    }
+                    setState(() => _isSimulationMode = val);
+                  },
+                ),
               ),
             ],
           ),
@@ -217,6 +236,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             PopupMenuButton<String>(
               icon: const Icon(Icons.share, size: 20),
               tooltip: 'Exportar Reporte',
+              padding: EdgeInsets.zero,
               onSelected: (val) {
                 if (val == 'csv') {
                   ReportService.shareCsvReport(_history);
