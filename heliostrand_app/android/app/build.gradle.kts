@@ -3,14 +3,14 @@ import java.io.FileInputStream
 
 plugins {
     id("com.android.application")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 val keystorePropertiesFile = rootProject.file("key.properties")
 val keystoreProperties = Properties()
 if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+    FileInputStream(keystorePropertiesFile).use { keystoreProperties.load(it) }
 }
 
 val releaseTaskRequested = gradle.startParameter.taskNames.any {
@@ -35,7 +35,7 @@ android {
 
     defaultConfig {
         applicationId = "com.theojansen.heliostrand_app"
-        minSdk = flutter.minSdkVersion // Soporte para Android 5.0+ con NFC
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -54,7 +54,7 @@ android {
 
     buildTypes {
         release {
-            // Se asocia directamente al signingConfig "release" para evitar firmas silenciosas con clave debug
+
             signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true

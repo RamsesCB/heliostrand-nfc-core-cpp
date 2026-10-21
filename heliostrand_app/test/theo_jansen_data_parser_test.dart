@@ -31,40 +31,37 @@ Map<String, dynamic> loadVectorDocument() {
 }
 
 MotorState expectedMotor(String value) => switch (value) {
-      'STOPPED' => MotorState.detenido,
-      'FORWARD' => MotorState.adelante,
-      'REVERSE' => MotorState.atras,
-      _ => throw ArgumentError(value),
-    };
+  'STOPPED' => MotorState.detenido,
+  'FORWARD' => MotorState.adelante,
+  'REVERSE' => MotorState.atras,
+  _ => throw ArgumentError(value),
+};
 
 LightDirection expectedDirection(String value) => switch (value) {
-      'BALANCED' => LightDirection.equilibrado,
-      'NORTH' => LightDirection.norte,
-      'SOUTH' => LightDirection.sur,
-      'EAST' => LightDirection.este,
-      'WEST' => LightDirection.oeste,
-      _ => throw ArgumentError(value),
-    };
+  'BALANCED' => LightDirection.equilibrado,
+  'NORTH' => LightDirection.norte,
+  'SOUTH' => LightDirection.sur,
+  'EAST' => LightDirection.este,
+  'WEST' => LightDirection.oeste,
+  _ => throw ArgumentError(value),
+};
 
 void repairCrc(Uint8List payload) {
   payload[11] = TheoJansenDataParser.computeCrc8(payload, 11);
 }
 
-Uint8List validBasePayload() =>
-    hexToBytes('9301647882915A5C0F0A026A');
+Uint8List validBasePayload() => hexToBytes('9301647882915A5C0F0A026A');
 
 void main() {
   group('Protocol V2 shared contract', () {
     test('decodes every valid vector from the shared JSON file', () {
       final parser = TheoJansenDataParser();
-      final vectors =
-          loadVectorDocument()['vectors']! as List<dynamic>;
+      final vectors = loadVectorDocument()['vectors']! as List<dynamic>;
       var checked = 0;
 
       for (final raw in vectors) {
         final vector = raw as Map<String, dynamic>;
-        final expected =
-            vector['expected']! as Map<String, dynamic>;
+        final expected = vector['expected']! as Map<String, dynamic>;
         if (expected['valid'] != true) continue;
 
         final telemetry = parser.decodeTelemetryPayload(
@@ -97,15 +94,12 @@ void main() {
 
     test('rejects the corrupted CRC vector from shared JSON', () {
       final parser = TheoJansenDataParser();
-      final vectors =
-          loadVectorDocument()['vectors']! as List<dynamic>;
-      final corrupted = vectors
-          .cast<Map<String, dynamic>>()
-          .firstWhere(
-            (vector) =>
-                (vector['expected'] as Map<String, dynamic>)['error_type'] ==
-                'CORRUPTED_CRC',
-          );
+      final vectors = loadVectorDocument()['vectors']! as List<dynamic>;
+      final corrupted = vectors.cast<Map<String, dynamic>>().firstWhere(
+        (vector) =>
+            (vector['expected'] as Map<String, dynamic>)['error_type'] ==
+            'CORRUPTED_CRC',
+      );
 
       expect(
         () => parser.decodeTelemetryPayload(
@@ -173,7 +167,7 @@ void main() {
 
       final voltage = validBasePayload();
       voltage[8] = 0x17;
-      voltage[9] = 0x70; // 6000 mV
+      voltage[9] = 0x70;
       repairCrc(voltage);
       expect(
         () => parser.decodeTelemetryPayload(voltage, 'VOLT'),

@@ -24,6 +24,8 @@ class NfcService {
 
   bool _isScanning = false;
   bool _isDisposed = false;
+  Future<void>? _scanTask;
+  int _commandRevision = 0;
 
   final StreamController<RobotTelemetry> _telemetryController =
       StreamController<RobotTelemetry>.broadcast();
@@ -32,8 +34,7 @@ class NfcService {
   final StreamController<String> _errorController =
       StreamController<String>.broadcast();
 
-  Stream<RobotTelemetry> get onTelemetryReceived =>
-      _telemetryController.stream;
+  Stream<RobotTelemetry> get onTelemetryReceived => _telemetryController.stream;
   Stream<String> get onStatusChanged => _statusController.stream;
   Stream<String> get onError => _errorController.stream;
 
@@ -48,8 +49,48 @@ class NfcService {
     }
   }
 
-  Future<void> startContinuousScan() async {
-    if (_isScanning || _isDisposed) return;
+  int? _pendingPitch;
+  int? _pendingYaw;
+
+  void queueServoCommand(int pitch, int yaw) {
+    if (_isDisposed) return;
+    _commandRevision++;
+    _pendingPitch = pitch.clamp(0, 180);
+    _pendingYaw = yaw.clamp(0, 180);
+    _emitStatus(
+      'Comando programado: P $_pendingPitch° · Y $_pendingYaw°. Acerca el tag NFC.',
+    );
+  }
+
+  Future<bool> _writeServoCommand(int pitch, int yaw) async {
+    try {
+      final p = pitch.clamp(0, 180);
+      final y = yaw.clamp(0, 180);
+      final chk = (0x53 ^ p ^ y) & 0xFF;
+
+      final pB = p.toRadixString(16).padLeft(2, '0').toUpperCase();
+      final yB = y.toRadixString(16).padLeft(2, '0').toUpperCase();
+      final chkB = chk.toRadixString(16).padLeft(2, '0').toUpperCase();
+
+      final cmdHex = 'A20C53$pB$yB$chkB';
+      final response = await FlutterNfcKit.transceive(cmdHex);
+      if (response.toUpperCase() != '0A') {
+        throw const NfcDeviceException('El tag rechazó el comando de servos.');
+      }
+      _emitStatus('Comando NFC enviado: P $p° · Y $y°');
+      return true;
+    } catch (e) {
+      _emitError('Error al escribir comando en NTAG213: $e');
+      return false;
+    }
+  }
+
+  Future<void> startContinuousScan() {
+    if (_isDisposed) return Future<void>.value();
+    return _scanTask ??= _scanLoop().whenComplete(() => _scanTask = null);
+  }
+
+  Future<void> _scanLoop() async {
     _isScanning = true;
     _emitStatus('Acerca el tag NTAG213 del robot...');
 
@@ -65,11 +106,31 @@ class NfcService {
           break;
         }
 
+        final cc = _hexToBytes(await FlutterNfcKit.transceive('3003'));
+        if (cc.length < 4 || cc[0] != 0xE1 || cc[1] != 0x10 || cc[2] != 0x12) {
+          throw const NfcDeviceException('El tag no es un NTAG213 compatible.');
+        }
+        if (!_isScanning || _isDisposed) break;
+
         _emitStatus('Tag detectado: ${tag.id}. Leyendo slots...');
 
         final slotA = await _readSlot(_slotABasePage);
         final slotB = await _readSlot(_slotBBasePage);
         final telemetry = _decodeNewestValidSlot(slotA, slotB, tag.id);
+
+        if (!_isScanning || _isDisposed) break;
+        if (_pendingPitch != null && _pendingYaw != null) {
+          final revision = _commandRevision;
+          final written = await _writeServoCommand(
+            _pendingPitch!,
+            _pendingYaw!,
+          );
+          if (written && revision == _commandRevision) {
+            _pendingPitch = null;
+            _pendingYaw = null;
+          }
+        }
+        if (!_isScanning || _isDisposed) break;
 
         if (_isFreshForTag(telemetry)) {
           _emitTelemetry(telemetry);
@@ -95,14 +156,11 @@ class NfcService {
   }
 
   Future<_NfcSlot?> _readSlot(int basePage) async {
-    final baseHex =
-        basePage.toRadixString(16).padLeft(2, '0').toUpperCase();
+    final baseHex = basePage.toRadixString(16).padLeft(2, '0').toUpperCase();
 
     Uint8List rawBytes;
     try {
-      rawBytes = _hexToBytes(
-        await FlutterNfcKit.transceive('30$baseHex'),
-      );
+      rawBytes = _hexToBytes(await FlutterNfcKit.transceive('30$baseHex'));
     } catch (_) {
       try {
         rawBytes = _hexToBytes(
@@ -187,6 +245,7 @@ class NfcService {
     try {
       await FlutterNfcKit.finish();
     } catch (_) {}
+    await _scanTask;
   }
 
   Uint8List _hexToBytes(String hex) {
@@ -234,6 +293,7 @@ class NfcService {
       await FlutterNfcKit.finish();
     } catch (_) {}
 
+    await _scanTask;
     await _telemetryController.close();
     await _statusController.close();
     await _errorController.close();

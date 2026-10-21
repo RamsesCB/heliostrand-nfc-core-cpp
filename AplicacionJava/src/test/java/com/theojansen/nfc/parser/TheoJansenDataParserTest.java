@@ -151,7 +151,7 @@ class TheoJansenDataParserTest {
 
         byte[] voltageBad = validBasePayload();
         voltageBad[8] = 0x17;
-        voltageBad[9] = 0x70; // 6000 mV
+        voltageBad[9] = 0x70;
         repairCrc(voltageBad);
         assertThrows(InvalidTelemetryException.class,
                 () -> PARSER.decodeTelemetryPayload(voltageBad, "VOLT-BAD"));

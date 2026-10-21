@@ -1,10 +1,5 @@
 package com.theojansen.nfc.model;
 
-import java.util.Arrays;
-
-/**
- * Objeto de dominio inmutable que encapsula las lecturas del robot (Protocolo V2).
- */
 public final class RobotTelemetry {
     private final int version;
     private final int sequenceNumber;
@@ -41,7 +36,6 @@ public final class RobotTelemetry {
         this.tagUid = tagUid;
     }
 
-    // Constructor de retrocompatibilidad
     public RobotTelemetry(int[] ldrValues, double ldrAverage, LightDirection primaryLightDirection,
                           int servoPitchAngle, int servoYawAngle, int polarityReversalsCount,
                           MotorState motorDirection, double operatingVoltage, int batteryLevelPercent,

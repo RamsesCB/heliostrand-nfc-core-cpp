@@ -4,9 +4,6 @@
 #include <Arduino.h>
 #include "TheoJansenTelemetry.h"
 
-/**
- * Interfaz polimórfica para capas de transporte de telemetría.
- */
 class TelemetryTransport {
 public:
     virtual ~TelemetryTransport() {}
@@ -14,4 +11,4 @@ public:
     virtual bool publish(const uint8_t *payload, size_t length) = 0;
 };
 
-#endif // TELEMETRY_TRANSPORT_H
+#endif

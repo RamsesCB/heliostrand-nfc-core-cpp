@@ -90,10 +90,10 @@ class TheoJansenDataParser {
       );
     }
 
-    final operatingVoltage =
-        batteryValid ? voltageMilliVolts / 1000.0 : 0.0;
-    final batteryPercent =
-        batteryValid ? calculateBatteryPercent(voltageMilliVolts) : 0;
+    final operatingVoltage = batteryValid ? voltageMilliVolts / 1000.0 : 0.0;
+    final batteryPercent = batteryValid
+        ? calculateBatteryPercent(voltageMilliVolts)
+        : 0;
 
     return RobotTelemetry(
       version: version,

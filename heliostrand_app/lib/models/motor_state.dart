@@ -1,4 +1,3 @@
-/// Estado de marcha/tracción del sistema mecánico Theo Jansen.
 enum MotorState {
   adelante,
   atras,

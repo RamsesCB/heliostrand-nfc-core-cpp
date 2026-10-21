@@ -1,0 +1,117 @@
+================================================================================
+DOSSIER DE ENTREGA PARA QA Y TECH LEAD - HELIOSTRAND NFC CORE (v1.2.0)
+================================================================================
+
+1. RUTAS DEL PROYECTO EN EL SISTEMA
+--------------------------------------------------------------------------------
+- Directorio raiz del repositorio:
+  /home/ramsescb/Projects/arduino_app_Fundamentos
+
+- Aplicacion Movil (Flutter):
+  /home/ramsescb/Projects/arduino_app_Fundamentos/heliostrand_app
+
+- Firmware Microcontrolador (Arduino Uno / PlatformIO):
+  /home/ramsescb/Projects/arduino_app_Fundamentos (src/, include/)
+
+- Cliente de Escritorio (Java 21 / Maven):
+  /home/ramsescb/Projects/arduino_app_Fundamentos/AplicacionJava
+
+- Vectores de Prueba y Contratos Compartidos:
+  /home/ramsescb/Projects/arduino_app_Fundamentos/test
+
+- Documentos de Gobernanza y Especificaciones:
+  * CONSTITUTION.md: /home/ramsescb/Projects/arduino_app_Fundamentos/CONSTITUTION.md
+  * RULES.md:        /home/ramsescb/Projects/arduino_app_Fundamentos/RULES.md
+  * DOCUMENTS.md:    /home/ramsescb/Projects/arduino_app_Fundamentos/DOCUMENTS.md
+  * README.md:       /home/ramsescb/Projects/arduino_app_Fundamentos/README.md
+
+
+2. CONTROL DE VERSIONES Y RAMA DE TRABAJO
+--------------------------------------------------------------------------------
+- Rama activa: feature/v1.2.0-ui-fixes
+- Rama base: main
+- Version de la aplicacion movil: 1.2.0+4 (definida en heliostrand_app/pubspec.yaml)
+- Historial de commits en la rama:
+  * 3fa8834: feat(ui): make NFC status card expandable on tap to display full message
+  * 81bdeef: feat(nfc,ui): add bidirectional servo control via NFC and update header branding
+  * 8cc0415: fix(ui): eliminate LDR card bottom overflow and bump version to v1.2.0+4
+
+
+3. NOVEDADES Y FUNCIONALIDADES PARA VALIDACION DE QA
+--------------------------------------------------------------------------------
+A. Interfaz Grafica y Experiencia de Usuario (Flutter):
+   1. Correccion de desbordamiento en barras LDR:
+      - Archivo: heliostrand_app/lib/ui/widgets/ldr_chart_card.dart
+      - Se reemplazo la altura fija estatica por LayoutBuilder + Expanded + Align(alignment: Alignment.bottomCenter).
+      - Cero desbordamientos incluso con valores maximos (255) y escala de fuentes de accesibilidad (1.3x).
+
+   2. Actualizacion de Marca en Encabezado:
+      - Archivo: heliostrand_app/lib/ui/screens/dashboard_screen.dart
+      - Titulo superior cambiado a "Solar Tracker".
+      - Icono de sol sustituido por el icono oficial de la app (assets/icons/app_icon.png) con radio de 9px.
+      - Contenedor flexible con Expanded y ellipsis para prevenir desbordamientos horizontales en 360dp.
+
+   3. Bloque de Estado NFC Expandible al Toque:
+      - Archivo: heliostrand_app/lib/ui/screens/dashboard_screen.dart
+      - La tarjeta de estado (_buildNfcStatusCard) responde a toques con GestureDetector.
+      - Al presionarla, se expande suavemente con AnimatedContainer mostrando el mensaje completo multilinea sin recortarse.
+      - Al volver a presionarla, regresa a su tamano compacto de 1 linea.
+
+B. Control Bidireccional de Servos via NFC (Arduino Uno <-> App):
+   1. Mapa de Memoria NTAG213:
+      - Paginas 4 a 7:  Slot A Ping-Pong (Telemetria 12 bytes + marcador commit).
+      - Paginas 8 a 11: Slot B Ping-Pong (Telemetria 12 bytes + marcador commit).
+      - Pagina 12:      Canal de Comandos App -> Arduino.
+                        Estructura (4 bytes): [0x53 ('S'), byte pitch (0-180), byte yaw (0-180), byte checksum]
+                        Checksum: (0x53 + pitch + yaw) & 0xFF.
+
+   2. Firmware Arduino Uno (ATmega328P):
+      - Archivos: src/NfcTransceiver.cpp, include/NfcTransceiver.h, src/SolarTracker.cpp, include/SolarTracker.h, src/main.cpp.
+      - Lee la pagina 12 con APDU READ (0x30, 12).
+      - Valida byte magico y checksum.
+      - Actualiza servomotores y escribe ceros en la pagina 12 para evitar re-ejecucion de comandos obsoletos.
+      - Uso de Memoria: RAM 30.6% (627 bytes de 2048) / Flash 39.5% (12,754 bytes de 32,256).
+
+   3. Aplicacion Movil (Flutter):
+      - Archivos: heliostrand_app/lib/services/nfc_service.dart, heliostrand_app/lib/services/simulation_service.dart.
+      - Encola comando con queueServoCommand(pitch, yaw) al mover sliders.
+      - Transmite automaticamente via APDU WRITE (0xA2, 12, ...) al aproximar el tag.
+      - Permite control manual reflejado en tiempo real en Modo Simulacion.
+
+
+4. BATERIA DE PRUEBAS Y VERIFICACION (CHECKLIST QA)
+--------------------------------------------------------------------------------
+Comandos ejecutados y validados con exito:
+
+1. Pruebas Unitarias y de Widgets en Flutter:
+   $ cd /home/ramsescb/Projects/arduino_app_Fundamentos/heliostrand_app
+   $ flutter test
+   Resultado: 12/12 PASSED
+
+2. Analisis Estatico de Codigo (Linter Flutter):
+   $ cd /home/ramsescb/Projects/arduino_app_Fundamentos/heliostrand_app
+   $ flutter analyze
+   Resultado: No issues found! (0 errores, 0 warnings)
+
+3. Compilacion de Firmware Arduino Uno:
+   $ cd /home/ramsescb/Projects/arduino_app_Fundamentos
+   $ pio run -e uno
+   Resultado: SUCCESS (Took 1.24s)
+
+4. Pruebas de Contrato en Java Desktop:
+   $ cd /home/ramsescb/Projects/arduino_app_Fundamentos/AplicacionJava
+   $ ./mvnw clean test
+   Resultado: Validacion de paridad de protocolo
+
+
+5. TAREAS SUGERIDAS PARA QA / ARQUITECTURA
+--------------------------------------------------------------------------------
+1. Actualizar CONSTITUTION.md:
+   - Registrar la Pagina 12 del NTAG213 en el Articulo I como canal de comandos bidireccionales oficial.
+
+2. Actualizar heliostrand-version.json:
+   - Incrementar version a 1.2.0 para compatibilidad con UpdatePolicyService.
+
+3. Documentacion de Diagramas:
+   - En docs/diagrams/ incorporar el metodo fetchServoCommand y la secuencia de escritura NFC.
+================================================================================

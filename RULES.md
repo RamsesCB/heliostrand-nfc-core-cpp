@@ -1,114 +1,64 @@
-# 📋 Reglas de Contribución y Estándares de Ingeniería (RULES.md)
+# Reglas técnicas
 
-> **Heliostrand NFC Core**  
-> Directrices obligatorias para desarrolladores y colaboradores del proyecto.
+## Alcance y estilo
 
----
+Preservar el tema, distribución visual, protocolo V2 y funciones existentes. Eliminar código y dependencias solo con evidencia de ausencia de consumidores. No introducir capas genéricas o librerías para resolver unas pocas líneas.
 
-## 1. Convenciones de Código y Estilo
+Código propio sin comentarios narrativos; contratos y explicación en Markdown y tests. Preservar shebangs, preprocesador, directivas necesarias y licencias. No editar paquetes descargados ni cachés. No regenerar formularios NetBeans sin revisar el diff, pues el generador puede reintroducir marcadores y sobrescribir lógica.
 
-### 1.1 Firmware C++ (PlatformIO / Arduino)
-- **Estándar**: C++17.
-- **Nombres de Clases y Structs**: `PascalCase` (ej. `TheoJansenTelemetry`, `SolarTracker`, `NfcTransceiver`).
-- **Nombres de Métodos y Funciones**: `camelCase` (ej. `computeCrc8`, `updateSensors`, `writeNfcBlock`).
-- **Constantes y Macros**: `SCREAMING_SNAKE_CASE` (ej. `PAYLOAD_SIZE`, `CRC8_POLYNOMIAL`, `NFC_BLOCK_START`).
-- **Gestión de Memoria**: Prohibido el uso de memoria dinámica en el ciclo de ejecución `loop()`. Todos los buffers deben ser estáticos o en stack preasignado.
-- **Formato**: Indentación de 2 o 4 espacios (consistente con `.clang-format`).
+## Firmware
 
-### 1.2 Aplicación de Escritorio Java 21 (Swing / FlatLaf)
-- **Estándar**: Java SE 21 LTS con Maven.
-- **Estructura de Paquetes**: Todo en minúsculas:
-  - `com.theojansen.nfc.model`: Clases de dominio inmutables o POJOs.
-  - `com.theojansen.nfc.core`: Servicios de conexión PC/SC, listeners de eventos.
-  - `com.theojansen.nfc.parser`: Parser binario y cálculo de CRC-8.
-  - `com.ramsescb.heliostrand.desktop`: Controladores y vistas de la interfaz Swing.
-- **Concurrencia UI**: Toda mutación visual sobre componentes Swing **debe realizarse en el Event Dispatch Thread (EDT)**:
-  ```java
-  SwingUtilities.invokeLater(() -> {
-      labelStatus.setText("Conectado");
-  });
-  ```
-- **Pruebas**: Cada funcionalidad en `parser` o `model` debe contar con su correspondiente test JUnit 5 en `src/test/java/`.
+- Mantener compatibilidad con la configuración AVR-GCC/Arduino de `platformio.ini`; las pruebas de host usan C++17. No declarar un estándar de producción distinto del realmente configurado.
+- Usar buffers fijos; ningún `new`, `malloc` ni `String` dinámico en `loop()`.
+- Mantener el mapa de pines y límites de servos. UART permanece exclusivamente binario.
+- Consultar comandos independientemente del límite de escrituras EEPROM. Un fallo de ACK no consume el comando como exitoso.
+- Invalidar el commit destino antes de escribir payload, verificar lecturas y escribir commit al final.
 
-### 1.3 Aplicación Móvil Flutter (Dart 3 / Material 3)
-- **Estándar**: Dart 3.x con `flutter_lints`.
-- **Nombres de Archivos**: `snake_case.dart` (ej. `nfc_service.dart`, `robot_telemetry.dart`).
-- **Nombres de Clases y Widgets**: `PascalCase` (ej. `DashboardScreen`, `TheoJansenDataParser`).
-- **Nombres de Variables y Métodos**: `camelCase` (ej. `batteryMillivolts`, `calculateCrc8`).
-- **Gestión de Estados**: `ChangeNotifier` / `Provider` estructurado y reactivo.
-- **Limpieza de Recursos**: Todo `StreamSubscription`, `Timer` o `TextEditingController` debe cerrarse en `dispose()`.
+## Java
 
----
+- Java 21 y wrapper Maven con versión y hash fijados.
+- `com.theojansen.nfc.model`: dominio; `.parser`: contrato binario; `.core`: lector PC/SC. `com.ramsescb.heliostrand.desktop`: presentación y controladores Swing.
+- Lectores y archivos fuera del EDT; actualización de widgets dentro del EDT.
+- Un lector ausente no inicia un bucle vacío. Fallos repetidos tienen espera de reintento y no acumulan diálogos modales.
+- Interrumpir trabajadores al detener el escaneo; una sesión antigua no vuelve a publicar después de reiniciar.
 
-## 2. Invariantes del Protocolo de Telemetría (Protocolo V2 & CRC-8)
+## Flutter
 
-Cualquier propuesta que modifique la estructura binaria de la trama debe respetar estrictamente:
+- `snake_case.dart`, clases `PascalCase` y miembros `camelCase`; aplicar `dart format` y `flutter analyze`.
+- La implementación actual usa streams, `StatefulWidget` y `setState`; no requiere Provider.
+- Cancelar temporizadores/suscripciones en `dispose()`, comprobar `mounted` después de operaciones asíncronas.
+- Una sesión NFC activa; validar CC y telemetría antes de escribir comandos. Confirmar ACK y conservar un comando nuevo si llega mientras otro está en curso.
+- Detener simulación y NFC al cambiar de fuente. Los reportes usan una copia de la lista, conservan JSON/CSV y notifican fallos mediante la capa UI.
+- Historial máximo de 500 muestras; cinco más recientes primero.
+- El mínimo remoto es un `versionCode` entero positivo, nunca una cadena `1.2.0`. Respuesta HTTPS limitada a 4096 bytes y con timeout.
 
-1. **Longitud Fija**: 12 bytes exactamente. Queda prohibida la aceptación de tramas de tamaño arbitrario.
-2. **Endianness**: Big-Endian (Byte más significativo primero) para magnitudes multibyte (ej. voltaje en milivoltios en Bytes 8 y 9).
-3. **Algoritmo CRC-8**:
-   - Polinomio canónico: `0x07` ($x^8 + x^2 + x^1 + 1$).
-   - Valor inicial: `0x00`.
-   - Campo de verificación: Byte 11 (calculado sobre los primeros 11 bytes: 0 a 10).
-4. **Protección de Desgaste EEPROM**: Primera escritura inmediata; las posteriores requieren al menos 5 minutos y un cambio significativo, o 15 minutos para refresh sin cambios. sequenceNumber y CRC quedan excluidos del detector de cambios. Toda escritura se verifica mediante read-back antes de actualizar el estado del writer.
-5. **Mapeo Físico Invariante**: Ninguna modificación de firmware debe reintroducir conflictos de pines sobre el bus SPI (`D4 CS`, `D11 MOSI`, `D12 MISO`, `D13 SCK`) ni sobre los canales analógicos (`A0-A3 LDR`, `A4 Batería`).
-6. **Sincronización Cuádruple**: Cualquier cambio de protocolo debe actualizarse y validarse simultáneamente en:
-   - `include/TheoJansenTelemetry.h` y `src/TheoJansenTelemetry.cpp` (C++)
-   - `TheoJansenDataParser.java` y `TheoJansenDataParserTest.java` (Java)
-   - `theo_jansen_data_parser.dart` y `theo_jansen_data_parser_test.dart` (Dart)
-   - `test/vectors/golden_telemetry_vectors.json` (Vectores Dorados de Referencia)
+## Contratos y pruebas
 
----
+Todo cambio de formato debe actualizar el serializador C++, parsers Java/Dart y vectores JSON de forma conjunta. Mantener CRC-8 `0x07`, Big-Endian para batería, códigos V2 y límites físicos. El checksum del comando de página 12 es XOR, no suma.
 
-## 3. Flujo de Trabajo Git y Commits
-
-### 3.1 Formato de Commits (Conventional Commits)
-Los mensajes de confirmación deben seguir el formato:
-```
-<tipo>(<alcance opcional>): <descripción concisa en imperativo>
-```
-**Tipos válidos:**
-- `feat`: Nueva funcionalidad (ej. `feat(nfc): add support for PN532 I2C fallback`).
-- `fix`: Corrección de bug (ej. `fix(parser): correct byte order for battery reading`).
-- `docs`: Documentación (ej. `docs: update telemetry frame mermaid diagram`).
-- `refactor`: Refactorización de código sin cambio funcional.
-- `test`: Incorporación o mejora de pruebas unitarias.
-- `chore`: Tareas de mantenimiento o configuración de builds.
-
-### 3.2 Estrategia de Ramas
-1. Ramas de trabajo deben crearse a partir de `main` con prefijo:
-   - `feature/<nombre-breve>`
-   - `fix/<nombre-breve>`
-2. No hacer commits directos sobre la rama `main`.
-3. Antes de abrir un Pull Request, ejecutar un `rebase` sobre `main` para evitar commits de mezcla espurios.
-
----
-
-## 4. Validación Pre-Pull Request (Local Checklist)
-
-Antes de enviar un Pull Request, es obligatorio ejecutar y verificar localmente los siguientes comandos:
+Ejecutar desde la raíz:
 
 ```bash
-# 1. Verificar Firmware Arduino (Compilación y Análisis Estático)
-pio run
-pio check --skip-packages
-
-# 2. Verificar y compilar Aplicación Java (Tests JUnit incluidos)
-cd AplicacionJava
-mvn clean test package
-cd ..
-
-# 3. Analizar y probar Aplicación Flutter
-cd heliostrand_app
-flutter analyze
-flutter test
-cd ..
+python3 tools/generate_golden_vectors_header.py
+pio run -e uno
+pio test -e native
+pio check -e uno --skip-packages
+c++ -std=c++17 -Wall -Wextra -Werror -Itest/nfc_host/stubs -Iinclude test/nfc_host/main.cpp src/NfcTransceiver.cpp src/TheoJansenTelemetry.cpp -o /tmp/nfc-host-tests
+/tmp/nfc-host-tests
+(cd AplicacionJava && ./mvnw --batch-mode clean test package)
+(cd heliostrand_app && flutter analyze && flutter test)
 ```
 
-Si alguno de estos comandos falla, el Pull Request será rechazado automáticamente.
+Comprobar además el build Android cuando se alteran dependencias, código móvil o empaquetado. Validar manualmente hardware NFC y servos antes de publicar. Declarar plataformas y controles no ejecutados.
 
----
+## Git, releases y secretos
 
-## 5. Mantenimiento de Diagramas de Arquitectura
+Usar commits `fix`, `refactor`, `docs`, `test`, `chore` o `feat` con alcance y descripción concretos. Revisar el diff y los archivos ignorados antes de añadir cambios. No usar `git add -f` sobre firmas o `.env`.
 
-- Si se altera o amplía el modelo de dominio o las relaciones entre clases, debe actualizarse el diagrama nativo en [docs/diagrams/APPNFC.drawio](file:///home/ramsescb/Projects/arduino_app_Fundamentos/docs/diagrams/APPNFC.drawio) o los archivos de proyecto Astah [docs/diagrams/*.asta](file:///home/ramsescb/Projects/arduino_app_Fundamentos/docs/diagrams/).
+Los tags `v*` deben coincidir exactamente con la versión Maven y el nombre de versión Flutter. El build number Android es independiente y creciente. Publicar SHA-256 de los artefactos; mantener el certificado de firma existente.
+
+No confundir un DSN público con una credencial de administración. Si se confirma una clave privada expuesta, revocarla y coordinar la limpieza de todas las referencias afectadas sin prometer borrar copias ajenas.
+
+## Documentación
+
+README describe arquitectura, comandos y versiones verificadas; CONTRIBUTING describe el flujo de aporte; CONSTITUTION define invariantes. `DOCUMENTS.md` y `docs/` están fuera del alcance de esta revisión. No sustituir diagramas existentes ni inventar releases publicadas.

@@ -13,6 +13,19 @@ class SimulationService {
   bool _active = false;
   MotorState _motorState = MotorState.adelante;
 
+  int? _manualPitch;
+  int? _manualYaw;
+
+  void setManualServoAngles(int pitch, int yaw) {
+    _manualPitch = pitch.clamp(0, 180);
+    _manualYaw = yaw.clamp(0, 180);
+  }
+
+  void clearManualServoAngles() {
+    _manualPitch = null;
+    _manualYaw = null;
+  }
+
   static const String _simulatedUid = 'SIM-TAG-MOBILE-0001';
 
   final StreamController<RobotTelemetry> _telemetryController =
@@ -22,7 +35,7 @@ class SimulationService {
   bool get isActive => _active;
 
   void start({Duration interval = const Duration(milliseconds: 1500)}) {
-    if (_active) return;
+    if (_active || _telemetryController.isClosed) return;
     _active = true;
 
     _timer = Timer.periodic(interval, (_) {
@@ -64,8 +77,8 @@ class SimulationService {
         ldrValues: ldr,
         ldrAverage: ldr.reduce((a, b) => a + b) / 4.0,
         primaryLightDirection: direction,
-        servoPitchAngle: 15 + _random.nextInt(151),
-        servoYawAngle: 10 + _random.nextInt(161),
+        servoPitchAngle: _manualPitch ?? (15 + _random.nextInt(151)),
+        servoYawAngle: _manualYaw ?? (10 + _random.nextInt(161)),
         polarityReversalsCount: _reversals,
         motorDirection: _motorState,
         operatingVoltage: voltageMv / 1000.0,

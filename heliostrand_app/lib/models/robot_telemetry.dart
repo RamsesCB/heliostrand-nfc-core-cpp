@@ -1,7 +1,6 @@
 import 'light_direction.dart';
 import 'motor_state.dart';
 
-/// Objeto de dominio inmutable que encapsula las lecturas del robot (Protocolo V2).
 class RobotTelemetry {
   final int version;
   final int sequenceNumber;
@@ -52,31 +51,6 @@ class RobotTelemetry {
       'batteryLevelPercent': batteryLevelPercent,
       'batteryValid': batteryValid,
     };
-  }
-
-  factory RobotTelemetry.fromJson(Map<String, dynamic> json) {
-    return RobotTelemetry(
-      version: json['version'] as int? ?? 2,
-      sequenceNumber: json['sequenceNumber'] as int? ?? 0,
-      ldrValues: List<int>.from(json['ldrValues'] as List),
-      ldrAverage: (json['ldrAverage'] as num).toDouble(),
-      primaryLightDirection: LightDirection.values.firstWhere(
-        (e) => e.displayName == json['primaryLightDirection'],
-        orElse: () => LightDirection.equilibrado,
-      ),
-      servoPitchAngle: json['servoPitchAngle'] as int,
-      servoYawAngle: json['servoYawAngle'] as int,
-      polarityReversalsCount: json['polarityReversalsCount'] as int,
-      motorDirection: MotorState.values.firstWhere(
-        (e) => e.displayName == json['motorDirection'],
-        orElse: () => MotorState.detenido,
-      ),
-      operatingVoltage: (json['operatingVoltage'] as num).toDouble(),
-      batteryLevelPercent: json['batteryLevelPercent'] as int,
-      batteryValid: json['batteryValid'] as bool? ?? true,
-      timestamp: json['timestamp'] as int,
-      tagUid: json['tagUid'] as String,
-    );
   }
 
   @override

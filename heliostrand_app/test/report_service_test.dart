@@ -27,6 +27,9 @@ void main() {
 
     expect(csv.endsWith('\r\n'), isTrue);
     expect(csv.contains('"TAG,""A""\nB"'), isTrue);
-    expect(csv.split('\r\n').first.startsWith('version,sequenceNumber'), isTrue);
+    expect(
+      csv.split('\r\n').first.startsWith('version,sequenceNumber'),
+      isTrue,
+    );
   });
 }
