@@ -1,0 +1,32 @@
+
+PROMPT MAESTRO - THEO JANSEN TRACKER FLUTTER
+
+Actua como Senior Flutter Developer. Tienes que replicar EXACTAMENTE esta interfaz minimalista tradicional.
+
+CONTEXTO:
+- App original era dark con neones. Rediseño es claro #F8F9FA, cards blancas radius 20px, borde #EFEFEF, sombra sutil.
+- Max width 390px centrado.
+- Tipografia Inter via google_fonts.
+
+ESTRUCTURA OBLIGATORIA (no quites nada):
+1. Header 56px blanco con logo negro 32x32 radius 9px + icono sol #E9A000, toggle NFC iOS 44x26
+2. Status Card 48px "Listo para escanear"
+3. LDR Card con badge EQUILIBRADO #E6F4EA texto #137333 / AJUSTANDO #FEF3C7, 4 barras Norte Sur Este Oeste 0-255
+4. Servos Card con 2 sliders Pitch #E9A000 y Yaw #0EA5E9, rango 0-180, trackHeight 4
+5. Metrics Grid: Theo Jansen DETENIDO #FCE8E6 #C5221F / MOVIENDO #E6F4EA #137333 + Inversiones contador, Potencia N/D
+6. Historial con empty state y lista max 5 "P 90° · Y 90°"
+7. CTA sticky bottom blur, boton negro #111 h52 radius12 "Iniciar Escaneo NFC"
+
+FUNCIONALIDAD:
+- nfcEnabled bool
+- ldrs drift 1800ms +-6
+- balanced = (max-min)<45
+- pitch/yaw double 0-180
+- handleScan con estados scanning, inversiones++, historial insert
+- TODO marcado en codigo donde conectar hardware real
+
+ESTILO:
+Material 3 puro, sin paquetes pesados. AnimatedContainer, SliderTheme, BoxDecoration.
+Colores exactos del archivo main.dart comentado.
+
+ENTREGA: lib/main.dart listo para flutter run.

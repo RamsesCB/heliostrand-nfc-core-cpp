@@ -5,14 +5,32 @@ import 'package:heliostrand_app/models/light_direction.dart';
 import 'package:heliostrand_app/ui/widgets/ldr_chart_card.dart';
 
 void main() {
-  testWidgets('Carga el dashboard de Theo Jansen Solar Tracker', (WidgetTester tester) async {
+  testWidgets('Carga el dashboard minimalista de Theo Jansen Solar Tracker', (WidgetTester tester) async {
     await tester.pumpWidget(const HeliostrandApp());
+    await tester.pumpAndSettle();
 
-    // Verificar que el título de la app se renderiza
-    expect(find.text('Theo Jansen Solar Tracker'), findsOneWidget);
-    // Verificar que los paneles principales están presentes
+    // 1. Header
+    expect(find.text('Theo Jansen'), findsAtLeastNWidgets(1));
+    expect(find.text('Solar Tracker'), findsOneWidget);
+
+    // 2. Status Card
+    expect(find.text('Listo para escanear'), findsOneWidget);
+
+    // 3. LDR Card
     expect(find.text('Sensores LDR (Luz)'), findsOneWidget);
-    expect(find.text('Servomotores (Seguimiento)'), findsOneWidget);
+
+    // 4. Servos Card
+    expect(find.text('Pitch (Vertical)'), findsOneWidget);
+    expect(find.text('Yaw (Horizontal)'), findsOneWidget);
+
+    // 5. Metrics Grid
+    expect(find.text('Potencia'), findsOneWidget);
+
+    // 6. Historial
+    expect(find.text('Historial'), findsOneWidget);
+
+    // 7. Sticky CTA
+    expect(find.text('Iniciar Escaneo NFC'), findsOneWidget);
   });
 
   testWidgets('LdrChartCard no genera overflow en pantallas móviles (360dp)', (WidgetTester tester) async {
@@ -40,4 +58,3 @@ void main() {
     }
   });
 }
-

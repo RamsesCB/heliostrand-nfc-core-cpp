@@ -5,113 +5,103 @@ import '../theme.dart';
 class ServosCard extends StatelessWidget {
   final int pitch;
   final int yaw;
+  final ValueChanged<double>? onPitchChanged;
+  final ValueChanged<double>? onYawChanged;
 
   const ServosCard({
     super.key,
     required this.pitch,
     required this.yaw,
+    this.onPitchChanged,
+    this.onYawChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(
-              children: [
-                Icon(Icons.precision_manufacturing, color: SolarTrackerTheme.accentCyan, size: 20),
-                SizedBox(width: 8),
-                Text(
-                  'Servomotores (Seguimiento)',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ],
+    return Container(
+      decoration: BoxDecoration(
+        color: SolarTrackerTheme.cardBackground,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: SolarTrackerTheme.cardBorder),
+      ),
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        children: [
+          Expanded(
+            child: _servoItem(
+              label: 'Pitch (Vertical)',
+              value: pitch.toDouble().clamp(0.0, 180.0),
+              accent: SolarTrackerTheme.sunPitchAmber,
+              onChanged: onPitchChanged,
             ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildAngleGauge(
-                    title: 'Pitch (Vertical)',
-                    angle: pitch,
-                    icon: Icons.height,
-                    color: SolarTrackerTheme.primaryAmber,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildAngleGauge(
-                    title: 'Yaw (Horizontal)',
-                    angle: yaw,
-                    icon: Icons.sync,
-                    color: SolarTrackerTheme.accentCyan,
-                  ),
-                ),
-              ],
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _servoItem(
+              label: 'Yaw (Horizontal)',
+              value: yaw.toDouble().clamp(0.0, 180.0),
+              accent: SolarTrackerTheme.yawSkyBlue,
+              onChanged: onYawChanged,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildAngleGauge({
-    required String title,
-    required int angle,
-    required IconData icon,
-    required Color color,
+  Widget _servoItem({
+    required String label,
+    required double value,
+    required Color accent,
+    required ValueChanged<double>? onChanged,
   }) {
-    final progress = (angle / 180.0).clamp(0.0, 1.0);
-
     return Container(
-      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white10),
+        color: const Color(0xFFF8F9FA),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFF1F3F5)),
       ),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 16, color: color),
-              const SizedBox(width: 4),
-              Text(
-                title,
-                style: const TextStyle(fontSize: 12, color: Colors.white70),
-              ),
-            ],
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF495057),
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 10),
           Text(
-            '$angle°',
+            '${value.round()}°',
             style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: color,
+              fontSize: 28,
+              fontWeight: FontWeight.w700,
+              color: accent,
             ),
           ),
-          const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 8,
-              backgroundColor: Colors.white12,
-              valueColor: AlwaysStoppedAnimation<Color>(color),
+          SliderTheme(
+            data: SliderThemeData(
+              trackHeight: 4,
+              activeTrackColor: accent,
+              inactiveTrackColor: const Color(0xFFE9ECEF),
+              thumbColor: Colors.white,
+              thumbShape: const RoundSliderThumbShape(
+                enabledThumbRadius: 9,
+                elevation: 2,
+              ),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
             ),
-          ),
-          const SizedBox(height: 4),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('0°', style: TextStyle(fontSize: 10, color: Colors.white38)),
-              Text('180°', style: TextStyle(fontSize: 10, color: Colors.white38)),
-            ],
+            child: Slider(
+              min: 0,
+              max: 180,
+              value: value,
+              onChanged: onChanged ?? (_) {},
+            ),
           ),
         ],
       ),

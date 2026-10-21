@@ -9,6 +9,7 @@ class MotorBatteryCard extends StatelessWidget {
   final double voltage;
   final int battery;
   final bool batteryValid;
+  final bool? isSimulatedMoving;
 
   const MotorBatteryCard({
     super.key,
@@ -17,173 +18,149 @@ class MotorBatteryCard extends StatelessWidget {
     required this.voltage,
     required this.battery,
     required this.batteryValid,
+    this.isSimulatedMoving,
   });
+
+  bool get isMoving => isSimulatedMoving ?? (motorState != MotorState.detenido);
 
   @override
   Widget build(BuildContext context) {
-    final batteryColor =
-        batteryValid ? _getBatteryColor(battery) : Colors.white54;
+    final moving = isMoving;
 
     return Row(
       children: [
+        // 1. Tarjeta Mecanismo Theo Jansen
         Expanded(
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Row(
-                    children: [
-                      Icon(
-                        Icons.directions_walk,
-                        color: SolarTrackerTheme.accentGreen,
-                        size: 18,
-                      ),
-                      SizedBox(width: 6),
-                      Text(
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 110),
+            decoration: BoxDecoration(
+              color: SolarTrackerTheme.cardBackground,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: SolarTrackerTheme.cardBorder),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Flexible(
+                      child: Text(
                         'Theo Jansen',
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: SolarTrackerTheme.textDark,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    decoration: BoxDecoration(
-                      color: _getMotorColor(motorState).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: _getMotorColor(motorState)),
                     ),
-                    child: Center(
+                    const SizedBox(width: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: moving
+                            ? SolarTrackerTheme.badgeGreenBg
+                            : SolarTrackerTheme.badgeRedBg,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                       child: Text(
-                        motorState.displayName,
+                        moving ? 'MOVIENDO' : 'DETENIDO',
                         style: TextStyle(
-                          color: _getMotorColor(motorState),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: moving
+                              ? SolarTrackerTheme.badgeGreenText
+                              : SolarTrackerTheme.badgeRedText,
                         ),
                       ),
                     ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  moving
+                      ? (motorState != MotorState.detenido
+                          ? motorState.displayName
+                          : '12 rpm')
+                      : '—',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: SolarTrackerTheme.textDark,
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Inversiones: $reversals',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.white70,
-                    ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Inversiones: $reversals',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: SolarTrackerTheme.textSecondary,
                   ),
-                ],
-              ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ),
         ),
         const SizedBox(width: 12),
+
+        // 2. Tarjeta Potencia y Batería
         Expanded(
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Row(
-                    children: [
-                      Icon(
-                        Icons.bolt,
-                        color: SolarTrackerTheme.primaryAmber,
-                        size: 18,
-                      ),
-                      SizedBox(width: 6),
-                      Text(
-                        'Potencia',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 110),
+            decoration: BoxDecoration(
+              color: SolarTrackerTheme.cardBackground,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: SolarTrackerTheme.cardBorder),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Potencia',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: SolarTrackerTheme.textDark,
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        batteryValid ? '${voltage.toStringAsFixed(2)} V' : 'N/D',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Icon(
-                            batteryValid
-                                ? _getBatteryIcon(battery)
-                                : Icons.battery_unknown,
-                            size: 16,
-                            color: batteryColor,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            batteryValid ? '$battery%' : 'N/D',
-                            style: TextStyle(
-                              color: batteryColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  batteryValid ? '${voltage.toStringAsFixed(2)} V' : 'N/D',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: SolarTrackerTheme.textDark,
                   ),
-                  const SizedBox(height: 10),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: batteryValid
-                          ? (battery / 100.0).clamp(0.0, 1.0)
-                          : 0.0,
-                      minHeight: 6,
-                      backgroundColor: Colors.white12,
-                      valueColor: AlwaysStoppedAnimation<Color>(batteryColor),
-                    ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  batteryValid
+                      ? 'Batería $battery% · ${battery >= 20 ? 'Óptima' : 'Baja'}'
+                      : 'Batería N/D · Esperando NFC',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: SolarTrackerTheme.textSecondary,
                   ),
-                ],
-              ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ),
         ),
       ],
     );
-  }
-
-  Color _getMotorColor(MotorState state) {
-    switch (state) {
-      case MotorState.adelante:
-        return SolarTrackerTheme.accentGreen;
-      case MotorState.atras:
-        return SolarTrackerTheme.primaryAmber;
-      case MotorState.detenido:
-        return SolarTrackerTheme.accentRed;
-    }
-  }
-
-  Color _getBatteryColor(int level) {
-    if (level > 50) return SolarTrackerTheme.accentGreen;
-    if (level > 20) return SolarTrackerTheme.primaryAmber;
-    return SolarTrackerTheme.accentRed;
-  }
-
-  IconData _getBatteryIcon(int level) {
-    if (level > 80) return Icons.battery_full;
-    if (level > 50) return Icons.battery_5_bar;
-    if (level > 20) return Icons.battery_3_bar;
-    return Icons.battery_alert;
   }
 }

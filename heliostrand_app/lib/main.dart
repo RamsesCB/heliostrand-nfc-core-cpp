@@ -38,7 +38,7 @@ class HeliostrandApp extends StatelessWidget {
     return MaterialApp(
       title: 'Theo Jansen Solar Tracker',
       debugShowCheckedModeBanner: false,
-      theme: SolarTrackerTheme.darkTheme,
+      theme: SolarTrackerTheme.lightTheme,
       home: const VersionGate(child: DashboardScreen()),
     );
   }
