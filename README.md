@@ -224,6 +224,8 @@ classDiagram
         +initController(nfcServiceManager, uiController)
         +updateDashboard(telemetry)
         +showDeviceError(message)
+        +toggleSimulation()
+        +changeTheme(index)
         +dispose()
     }
     class TrackerUiController {
