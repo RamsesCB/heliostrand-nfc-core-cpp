@@ -33,7 +33,7 @@ void main() {
     expect(find.text('Iniciar Escaneo NFC'), findsOneWidget);
   });
 
-  testWidgets('LdrChartCard no genera overflow en pantallas móviles (360dp)', (WidgetTester tester) async {
+  testWidgets('LdrChartCard no genera overflow en pantallas móviles (360dp) incluso con valores máximos y accesibilidad', (WidgetTester tester) async {
     tester.view.physicalSize = const Size(360, 640);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -42,11 +42,14 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-              child: LdrChartCard(
-                ldrValues: const [100, 50, 80, 20],
-                dominantDirection: dir,
+            body: MediaQuery(
+              data: const MediaQueryData(textScaler: TextScaler.linear(1.3)),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                child: LdrChartCard(
+                  ldrValues: const [255, 255, 255, 255],
+                  dominantDirection: dir,
+                ),
               ),
             ),
           ),

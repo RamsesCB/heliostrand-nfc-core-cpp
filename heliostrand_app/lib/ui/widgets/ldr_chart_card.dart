@@ -107,7 +107,7 @@ class LdrChartCard extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           SizedBox(
-            height: 120,
+            height: 130,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: sensors.map((ldr) {
@@ -116,24 +116,34 @@ class LdrChartCard extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOutQuad,
-                          height: (100 * heightFactor).clamp(8.0, 100.0),
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: ldr.isDominant
-                                ? SolarTrackerTheme.sunPitchAmber.withValues(alpha: 0.35)
-                                : const Color(0xFFE9ECEF),
-                            borderRadius: BorderRadius.circular(8),
-                            border: ldr.isDominant
-                                ? Border.all(
-                                    color: SolarTrackerTheme.sunPitchAmber,
-                                    width: 1.2,
-                                  )
-                                : null,
+                        Expanded(
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              final barHeight = (constraints.maxHeight * heightFactor)
+                                  .clamp(6.0, constraints.maxHeight);
+                              return Align(
+                                alignment: Alignment.bottomCenter,
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeOutQuad,
+                                  height: barHeight,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: ldr.isDominant
+                                        ? SolarTrackerTheme.sunPitchAmber.withValues(alpha: 0.35)
+                                        : const Color(0xFFE9ECEF),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: ldr.isDominant
+                                        ? Border.all(
+                                            color: SolarTrackerTheme.sunPitchAmber,
+                                            width: 1.2,
+                                          )
+                                        : null,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                         const SizedBox(height: 8),
