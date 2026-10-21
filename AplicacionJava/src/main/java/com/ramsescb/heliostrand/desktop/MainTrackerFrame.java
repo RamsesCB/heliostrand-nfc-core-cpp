@@ -8,183 +8,469 @@ import com.theojansen.nfc.model.RobotTelemetry;
 import com.ramsescb.heliostrand.desktop.ui.controller.TrackerUiController;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatDarculaLaf;
+import com.formdev.flatlaf.intellijthemes.FlatArcDarkIJTheme;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.JOptionPane;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
-import java.awt.BorderLayout;
-import java.io.FileWriter;
-import java.util.concurrent.ExecutionException;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
+import javax.swing.UIManager;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Paint;
+import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
-public class MainTrackerFrame extends javax.swing.JFrame {
+/**
+ * Ventana Principal de Telemetría Solar Tracker (Heliostrand).
+ * Modernizada con FlatLaf, soporte de temas (Claro / Darcula / Oscuro),
+ * gráficos personalizados JFreeChart y robustecimiento mediante try-catch.
+ */
+public class MainTrackerFrame extends JFrame {
 
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainTrackerFrame.class.getName());
+    private static final java.util.logging.Logger logger =
+            java.util.logging.Logger.getLogger(MainTrackerFrame.class.getName());
+
+    private static final int MAX_IN_MEMORY_SAMPLES = 500;
+
+    // Componentes principales
+    private JButton btnToggleScan;
+    private JButton btnToggleSimulate;
+    private JButton btnExportReport;
+    private JButton btnClearHistory;
+    private JComboBox<String> comboThemes;
+    private JLabel lblStatusBadge;
+
+    private JProgressBar barPitch;
+    private JProgressBar barYaw;
+    private JLabel lblMotorState;
+    private JLabel lblReversalsCount;
+    private JLabel lblVoltage;
+    private JProgressBar barBattery;
+
+    private JPanel chartContainerPanel;
+    private JTable historyTable;
+    private DefaultCategoryDataset ldrDataset;
+    private JFreeChart ldrChart;
+    private ChartPanel chartPanel;
+
+    private boolean scanning = false;
+    private final List<RobotTelemetry> sessionHistory = new ArrayList<>();
+    private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+
+    private NfcServiceManager nfcServiceManager;
+    private TrackerUiController uiController;
+    private Thread simulationThread;
+    private volatile boolean simulationActive = false;
+    private javax.swing.JDialog errorDialog;
 
     public MainTrackerFrame() {
+        setTitle("Heliostrand · Solar Tracker & Telemetría NFC");
+        setupWindowIcon();
         initComponents();
         setupCharts();
-        setExtendedState(javax.swing.JFrame.NORMAL);
-        setSize(1100, 900);
-        setMinimumSize(new java.awt.Dimension(1000, 800));
+        applyModernStyles();
+
+        setSize(1120, 880);
+        setMinimumSize(new Dimension(980, 750));
         setLocationRelativeTo(null);
     }
 
-    @SuppressWarnings("unchecked")
+    private void setupWindowIcon() {
+        try {
+            java.net.URL iconUrl = getClass().getResource("/icons/logo_robot_64.png");
+            if (iconUrl != null) {
+                setIconImage(new ImageIcon(iconUrl).getImage());
+            }
+        } catch (Exception ex) {
+            logger.log(java.util.logging.Level.WARNING, "No se pudo cargar el icono de la ventana", ex);
+        }
+    }
 
     private void initComponents() {
-
-        jToolBar1 = new javax.swing.JToolBar();
-        btnToggleScan = new javax.swing.JButton();
-        btnExportReport = new javax.swing.JButton();
-        topMetricsPanel = new javax.swing.JPanel();
-        servoPanel = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        barPitch = new javax.swing.JProgressBar();
-        jLabel2 = new javax.swing.JLabel();
-        barYaw = new javax.swing.JProgressBar();
-        motorPolarityPanel = new javax.swing.JPanel();
-        lblMotorState = new javax.swing.JLabel();
-        lblReversalsCount = new javax.swing.JLabel();
-        powerPanel = new javax.swing.JPanel();
-        Voltaje = new javax.swing.JLabel();
-        lblVoltage = new javax.swing.JLabel();
-        Bateria = new javax.swing.JLabel();
-        barBattery = new javax.swing.JProgressBar();
-        chartContainerPanel = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        historyTable = new javax.swing.JTable();
-
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setBackground(new java.awt.Color(255, 255, 255));
 
-        jToolBar1.setRollover(true);
+        // Panel Raíz con BorderLayout
+        JPanel rootPanel = new JPanel(new BorderLayout(0, 10));
+        rootPanel.setBorder(BorderFactory.createEmptyBorder(12, 14, 12, 14));
+        setContentPane(rootPanel);
 
-        btnToggleScan.setText("Iniciar Escaneo");
+        // 1. ZONA NORTE: Header + Toolbar + Métricas
+        JPanel northContainer = new JPanel();
+        northContainer.setLayout(new BoxLayout(northContainer, BoxLayout.Y_AXIS));
+
+        northContainer.add(createHeaderPanel());
+        northContainer.add(Box.createVerticalStrut(10));
+        northContainer.add(createToolBarPanel());
+        northContainer.add(Box.createVerticalStrut(12));
+        northContainer.add(createMetricsPanel());
+
+        rootPanel.add(northContainer, BorderLayout.NORTH);
+
+        // 2. ZONA CENTRO: Gráficas LDR y Tabla de Historial
+        JPanel centerPanel = new JPanel(new GridLayout(2, 1, 0, 12));
+
+        // Panel de Gráficas
+        chartContainerPanel = new JPanel(new BorderLayout());
+        chartContainerPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(0xE2, 0xE8, 0xF0)),
+                "Sensores LDR (Norte / Sur / Este / Oeste) - Intensidad de Luz",
+                javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+                javax.swing.border.TitledBorder.DEFAULT_POSITION,
+                new Font("Segoe UI", Font.BOLD, 13)
+        ));
+        centerPanel.add(chartContainerPanel);
+
+        // Panel de Historial con Tabla
+        historyTable = new JTable();
+        historyTable.setModel(new DefaultTableModel(
+                new Object[][]{},
+                new String[]{
+                        "Hora", "Voltaje (V)", "Batería (%)", "Pitch", "Yaw", "LDR Dominante", "Motor", "Tag UID"
+                }
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        });
+
+        JScrollPane scrollTable = new JScrollPane(historyTable);
+        scrollTable.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(0xE2, 0xE8, 0xF0)),
+                "Historial de Telemetría (Últimas Muestras)",
+                javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+                javax.swing.border.TitledBorder.DEFAULT_POSITION,
+                new Font("Segoe UI", Font.BOLD, 13)
+        ));
+        centerPanel.add(scrollTable);
+
+        rootPanel.add(centerPanel, BorderLayout.CENTER);
+    }
+
+    private JPanel createHeaderPanel() {
+        JPanel header = new JPanel(new BorderLayout(15, 0));
+        header.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(0xE2, 0xE8, 0xF0)),
+                BorderFactory.createEmptyBorder(6, 6, 12, 6)
+        ));
+
+        // Izquierda: Logo + Título + Subtítulo
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
+
+        JLabel lblLogo = new JLabel();
+        try {
+            java.net.URL logoUrl = getClass().getResource("/icons/logo_robot_64.png");
+            if (logoUrl != null) {
+                ImageIcon original = new ImageIcon(logoUrl);
+                Image scaled = original.getImage().getScaledInstance(48, 48, Image.SCALE_SMOOTH);
+                lblLogo.setIcon(new ImageIcon(scaled));
+            }
+        } catch (Exception e) {
+            logger.log(java.util.logging.Level.FINE, "Logo no disponible", e);
+        }
+        titlePanel.add(lblLogo);
+
+        JPanel textTitles = new JPanel(new GridLayout(2, 1, 0, 2));
+        JLabel lblTitle = new JLabel("Solar Tracker");
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
+
+        JLabel lblSub = new JLabel("Heliostrand · Theo Jansen Robotics · Telemetría NFC V2");
+        lblSub.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblSub.setForeground(new Color(0x64, 0x74, 0x8B));
+
+        textTitles.add(lblTitle);
+        textTitles.add(lblSub);
+        titlePanel.add(textTitles);
+
+        header.add(titlePanel, BorderLayout.WEST);
+
+        // Derecha: Selector de Tema + Badge de Estado
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 8));
+
+        lblStatusBadge = new JLabel("● Lector Inactivo");
+        lblStatusBadge.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblStatusBadge.setForeground(new Color(0x64, 0x74, 0x8B));
+        rightPanel.add(lblStatusBadge);
+
+        comboThemes = new JComboBox<>(new String[]{
+                "☀️ Tema Claro",
+                "🌙 Tema Darcula",
+                "🌑 Tema Oscuro",
+                "🎨 Arc Dark"
+        });
+        comboThemes.setSelectedIndex(0);
+        comboThemes.setFocusable(false);
+        comboThemes.putClientProperty("JComponent.roundRect", true);
+        comboThemes.addActionListener(e -> changeTheme(comboThemes.getSelectedIndex()));
+        rightPanel.add(comboThemes);
+
+        header.add(rightPanel, BorderLayout.EAST);
+        return header;
+    }
+
+    private JPanel createToolBarPanel() {
+        JPanel toolBarPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+
+        btnToggleScan = new JButton("▶ Iniciar Escaneo");
+        btnToggleScan.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnToggleScan.putClientProperty("JButton.buttonType", "roundRect");
         btnToggleScan.addActionListener(this::btnToggleScanActionPerformed);
-        jToolBar1.add(btnToggleScan);
+        toolBarPanel.add(btnToggleScan);
 
-        btnExportReport.setText("Exportar Reporte (JSON)");
-        btnExportReport.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btnExportReport.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnToggleSimulate = new JButton("⚡ Simular Telemetría");
+        btnToggleSimulate.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        btnToggleSimulate.putClientProperty("JButton.buttonType", "roundRect");
+        btnToggleSimulate.addActionListener(e -> toggleSimulation());
+        toolBarPanel.add(btnToggleSimulate);
+
+        btnExportReport = new JButton("💾 Exportar Reporte (JSON)");
+        btnExportReport.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        btnExportReport.putClientProperty("JButton.buttonType", "roundRect");
         btnExportReport.addActionListener(this::btnExportReportActionPerformed);
-        jToolBar1.add(btnExportReport);
+        toolBarPanel.add(btnExportReport);
 
-        topMetricsPanel.setLayout(new java.awt.GridLayout(1, 3));
+        btnClearHistory = new JButton("🗑 Limpiar Historial");
+        btnClearHistory.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        btnClearHistory.putClientProperty("JButton.buttonType", "roundRect");
+        btnClearHistory.addActionListener(e -> clearHistory());
+        toolBarPanel.add(btnClearHistory);
 
-        servoPanel.setBackground(new java.awt.Color(255, 255, 255));
-        servoPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Servomotores"));
-        servoPanel.setLayout(new java.awt.GridLayout(2, 2));
+        return toolBarPanel;
+    }
 
-        jLabel1.setText("Pitch:");
+    private JPanel createMetricsPanel() {
+        JPanel topMetricsPanel = new JPanel(new GridLayout(1, 3, 14, 0));
+
+        // 1. Tarjeta Servos
+        JPanel servoPanel = new JPanel(new GridLayout(2, 2, 8, 8));
+        servoPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(0xE2, 0xE8, 0xF0)),
+                "Servomotores Biaxiales",
+                javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+                javax.swing.border.TitledBorder.DEFAULT_POSITION,
+                new Font("Segoe UI", Font.BOLD, 12)
+        ));
+
+        JLabel jLabel1 = new JLabel("Pitch (Vertical):");
+        jLabel1.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         servoPanel.add(jLabel1);
-        barPitch.setMaximum(180);
+
+        barPitch = new JProgressBar(0, 180);
+        barPitch.setStringPainted(true);
+        barPitch.setValue(90);
+        barPitch.setString("90°");
+        barPitch.setForeground(new Color(0xD9, 0x77, 0x06)); // Ámbar
         servoPanel.add(barPitch);
 
-        jLabel2.setText("Yaw:");
+        JLabel jLabel2 = new JLabel("Yaw (Horizontal):");
+        jLabel2.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         servoPanel.add(jLabel2);
-        barYaw.setMaximum(180);
+
+        barYaw = new JProgressBar(0, 180);
+        barYaw.setStringPainted(true);
+        barYaw.setValue(90);
+        barYaw.setString("90°");
+        barYaw.setForeground(new Color(0x02, 0x84, 0xC7)); // Celeste
         servoPanel.add(barYaw);
 
         topMetricsPanel.add(servoPanel);
 
-        motorPolarityPanel.setBackground(new java.awt.Color(255, 255, 255));
-        motorPolarityPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Polaridad del Motor"));
-        motorPolarityPanel.setLayout(new java.awt.GridLayout(2, 2));
+        // 2. Tarjeta Motor
+        JPanel motorPolarityPanel = new JPanel(new GridLayout(2, 1, 4, 4));
+        motorPolarityPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(0xE2, 0xE8, 0xF0)),
+                "Cinemática Theo Jansen",
+                javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+                javax.swing.border.TitledBorder.DEFAULT_POSITION,
+                new Font("Segoe UI", Font.BOLD, 12)
+        ));
 
-        lblMotorState.setText("Detenido");
+        lblMotorState = new JLabel("DETENIDO", SwingConstants.CENTER);
+        lblMotorState.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblMotorState.setForeground(new Color(0x64, 0x74, 0x8B));
         motorPolarityPanel.add(lblMotorState);
 
-        lblReversalsCount.setText("Inversiones: 0");
+        lblReversalsCount = new JLabel("Inversiones de Marcha: 0", SwingConstants.CENTER);
+        lblReversalsCount.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         motorPolarityPanel.add(lblReversalsCount);
 
         topMetricsPanel.add(motorPolarityPanel);
 
-        powerPanel.setBackground(new java.awt.Color(255, 255, 255));
-        powerPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Potencia"));
-        powerPanel.setLayout(new java.awt.GridLayout(2, 2));
+        // 3. Tarjeta Potencia
+        JPanel powerPanel = new JPanel(new GridLayout(2, 2, 8, 8));
+        powerPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(0xE2, 0xE8, 0xF0)),
+                "Alimentación y Batería",
+                javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+                javax.swing.border.TitledBorder.DEFAULT_POSITION,
+                new Font("Segoe UI", Font.BOLD, 12)
+        ));
 
-        Voltaje.setText("Voltaje");
-        powerPanel.add(Voltaje);
+        JLabel lblVoltTitle = new JLabel("Voltaje Operativo:");
+        lblVoltTitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        powerPanel.add(lblVoltTitle);
 
-        lblVoltage.setText("0.00 V");
+        lblVoltage = new JLabel("0.00 V");
+        lblVoltage.setFont(new Font("Segoe UI", Font.BOLD, 15));
         powerPanel.add(lblVoltage);
 
-        Bateria.setText("Bateria");
-        powerPanel.add(Bateria);
+        JLabel lblBatTitle = new JLabel("Batería Li-ion 1S:");
+        lblBatTitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        powerPanel.add(lblBatTitle);
+
+        barBattery = new JProgressBar(0, 100);
+        barBattery.setStringPainted(true);
+        barBattery.setValue(0);
+        barBattery.setString("N/D");
+        barBattery.setForeground(new Color(0x10, 0xB9, 0x81)); // Verde esmeralda
         powerPanel.add(barBattery);
 
         topMetricsPanel.add(powerPanel);
+        return topMetricsPanel;
+    }
 
-        chartContainerPanel.setBackground(new java.awt.Color(255, 255, 255));
-        chartContainerPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Sensores LDR (Norte / Sur / Este / Oeste)"));
+    private void applyModernStyles() {
+        try {
+            historyTable.setRowHeight(28);
+            historyTable.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            historyTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
 
-        javax.swing.GroupLayout chartContainerPanelLayout = new javax.swing.GroupLayout(chartContainerPanel);
-        chartContainerPanel.setLayout(chartContainerPanelLayout);
-        chartContainerPanelLayout.setHorizontalGroup(
-            chartContainerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-        chartContainerPanelLayout.setVerticalGroup(
-            chartContainerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 245, Short.MAX_VALUE)
-        );
-
-        jScrollPane1.setBorder(javax.swing.BorderFactory.createTitledBorder("Historial de Telemetria"));
-
-        historyTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Timestamp", "Voltaje (V)", "Bateria (%)", "Servo Pitch", "Servo Yaw", "LDR Dominante", "Sentido Motor"
+            DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+            centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+            for (int i = 0; i < historyTable.getColumnCount(); i++) {
+                historyTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
             }
-        ));
-        jScrollPane1.setViewportView(historyTable);
+        } catch (Exception ex) {
+            logger.log(java.util.logging.Level.WARNING, "Error al configurar tabla moderna", ex);
+        }
+    }
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(24, 24, 24)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 254, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(topMetricsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 938, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(chartContainerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 962, Short.MAX_VALUE)))
-                .addContainerGap(15, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(topMetricsPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(chartContainerPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 203, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+    public void changeTheme(int index) {
+        try {
+            if (comboThemes != null && comboThemes.getSelectedIndex() != index) {
+                comboThemes.setSelectedIndex(index);
+            }
+            if (index == 0) {
+                FlatLightLaf.setup();
+            } else if (index == 1) {
+                FlatDarculaLaf.setup();
+            } else if (index == 2) {
+                FlatDarkLaf.setup();
+            } else if (index == 3) {
+                FlatArcDarkIJTheme.setup();
+            }
+            FlatLaf.updateUI();
+            updateChartTheme();
+        } catch (Exception ex) {
+            logger.log(java.util.logging.Level.SEVERE, "Error al cambiar tema visual", ex);
+        }
+    }
 
-        pack();
+    private void setupCharts() {
+        try {
+            ldrDataset = new DefaultCategoryDataset();
+            ldrDataset.addValue(0, "Intensidad", "Norte");
+            ldrDataset.addValue(0, "Intensidad", "Sur");
+            ldrDataset.addValue(0, "Intensidad", "Este");
+            ldrDataset.addValue(0, "Intensidad", "Oeste");
+
+            ldrChart = ChartFactory.createBarChart(
+                    null, "Sensor LDR", "Lectura ADC (0-255)",
+                    ldrDataset, PlotOrientation.VERTICAL,
+                    false, true, false);
+
+            chartPanel = new ChartPanel(ldrChart);
+            chartPanel.setPreferredSize(new Dimension(600, 260));
+            chartContainerPanel.setLayout(new BorderLayout());
+            chartContainerPanel.add(chartPanel, BorderLayout.CENTER);
+
+            updateChartTheme();
+            chartContainerPanel.revalidate();
+        } catch (Exception ex) {
+            logger.log(java.util.logging.Level.SEVERE, "Error al configurar componentes JFreeChart", ex);
+        }
+    }
+
+    private void updateChartTheme() {
+        if (ldrChart == null) return;
+        try {
+            CategoryPlot plot = ldrChart.getCategoryPlot();
+            Color bg = UIManager.getColor("Panel.background");
+            if (bg == null) bg = Color.WHITE;
+
+            ldrChart.setBackgroundPaint(bg);
+            plot.setBackgroundPaint(bg);
+            plot.setOutlineVisible(false);
+
+            boolean isDark = FlatLaf.isLafDark();
+            Color gridColor = isDark ? new Color(0x33, 0x41, 0x55) : new Color(0xE2, 0xE8, 0xF0);
+            Color textColor = isDark ? new Color(0xEA, 0xEE, 0xF6) : new Color(0x1E, 0x29, 0x3B);
+
+            plot.setRangeGridlinePaint(gridColor);
+            plot.setDomainGridlinePaint(gridColor);
+
+            plot.getDomainAxis().setTickLabelPaint(textColor);
+            plot.getDomainAxis().setLabelPaint(textColor);
+            plot.getDomainAxis().setTickLabelFont(new Font("Segoe UI", Font.BOLD, 12));
+
+            plot.getRangeAxis().setTickLabelPaint(textColor);
+            plot.getRangeAxis().setLabelPaint(textColor);
+            plot.getRangeAxis().setTickLabelFont(new Font("Segoe UI", Font.PLAIN, 11));
+
+            // Paleta de colores atractiva para cada uno de los 4 LDRs
+            CustomBarRenderer renderer = new CustomBarRenderer(new Paint[]{
+                    new Color(0x3B, 0x82, 0xF6), // Norte (Azul vibrante)
+                    new Color(0xEF, 0x44, 0x44), // Sur (Rojo)
+                    new Color(0x10, 0xB9, 0x81), // Este (Verde esmeralda)
+                    new Color(0xF5, 0x9E, 0x0B)  // Oeste (Ámbar)
+            });
+            renderer.setShadowVisible(false);
+            renderer.setDrawBarOutline(false);
+            plot.setRenderer(renderer);
+        } catch (Exception ex) {
+            logger.log(java.util.logging.Level.WARNING, "Error al actualizar tema del gráfico", ex);
+        }
+    }
+
+    public void initController(NfcServiceManager nfcServiceManager, TrackerUiController uiController) {
+        this.nfcServiceManager = nfcServiceManager;
+        this.uiController = uiController;
     }
 
     private void btnToggleScanActionPerformed(java.awt.event.ActionEvent evt) {
@@ -195,161 +481,167 @@ public class MainTrackerFrame extends javax.swing.JFrame {
         }
     }
 
-    private void btnExportReportActionPerformed(java.awt.event.ActionEvent evt) {
-      if (sessionHistory.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "No hay registros para exportar.",
-                "Exportacion vacia", JOptionPane.INFORMATION_MESSAGE);
-        return;
-    }
-
-    JFileChooser fileChooser = new JFileChooser();
-    fileChooser.setSelectedFile(new java.io.File("reporte.json"));
-    int result = fileChooser.showSaveDialog(this);
-    if (result != JFileChooser.APPROVE_OPTION) {
-        return;
-    }
-
-    final java.io.File destination = fileChooser.getSelectedFile();
-    final List<RobotTelemetry> snapshot = List.copyOf(sessionHistory);
-    btnExportReport.setEnabled(false);
-    new SwingWorker<Void, Void>() {
-        @Override
-        protected Void doInBackground() throws Exception {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            try (FileWriter writer = new FileWriter(destination, java.nio.charset.StandardCharsets.UTF_8)) {
-                gson.toJson(snapshot, writer);
-            }
-            return null;
-        }
-
-        @Override
-        protected void done() {
-            btnExportReport.setEnabled(true);
-            try {
-                get();
-                JOptionPane.showMessageDialog(MainTrackerFrame.this, "Reporte exportado correctamente.");
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                showDeviceError("La exportación fue interrumpida.");
-            } catch (ExecutionException e) {
-                showDeviceError("No se pudo guardar el reporte: " + e.getCause().getMessage());
-            }
-        }
-    }.execute();
-    }
-
-    public static void main(String args[]) {
-
+    private void clearHistory() {
         try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
+            sessionHistory.clear();
+            DefaultTableModel model = (DefaultTableModel) historyTable.getModel();
+            model.setRowCount(0);
+        } catch (Exception ex) {
+            logger.log(java.util.logging.Level.WARNING, "Error al limpiar historial", ex);
         }
-
-        java.awt.EventQueue.invokeLater(() -> new MainTrackerFrame().setVisible(true));
     }
 
-    private javax.swing.JLabel Bateria;
-    private javax.swing.JLabel Voltaje;
-    private javax.swing.JProgressBar barBattery;
-    private javax.swing.JProgressBar barPitch;
-    private javax.swing.JProgressBar barYaw;
-    private javax.swing.JButton btnExportReport;
-    private javax.swing.JButton btnToggleScan;
-    private javax.swing.JPanel chartContainerPanel;
-    private javax.swing.JTable historyTable;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JToolBar jToolBar1;
-    private javax.swing.JLabel lblMotorState;
-    private javax.swing.JLabel lblReversalsCount;
-    private javax.swing.JLabel lblVoltage;
-    private javax.swing.JPanel motorPolarityPanel;
-    private javax.swing.JPanel powerPanel;
-    private javax.swing.JPanel servoPanel;
-    private javax.swing.JPanel topMetricsPanel;
+    private void btnExportReportActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            if (sessionHistory.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No hay registros en el historial para exportar.",
+                        "Historial vacío", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
 
-    private static final int MAX_IN_MEMORY_SAMPLES = 500;
-    private DefaultCategoryDataset ldrDataset;
-    private boolean scanning = false;
-    private final List<RobotTelemetry> sessionHistory = new ArrayList<>();
-    private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setSelectedFile(new java.io.File("reporte_telemetria.json"));
+            int result = fileChooser.showSaveDialog(this);
+            if (result != JFileChooser.APPROVE_OPTION) {
+                return;
+            }
 
-    private NfcServiceManager nfcServiceManager;
-    private TrackerUiController uiController;
-    private Thread simulationThread;
-    private volatile boolean simulationActive = false;
+            final java.io.File destination = fileChooser.getSelectedFile();
+            final List<RobotTelemetry> snapshot = List.copyOf(sessionHistory);
+            btnExportReport.setEnabled(false);
 
-    public void initController(NfcServiceManager nfcServiceManager, TrackerUiController uiController) {
-        this.nfcServiceManager = nfcServiceManager;
-        this.uiController = uiController;
+            new SwingWorker<Void, Void>() {
+                @Override
+                protected Void doInBackground() throws Exception {
+                    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                    try (FileWriter writer = new FileWriter(destination, java.nio.charset.StandardCharsets.UTF_8)) {
+                        gson.toJson(snapshot, writer);
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void done() {
+                    btnExportReport.setEnabled(true);
+                    try {
+                        get();
+                        JOptionPane.showMessageDialog(MainTrackerFrame.this,
+                                "Reporte exportado correctamente en:\n" + destination.getAbsolutePath(),
+                                "Exportación Exitosa", JOptionPane.INFORMATION_MESSAGE);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        showDeviceError("La exportación fue interrumpida.");
+                    } catch (ExecutionException e) {
+                        showDeviceError("No se pudo guardar el reporte: " +
+                                (e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));
+                    }
+                }
+            }.execute();
+        } catch (Exception ex) {
+            logger.log(java.util.logging.Level.SEVERE, "Error inesperado al preparar exportación", ex);
+            showDeviceError("Ocurrió un error inesperado al exportar: " + ex.getMessage());
+        }
     }
 
     private void startScanningProcess() {
-        if (nfcServiceManager == null) {
-            nfcServiceManager = new NfcServiceManager();
-        }
-        if (uiController == null) {
-            uiController = new TrackerUiController(this);
-        }
-
-        btnToggleScan.setEnabled(false);
-        new SwingWorker<Void, Void>() {
-            @Override
-            protected Void doInBackground() throws NfcDeviceException {
-                nfcServiceManager.initializeReader(null);
-                return null;
+        try {
+            if (nfcServiceManager == null) {
+                nfcServiceManager = new NfcServiceManager();
+            }
+            if (uiController == null) {
+                uiController = new TrackerUiController(this);
             }
 
-            @Override
-            protected void done() {
-                btnToggleScan.setEnabled(true);
-                if (!isDisplayable()) return;
-                try {
-                    get();
-                    nfcServiceManager.startContinuousScan(uiController);
-                    scanning = true;
-                    btnToggleScan.setText("Pausar Escaneo");
-                    JOptionPane.showMessageDialog(MainTrackerFrame.this,
-                            "Lector NFC inicializado correctamente.\nEscaneando tags en segundo plano...",
-                            "NFC Conectado", JOptionPane.INFORMATION_MESSAGE);
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                    showDeviceError("La inicialización fue interrumpida.");
-                } catch (ExecutionException ex) {
-                    int option = JOptionPane.showConfirmDialog(MainTrackerFrame.this,
-                            ex.getCause().getMessage() + "\n\n¿Desea iniciar en MODO SIMULACIÓN para verificar la telemetría en el dashboard?",
-                            "Lector NFC no detectado", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-                    if (option == JOptionPane.YES_OPTION) {
-                        startSimulation();
+            btnToggleScan.setEnabled(false);
+            new SwingWorker<Void, Void>() {
+                @Override
+                protected Void doInBackground() throws NfcDeviceException {
+                    nfcServiceManager.initializeReader(null);
+                    return null;
+                }
+
+                @Override
+                protected void done() {
+                    btnToggleScan.setEnabled(true);
+                    if (!isDisplayable()) return;
+                    try {
+                        get();
+                        nfcServiceManager.startContinuousScan(uiController);
                         scanning = true;
-                        btnToggleScan.setText("Pausar Escaneo (Simulación)");
-                    } else {
-                        scanning = false;
-                        btnToggleScan.setText("Iniciar Escaneo");
+                        btnToggleScan.setText("⏸ Pausar Escaneo");
+                        lblStatusBadge.setText("● Escaneando NFC");
+                        lblStatusBadge.setForeground(new Color(0x16, 0xA3, 0x4A)); // Verde
+                        JOptionPane.showMessageDialog(MainTrackerFrame.this,
+                                "Lector NFC inicializado correctamente.\nEscaneando tags en segundo plano...",
+                                "NFC Conectado", JOptionPane.INFORMATION_MESSAGE);
+                    } catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                        showDeviceError("La inicialización fue interrumpida.");
+                    } catch (ExecutionException ex) {
+                        String errMsg = (ex.getCause() != null) ? ex.getCause().getMessage() : ex.getMessage();
+                        int option = JOptionPane.showConfirmDialog(MainTrackerFrame.this,
+                                errMsg + "\n\n¿Desea iniciar en MODO SIMULACIÓN para verificar la telemetría en el dashboard?",
+                                "Lector NFC no detectado", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                        if (option == JOptionPane.YES_OPTION) {
+                            startSimulation();
+                            scanning = true;
+                            btnToggleScan.setText("⏸ Pausar Simulación");
+                            lblStatusBadge.setText("● Simulación Activa");
+                            lblStatusBadge.setForeground(new Color(0x25, 0x63, 0xEB)); // Azul
+                        } else {
+                            scanning = false;
+                            btnToggleScan.setText("▶ Iniciar Escaneo");
+                            lblStatusBadge.setText("● Lector Inactivo");
+                            lblStatusBadge.setForeground(new Color(0x64, 0x74, 0x8B));
+                        }
                     }
                 }
-            }
-        }.execute();
+            }.execute();
+        } catch (Exception ex) {
+            logger.log(java.util.logging.Level.SEVERE, "Error al iniciar proceso de escaneo", ex);
+            showDeviceError("No se pudo iniciar el escaneo: " + ex.getMessage());
+        }
     }
 
     private void stopScanningProcess() {
-        scanning = false;
-        btnToggleScan.setText("Iniciar Escaneo");
-        if (nfcServiceManager != null) {
-            nfcServiceManager.stopContinuousScan();
+        try {
+            scanning = false;
+            btnToggleScan.setText("▶ Iniciar Escaneo");
+            lblStatusBadge.setText("● Pausado");
+            lblStatusBadge.setForeground(new Color(0x64, 0x74, 0x8B));
+
+            if (nfcServiceManager != null) {
+                nfcServiceManager.stopContinuousScan();
+            }
+            stopSimulation();
+        } catch (Exception ex) {
+            logger.log(java.util.logging.Level.WARNING, "Error al detener escaneo", ex);
         }
-        stopSimulation();
+    }
+
+    public void toggleSimulation() {
+        if (!simulationActive) {
+            startSimulation();
+            if (btnToggleSimulate != null) {
+                btnToggleSimulate.setText("⏸ Pausar Simulación");
+            }
+            lblStatusBadge.setText("● Simulación Activa");
+            lblStatusBadge.setForeground(new Color(0x25, 0x63, 0xEB)); // Azul
+        } else {
+            stopSimulation();
+            if (btnToggleSimulate != null) {
+                btnToggleSimulate.setText("⚡ Simular Telemetría");
+            }
+            lblStatusBadge.setText("● Simulación Pausada");
+            lblStatusBadge.setForeground(new Color(0x64, 0x74, 0x8B));
+        }
     }
 
     private void startSimulation() {
         stopSimulation();
+        if (uiController == null) {
+            uiController = new TrackerUiController(this);
+        }
         simulationActive = true;
         simulationThread = new Thread(() -> {
             Random random = new Random();
@@ -359,68 +651,70 @@ public class MainTrackerFrame extends javax.swing.JFrame {
             MotorState mState = MotorState.ADELANTE;
 
             while (simulationActive) {
-                int[] ldr = {
-                        random.nextInt(256),
-                        random.nextInt(256),
-                        random.nextInt(256),
-                        random.nextInt(256)
-                };
-
-                LightDirection dir;
-                if (random.nextInt(10) == 0) {
-                    int balanced = 100 + random.nextInt(40);
-                    java.util.Arrays.fill(ldr, balanced);
-                    dir = LightDirection.EQUILIBRADO;
-                } else {
-                    int maxLdr = Math.max(Math.max(ldr[0], ldr[1]), Math.max(ldr[2], ldr[3]));
-                    if (maxLdr == ldr[0]) dir = LightDirection.NORTE;
-                    else if (maxLdr == ldr[1]) dir = LightDirection.SUR;
-                    else if (maxLdr == ldr[2]) dir = LightDirection.OESTE;
-                    else dir = LightDirection.ESTE;
-                }
-
-                int pitch = 15 + random.nextInt(151);
-                int yaw = 10 + random.nextInt(161);
-
-                if (random.nextInt(8) == 0) {
-                    mState = mState == MotorState.ADELANTE
-                            ? MotorState.ATRAS : MotorState.ADELANTE;
-                    reversals = (reversals + 1) & 0xFF;
-                } else if (random.nextInt(12) == 0) {
-                    mState = MotorState.DETENIDO;
-                }
-
-                int voltageMv = 3200 + random.nextInt(1001);
-                double voltage = voltageMv / 1000.0;
-                int battery = Math.max(0, Math.min(100,
-                        ((voltageMv - 3000) * 100) / 1200));
-
-                RobotTelemetry telemetry = new RobotTelemetry(
-                        2,
-                        sequence++ & 0xFF,
-                        ldr,
-                        (ldr[0] + ldr[1] + ldr[2] + ldr[3]) / 4.0,
-                        dir,
-                        pitch,
-                        yaw,
-                        reversals,
-                        mState,
-                        voltage,
-                        battery,
-                        true,
-                        System.currentTimeMillis(),
-                        simulatedUid
-                );
-
-                if (uiController != null) {
-                    uiController.onTelemetryReceived(telemetry);
-                }
-
                 try {
+                    int[] ldr = {
+                            random.nextInt(256),
+                            random.nextInt(256),
+                            random.nextInt(256),
+                            random.nextInt(256)
+                    };
+
+                    LightDirection dir;
+                    if (random.nextInt(10) == 0) {
+                        int balanced = 100 + random.nextInt(40);
+                        java.util.Arrays.fill(ldr, balanced);
+                        dir = LightDirection.EQUILIBRADO;
+                    } else {
+                        int maxLdr = Math.max(Math.max(ldr[0], ldr[1]), Math.max(ldr[2], ldr[3]));
+                        if (maxLdr == ldr[0]) dir = LightDirection.NORTE;
+                        else if (maxLdr == ldr[1]) dir = LightDirection.SUR;
+                        else if (maxLdr == ldr[2]) dir = LightDirection.OESTE;
+                        else dir = LightDirection.ESTE;
+                    }
+
+                    int pitch = 15 + random.nextInt(151);
+                    int yaw = 10 + random.nextInt(161);
+
+                    if (random.nextInt(8) == 0) {
+                        mState = (mState == MotorState.ADELANTE)
+                                ? MotorState.ATRAS : MotorState.ADELANTE;
+                        reversals = (reversals + 1) & 0xFF;
+                    } else if (random.nextInt(12) == 0) {
+                        mState = MotorState.DETENIDO;
+                    }
+
+                    int voltageMv = 3200 + random.nextInt(1001);
+                    double voltage = voltageMv / 1000.0;
+                    int battery = Math.max(0, Math.min(100,
+                            ((voltageMv - 3000) * 100) / 1200));
+
+                    RobotTelemetry telemetry = new RobotTelemetry(
+                            2,
+                            sequence++ & 0xFF,
+                            ldr,
+                            (ldr[0] + ldr[1] + ldr[2] + ldr[3]) / 4.0,
+                            dir,
+                            pitch,
+                            yaw,
+                            reversals,
+                            mState,
+                            voltage,
+                            battery,
+                            true,
+                            System.currentTimeMillis(),
+                            simulatedUid
+                    );
+
+                    if (uiController != null) {
+                        uiController.onTelemetryReceived(telemetry);
+                    }
+
                     Thread.sleep(1500);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
+                } catch (Exception loopEx) {
+                    logger.log(java.util.logging.Level.WARNING, "Error en ciclo de simulación", loopEx);
                 }
             }
         }, "SimulationNfcThread");
@@ -429,95 +723,137 @@ public class MainTrackerFrame extends javax.swing.JFrame {
     }
 
     private void stopSimulation() {
-        simulationActive = false;
-        if (simulationThread != null && simulationThread.isAlive()) {
-            simulationThread.interrupt();
+        try {
+            simulationActive = false;
+            if (btnToggleSimulate != null) {
+                btnToggleSimulate.setText("⚡ Simular Telemetría");
+            }
+            if (simulationThread != null && simulationThread.isAlive()) {
+                simulationThread.interrupt();
+            }
+        } catch (Exception ex) {
+            logger.log(java.util.logging.Level.FINE, "Error al detener hilo de simulación", ex);
         }
-    }
-
-    private void setupCharts() {
-        ldrDataset = new DefaultCategoryDataset();
-        ldrDataset.addValue(0, "Intensidad", "Norte");
-        ldrDataset.addValue(0, "Intensidad", "Sur");
-        ldrDataset.addValue(0, "Intensidad", "Este");
-        ldrDataset.addValue(0, "Intensidad", "Oeste");
-
-        JFreeChart chart = ChartFactory.createBarChart(
-                null, "Dirección", "Lectura LDR",
-                ldrDataset, PlotOrientation.VERTICAL,
-                false, true, false);
-
-        ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new java.awt.Dimension(600, 260));
-        chartContainerPanel.setLayout(new BorderLayout());
-        chartContainerPanel.add(chartPanel, BorderLayout.CENTER);
-        chartContainerPanel.revalidate();
     }
 
     public void updateDashboard(RobotTelemetry telemetry) {
         if (telemetry == null) return;
+        try {
+            // 1. Gráfica de LDRs
+            int[] valores = telemetry.getLdrValues();
+            if (valores != null && valores.length >= 4 && ldrDataset != null) {
+                ldrDataset.setValue(valores[0], "Intensidad", "Norte");
+                ldrDataset.setValue(valores[1], "Intensidad", "Sur");
+                ldrDataset.setValue(valores[3], "Intensidad", "Este");
+                ldrDataset.setValue(valores[2], "Intensidad", "Oeste");
+            }
 
-        int[] valores = telemetry.getLdrValues();
-        if (valores != null && valores.length >= 4) {
-            ldrDataset.setValue(valores[0], "Intensidad", "Norte");
-            ldrDataset.setValue(valores[1], "Intensidad", "Sur");
-            ldrDataset.setValue(valores[3], "Intensidad", "Este");
-            ldrDataset.setValue(valores[2], "Intensidad", "Oeste");
-        }
+            // 2. Servomotores
+            barPitch.setValue(telemetry.getServoPitchAngle());
+            barPitch.setString(telemetry.getServoPitchAngle() + "°");
+            barYaw.setValue(telemetry.getServoYawAngle());
+            barYaw.setString(telemetry.getServoYawAngle() + "°");
 
-        barPitch.setValue(telemetry.getServoPitchAngle());
-        barPitch.setString(telemetry.getServoPitchAngle() + "°");
-        barYaw.setValue(telemetry.getServoYawAngle());
-        barYaw.setString(telemetry.getServoYawAngle() + "°");
+            // 3. Cinemática y Motor
+            MotorState motor = telemetry.getMotorDirection();
+            if (motor == MotorState.ADELANTE) {
+                lblMotorState.setText("▶ ADELANTE");
+                lblMotorState.setForeground(new Color(0x16, 0xA3, 0x4A)); // Verde
+            } else if (motor == MotorState.ATRAS) {
+                lblMotorState.setText("◀ ATRÁS (INVERSO)");
+                lblMotorState.setForeground(new Color(0x25, 0x63, 0xEB)); // Azul
+            } else {
+                lblMotorState.setText("■ DETENIDO");
+                lblMotorState.setForeground(new Color(0x64, 0x74, 0x8B)); // Gris
+            }
+            lblReversalsCount.setText("Inversiones de Marcha: " + telemetry.getPolarityReversalsCount());
 
-        lblMotorState.setText(telemetry.getMotorDirection().name());
-        lblReversalsCount.setText("Inversiones: " + telemetry.getPolarityReversalsCount());
+            // 4. Potencia y Batería
+            if (telemetry.isBatteryValid()) {
+                lblVoltage.setText(String.format(java.util.Locale.US, "%.2f V", telemetry.getOperatingVoltage()));
+                int bat = telemetry.getBatteryLevelPercent();
+                barBattery.setValue(bat);
+                barBattery.setString(bat + "%");
+                if (bat > 40) {
+                    barBattery.setForeground(new Color(0x10, 0xB9, 0x81)); // Verde
+                } else if (bat >= 20) {
+                    barBattery.setForeground(new Color(0xF5, 0x9E, 0x0B)); // Ámbar
+                } else {
+                    barBattery.setForeground(new Color(0xEF, 0x44, 0x44)); // Rojo
+                }
+            } else {
+                lblVoltage.setText("N/D");
+                barBattery.setValue(0);
+                barBattery.setString("N/D");
+                barBattery.setForeground(new Color(0x94, 0xA3, 0xB8));
+            }
 
-        if (telemetry.isBatteryValid()) {
-            lblVoltage.setText(String.format(java.util.Locale.US, "%.2f V", telemetry.getOperatingVoltage()));
-            barBattery.setValue(telemetry.getBatteryLevelPercent());
-            barBattery.setString(telemetry.getBatteryLevelPercent() + "%");
-        } else {
-            lblVoltage.setText("N/D");
-            barBattery.setValue(0);
-            barBattery.setString("N/D");
-        }
+            // 5. Tabla de Historial
+            DefaultTableModel model = (DefaultTableModel) historyTable.getModel();
+            model.addRow(new Object[]{
+                    timeFormat.format(new Date(telemetry.getTimestamp())),
+                    String.format(java.util.Locale.US, "%.2f", telemetry.getOperatingVoltage()),
+                    telemetry.getBatteryLevelPercent() + "%",
+                    telemetry.getServoPitchAngle() + "°",
+                    telemetry.getServoYawAngle() + "°",
+                    telemetry.getPrimaryLightDirection() != null ? telemetry.getPrimaryLightDirection().name() : "N/A",
+                    telemetry.getMotorDirection().name(),
+                    telemetry.getTagUid() != null ? telemetry.getTagUid() : "-"
+            });
 
-        DefaultTableModel model = (DefaultTableModel) historyTable.getModel();
-        model.addRow(new Object[]{
-                timeFormat.format(new Date(telemetry.getTimestamp())),
-                String.format(java.util.Locale.US, "%.2f", telemetry.getOperatingVoltage()),
-                telemetry.getBatteryLevelPercent() + "%",
-                telemetry.getServoPitchAngle() + "°",
-                telemetry.getServoYawAngle() + "°",
-                telemetry.getPrimaryLightDirection() != null ? telemetry.getPrimaryLightDirection().name() : "N/A",
-                telemetry.getMotorDirection().name()
-        });
-
-        sessionHistory.add(telemetry);
-        while (sessionHistory.size() > MAX_IN_MEMORY_SAMPLES) {
-            sessionHistory.remove(0);
-        }
-        while (model.getRowCount() > MAX_IN_MEMORY_SAMPLES) {
-            model.removeRow(0);
+            sessionHistory.add(telemetry);
+            while (sessionHistory.size() > MAX_IN_MEMORY_SAMPLES) {
+                sessionHistory.remove(0);
+            }
+            while (model.getRowCount() > MAX_IN_MEMORY_SAMPLES) {
+                model.removeRow(0);
+            }
+        } catch (Exception ex) {
+            logger.log(java.util.logging.Level.WARNING, "Error al procesar actualización en dashboard", ex);
         }
     }
 
-    private javax.swing.JDialog errorDialog;
-
     public void showDeviceError(String message) {
-        if (errorDialog != null && errorDialog.isShowing()) return;
-        JOptionPane pane = new JOptionPane(message, JOptionPane.WARNING_MESSAGE);
-        errorDialog = pane.createDialog(this, "Error de Dispositivo");
-        errorDialog.setModal(false);
-        errorDialog.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        errorDialog.setVisible(true);
+        try {
+            if (errorDialog != null && errorDialog.isShowing()) return;
+            JOptionPane pane = new JOptionPane(message, JOptionPane.WARNING_MESSAGE);
+            errorDialog = pane.createDialog(this, "Aviso de Dispositivo / NFC");
+            errorDialog.setModal(false);
+            errorDialog.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+            errorDialog.setVisible(true);
+        } catch (Exception ex) {
+            logger.log(java.util.logging.Level.WARNING, "No se pudo desplegar diálogo de error", ex);
+        }
     }
 
     @Override
     public void dispose() {
-        stopScanningProcess();
-        if (errorDialog != null) errorDialog.dispose();
-        super.dispose();
+        try {
+            stopScanningProcess();
+            if (errorDialog != null) errorDialog.dispose();
+        } catch (Exception ex) {
+            logger.log(java.util.logging.Level.FINE, "Error durante dispose de MainTrackerFrame", ex);
+        } finally {
+            super.dispose();
+        }
+    }
+
+    /**
+     * Renderer de barra para JFreeChart que colorea individualmente cada sensor LDR.
+     */
+    private static class CustomBarRenderer extends BarRenderer {
+        private final Paint[] colors;
+
+        public CustomBarRenderer(Paint[] colors) {
+            this.colors = colors;
+        }
+
+        @Override
+        public Paint getItemPaint(int row, int column) {
+            if (colors != null && column >= 0 && column < colors.length) {
+                return colors[column];
+            }
+            return super.getItemPaint(row, column);
+        }
     }
 }

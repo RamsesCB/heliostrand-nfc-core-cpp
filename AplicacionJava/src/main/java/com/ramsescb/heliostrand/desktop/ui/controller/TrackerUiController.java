@@ -16,16 +16,38 @@ public class TrackerUiController implements NfcEventListener {
 
     @Override
     public void onTelemetryReceived(RobotTelemetry telemetry) {
-
-        SwingUtilities.invokeLater(() -> {
-            mainFrame.updateDashboard(telemetry);
-        });
+        if (telemetry == null || mainFrame == null) return;
+        try {
+            SwingUtilities.invokeLater(() -> {
+                try {
+                    mainFrame.updateDashboard(telemetry);
+                } catch (Throwable t) {
+                    java.util.logging.Logger.getLogger(TrackerUiController.class.getName())
+                            .log(java.util.logging.Level.WARNING, "Error al actualizar dashboard en EDT", t);
+                }
+            });
+        } catch (Exception ex) {
+            java.util.logging.Logger.getLogger(TrackerUiController.class.getName())
+                    .log(java.util.logging.Level.WARNING, "Error al encolar telemetría en EDT", ex);
+        }
     }
 
     @Override
     public void onErrorEncountered(Exception ex) {
-        SwingUtilities.invokeLater(() -> {
-            mainFrame.showDeviceError(ex.getMessage() != null ? ex.getMessage() : ex.toString());
-        });
+        if (mainFrame == null) return;
+        try {
+            SwingUtilities.invokeLater(() -> {
+                try {
+                    String msg = (ex != null && ex.getMessage() != null) ? ex.getMessage() : String.valueOf(ex);
+                    mainFrame.showDeviceError(msg);
+                } catch (Throwable t) {
+                    java.util.logging.Logger.getLogger(TrackerUiController.class.getName())
+                            .log(java.util.logging.Level.WARNING, "Error al mostrar diálogo de dispositivo", t);
+                }
+            });
+        } catch (Exception dispatchEx) {
+            java.util.logging.Logger.getLogger(TrackerUiController.class.getName())
+                    .log(java.util.logging.Level.WARNING, "Error al encolar error en EDT", dispatchEx);
+        }
     }
 }
