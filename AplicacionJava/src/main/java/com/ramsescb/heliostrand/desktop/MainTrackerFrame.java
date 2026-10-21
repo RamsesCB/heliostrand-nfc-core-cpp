@@ -16,9 +16,11 @@ import com.formdev.flatlaf.intellijthemes.FlatArcDarkIJTheme;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import javax.swing.BorderFactory;
@@ -93,6 +95,26 @@ public class MainTrackerFrame extends JFrame {
     private final List<RobotTelemetry> sessionHistory = new ArrayList<>();
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 
+    // Historial de 5 muestras para ventana deslizante de sensores LDR
+    private static final int LDR_SAMPLE_COUNT = 5;
+    private static final String[] LDR_SERIES_LABELS = {
+            "Muestra 1 (t-4)",
+            "Muestra 2 (t-3)",
+            "Muestra 3 (t-2)",
+            "Muestra 4 (t-1)",
+            "Muestra 5 (Actual)"
+    };
+    private final List<int[]> ldrSampleHistory = new ArrayList<>();
+
+    private void initLdrHistory() {
+        synchronized (ldrSampleHistory) {
+            ldrSampleHistory.clear();
+            for (int i = 0; i < LDR_SAMPLE_COUNT; i++) {
+                ldrSampleHistory.add(new int[]{0, 0, 0, 0});
+            }
+        }
+    }
+
     private NfcServiceManager nfcServiceManager;
     private TrackerUiController uiController;
     private Thread simulationThread;
@@ -149,7 +171,7 @@ public class MainTrackerFrame extends JFrame {
         chartContainerPanel = new JPanel(new BorderLayout());
         chartContainerPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(0xE2, 0xE8, 0xF0)),
-                "Sensores LDR (Norte / Sur / Este / Oeste) - Intensidad de Luz",
+                "Sensores LDR (Norte / Sur / Este / Oeste) - Historial de Muestras (Ventana de 5 Lecturas)",
                 javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
                 javax.swing.border.TitledBorder.DEFAULT_POSITION,
                 new Font("Segoe UI", Font.BOLD, 13)
@@ -404,11 +426,14 @@ public class MainTrackerFrame extends JFrame {
 
     private void setupCharts() {
         try {
+            initLdrHistory();
             ldrDataset = new DefaultCategoryDataset();
-            ldrDataset.addValue(0, "Intensidad", "Norte");
-            ldrDataset.addValue(0, "Intensidad", "Sur");
-            ldrDataset.addValue(0, "Intensidad", "Este");
-            ldrDataset.addValue(0, "Intensidad", "Oeste");
+            for (String series : LDR_SERIES_LABELS) {
+                ldrDataset.addValue(0, series, "Norte");
+                ldrDataset.addValue(0, series, "Sur");
+                ldrDataset.addValue(0, series, "Este");
+                ldrDataset.addValue(0, series, "Oeste");
+            }
 
             ldrChart = ChartFactory.createBarChart(
                     null, "Sensor LDR", "Lectura ADC (0-255)",
@@ -448,20 +473,20 @@ public class MainTrackerFrame extends JFrame {
             plot.getDomainAxis().setTickLabelPaint(textColor);
             plot.getDomainAxis().setLabelPaint(textColor);
             plot.getDomainAxis().setTickLabelFont(new Font("Segoe UI", Font.BOLD, 12));
+            plot.getDomainAxis().setCategoryMargin(0.18);
 
-            plot.getRangeAxis().setTickLabelPaint(textColor);
-            plot.getRangeAxis().setLabelPaint(textColor);
-            plot.getRangeAxis().setTickLabelFont(new Font("Segoe UI", Font.PLAIN, 11));
+            NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+            rangeAxis.setAutoRange(false);
+            rangeAxis.setRange(0.0, 255.0);
+            rangeAxis.setTickLabelPaint(textColor);
+            rangeAxis.setLabelPaint(textColor);
+            rangeAxis.setTickLabelFont(new Font("Segoe UI", Font.PLAIN, 11));
 
-            // Paleta de colores atractiva para cada uno de los 4 LDRs
-            CustomBarRenderer renderer = new CustomBarRenderer(new Paint[]{
-                    new Color(0x3B, 0x82, 0xF6), // Norte (Azul vibrante)
-                    new Color(0xEF, 0x44, 0x44), // Sur (Rojo)
-                    new Color(0x10, 0xB9, 0x81), // Este (Verde esmeralda)
-                    new Color(0xF5, 0x9E, 0x0B)  // Oeste (Ámbar)
-            });
-            renderer.setShadowVisible(false);
-            renderer.setDrawBarOutline(false);
+            // Paleta sobria, sólida y profesional (Tech Slate-Blue / Cyan)
+            Color baseColor = isDark ? new Color(0x38, 0xBD, 0xF8) : new Color(0x25, 0x63, 0xEB);
+            Color[] sensorBases = new Color[]{baseColor, baseColor, baseColor, baseColor};
+
+            CustomBarRenderer renderer = new CustomBarRenderer(sensorBases);
             plot.setRenderer(renderer);
         } catch (Exception ex) {
             logger.log(java.util.logging.Level.WARNING, "Error al actualizar tema del gráfico", ex);
@@ -486,6 +511,16 @@ public class MainTrackerFrame extends JFrame {
             sessionHistory.clear();
             DefaultTableModel model = (DefaultTableModel) historyTable.getModel();
             model.setRowCount(0);
+
+            initLdrHistory();
+            if (ldrDataset != null) {
+                for (String series : LDR_SERIES_LABELS) {
+                    ldrDataset.setValue(0, series, "Norte");
+                    ldrDataset.setValue(0, series, "Sur");
+                    ldrDataset.setValue(0, series, "Este");
+                    ldrDataset.setValue(0, series, "Oeste");
+                }
+            }
         } catch (Exception ex) {
             logger.log(java.util.logging.Level.WARNING, "Error al limpiar historial", ex);
         }
@@ -739,13 +774,27 @@ public class MainTrackerFrame extends JFrame {
     public void updateDashboard(RobotTelemetry telemetry) {
         if (telemetry == null) return;
         try {
-            // 1. Gráfica de LDRs
+            // 1. Gráfica de LDRs (Ventana deslizante FIFO de 5 muestras por sensor)
             int[] valores = telemetry.getLdrValues();
             if (valores != null && valores.length >= 4 && ldrDataset != null) {
-                ldrDataset.setValue(valores[0], "Intensidad", "Norte");
-                ldrDataset.setValue(valores[1], "Intensidad", "Sur");
-                ldrDataset.setValue(valores[3], "Intensidad", "Este");
-                ldrDataset.setValue(valores[2], "Intensidad", "Oeste");
+                // valores: [0]=Norte, [1]=Sur, [2]=Oeste, [3]=Este
+                int[] currentSample = new int[]{valores[0], valores[1], valores[3], valores[2]};
+
+                synchronized (ldrSampleHistory) {
+                    if (ldrSampleHistory.size() >= LDR_SAMPLE_COUNT) {
+                        ldrSampleHistory.remove(0);
+                    }
+                    ldrSampleHistory.add(currentSample);
+
+                    for (int i = 0; i < ldrSampleHistory.size(); i++) {
+                        int[] sample = ldrSampleHistory.get(i);
+                        String series = LDR_SERIES_LABELS[i];
+                        ldrDataset.setValue(sample[0], series, "Norte");
+                        ldrDataset.setValue(sample[1], series, "Sur");
+                        ldrDataset.setValue(sample[2], series, "Este");
+                        ldrDataset.setValue(sample[3], series, "Oeste");
+                    }
+                }
             }
 
             // 2. Servomotores
@@ -839,21 +888,35 @@ public class MainTrackerFrame extends JFrame {
     }
 
     /**
-     * Renderer de barra para JFreeChart que colorea individualmente cada sensor LDR.
+     * Renderer de barra plano, sólido y profesional para JFreeChart.
+     * Desactiva el brillo tridimensional / gradiente cilíndrico (StandardBarPainter)
+     * y aplica una progresión temporal de opacidad sobre la ventana de 5 lecturas por sensor.
      */
     private static class CustomBarRenderer extends BarRenderer {
-        private final Paint[] colors;
+        private final Color[] sensorBaseColors;
+        private final float[] seriesAlphas = {0.25f, 0.40f, 0.60f, 0.80f, 1.0f};
 
-        public CustomBarRenderer(Paint[] colors) {
-            this.colors = colors;
+        public CustomBarRenderer(Color[] sensorBaseColors) {
+            this.sensorBaseColors = sensorBaseColors;
+            setBarPainter(new StandardBarPainter());
+            setShadowVisible(false);
+            setDrawBarOutline(false);
+            setItemMargin(0.04);
         }
 
         @Override
         public Paint getItemPaint(int row, int column) {
-            if (colors != null && column >= 0 && column < colors.length) {
-                return colors[column];
-            }
-            return super.getItemPaint(row, column);
+            Color base = (sensorBaseColors != null && column >= 0 && column < sensorBaseColors.length)
+                    ? sensorBaseColors[column]
+                    : new Color(0x38, 0xBD, 0xF8);
+
+            float alpha = (row >= 0 && row < seriesAlphas.length) ? seriesAlphas[row] : 1.0f;
+            return new Color(
+                    base.getRed() / 255.0f,
+                    base.getGreen() / 255.0f,
+                    base.getBlue() / 255.0f,
+                    alpha
+            );
         }
     }
 }
