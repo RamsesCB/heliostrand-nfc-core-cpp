@@ -51,6 +51,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   double _yaw = 90.0;   // Rango 0-180
   int _inversiones = 0;
   String _statusMessage = 'Listo para escanear';
+  bool _isStatusExpanded = false;
 
   // Valores de los 4 sensores LDR [0: Norte, 1: Sur, 2: Oeste, 3: Este]
   List<int> _ldrValues = [182, 204, 196, 168];
@@ -531,56 +532,73 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // 2. Status Card 48px "Listo para escanear"
+  // 2. Status Card "Listo para escanear" / expandible al tocar para mensajes largos
   Widget _buildNfcStatusCard() {
-    return Container(
-      height: 48,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE9ECEF)),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      child: Row(
-        children: [
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8F9FA),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.nfc_rounded,
-              size: 16,
-              color: SolarTrackerTheme.textDark,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              _statusMessage,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _isStatusExpanded = !_isStatusExpanded;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        constraints: const BoxConstraints(minHeight: 48),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFE9ECEF)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        child: Row(
+          crossAxisAlignment: _isStatusExpanded
+              ? CrossAxisAlignment.start
+              : CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8F9FA),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.nfc_rounded,
+                size: 16,
                 color: SolarTrackerTheme.textDark,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
-          ),
-          if (_isScanning)
-            const SizedBox(
-              width: 14,
-              height: 14,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  SolarTrackerTheme.buttonDark,
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                _statusMessage,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: SolarTrackerTheme.textDark,
+                  height: 1.3,
                 ),
+                maxLines: _isStatusExpanded ? null : 1,
+                overflow: _isStatusExpanded
+                    ? TextOverflow.visible
+                    : TextOverflow.ellipsis,
               ),
             ),
-        ],
+            if (_isScanning) ...[
+              const SizedBox(width: 8),
+              const SizedBox(
+                width: 14,
+                height: 14,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    SolarTrackerTheme.buttonDark,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
