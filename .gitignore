@@ -25,3 +25,4 @@ heliostrand_app/android/build/
 *.pfx
 *.pem
 key.properties
+*.asta.lock

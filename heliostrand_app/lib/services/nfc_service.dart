@@ -7,6 +7,7 @@ import 'package:flutter_nfc_kit/flutter_nfc_kit.dart';
 import '../models/robot_telemetry.dart';
 import '../parser/exceptions.dart';
 import '../parser/theo_jansen_data_parser.dart';
+import 'base_telemetry_service.dart';
 
 class _NfcSlot {
   final Uint8List payload;
@@ -15,7 +16,7 @@ class _NfcSlot {
   const _NfcSlot(this.payload, this.generation);
 }
 
-class NfcService {
+class NfcService implements BaseTelemetryService {
   static const int _slotABasePage = 4;
   static const int _slotBBasePage = 8;
 
@@ -35,6 +36,8 @@ class NfcService {
       StreamController<String>.broadcast();
 
   Stream<RobotTelemetry> get onTelemetryReceived => _telemetryController.stream;
+  @override
+  Stream<RobotTelemetry> get telemetryStream => onTelemetryReceived;
   Stream<String> get onStatusChanged => _statusController.stream;
   Stream<String> get onError => _errorController.stream;
 
@@ -284,6 +287,7 @@ class NfcService {
     }
   }
 
+  @override
   Future<void> dispose() async {
     if (_isDisposed) return;
     _isDisposed = true;

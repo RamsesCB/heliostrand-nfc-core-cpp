@@ -11,11 +11,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class NfcServiceManager {
+public class NfcServiceManager extends AbstractNfcService {
     private static final int SLOT_A_BASE_PAGE = 4;
     private static final int SLOT_B_BASE_PAGE = 8;
 
-    private final TheoJansenDataParser parser;
     private final Map<String, Integer> lastSequenceByTag = new ConcurrentHashMap<>();
     private CardTerminal terminal;
     private ExecutorService executorService;
@@ -29,8 +28,8 @@ public class NfcServiceManager {
     }
 
     NfcServiceManager(CardTerminal terminal) {
+        super(new TheoJansenDataParser());
         this.terminal = terminal;
-        this.parser = new TheoJansenDataParser();
     }
 
     public void initializeReader(String preferredTerminalName) throws NfcDeviceException {

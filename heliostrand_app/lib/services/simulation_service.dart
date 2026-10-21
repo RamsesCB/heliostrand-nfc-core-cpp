@@ -4,8 +4,9 @@ import 'dart:math' as math;
 import '../models/light_direction.dart';
 import '../models/motor_state.dart';
 import '../models/robot_telemetry.dart';
+import 'base_telemetry_service.dart';
 
-class SimulationService {
+class SimulationService implements BaseTelemetryService {
   Timer? _timer;
   final math.Random _random = math.Random();
   int _reversals = 0;
@@ -31,6 +32,7 @@ class SimulationService {
   final StreamController<RobotTelemetry> _telemetryController =
       StreamController<RobotTelemetry>.broadcast();
 
+  @override
   Stream<RobotTelemetry> get telemetryStream => _telemetryController.stream;
   bool get isActive => _active;
 
@@ -98,6 +100,7 @@ class SimulationService {
     _timer = null;
   }
 
+  @override
   void dispose() {
     stop();
     _telemetryController.close();
