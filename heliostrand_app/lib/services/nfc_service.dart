@@ -48,6 +48,35 @@ class NfcService {
     }
   }
 
+  int? _pendingPitch;
+  int? _pendingYaw;
+
+  void queueServoCommand(int pitch, int yaw) {
+    _pendingPitch = pitch.clamp(0, 180);
+    _pendingYaw = yaw.clamp(0, 180);
+    _emitStatus('Comando programado: P $_pendingPitch° · Y $_pendingYaw°. Acerca el tag NFC.');
+  }
+
+  Future<bool> writeServoCommand(int pitch, int yaw) async {
+    try {
+      final p = pitch.clamp(0, 180);
+      final y = yaw.clamp(0, 180);
+      final chk = (0x53 ^ p ^ y) & 0xFF;
+
+      final pB = p.toRadixString(16).padLeft(2, '0').toUpperCase();
+      final yB = y.toRadixString(16).padLeft(2, '0').toUpperCase();
+      final chkB = chk.toRadixString(16).padLeft(2, '0').toUpperCase();
+
+      final cmdHex = 'A20C53$pB$yB$chkB';
+      await FlutterNfcKit.transceive(cmdHex);
+      _emitStatus('Comando NFC enviado: P $p° · Y $y°');
+      return true;
+    } catch (e) {
+      _emitError('Error al escribir comando en NTAG213: $e');
+      return false;
+    }
+  }
+
   Future<void> startContinuousScan() async {
     if (_isScanning || _isDisposed) return;
     _isScanning = true;
@@ -63,6 +92,15 @@ class NfcService {
         if (!_isScanning || _isDisposed) {
           await FlutterNfcKit.finish();
           break;
+        }
+
+        // Si hay una orden de servomotores pendiente, se escribe primero en la página 12
+        if (_pendingPitch != null && _pendingYaw != null) {
+          final written = await writeServoCommand(_pendingPitch!, _pendingYaw!);
+          if (written) {
+            _pendingPitch = null;
+            _pendingYaw = null;
+          }
         }
 
         _emitStatus('Tag detectado: ${tag.id}. Leyendo slots...');

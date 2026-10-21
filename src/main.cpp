@@ -48,6 +48,12 @@ void loop() {
         digitalWrite(PIN_STATUS_LED, ledState ? HIGH : LOW);
     }
 
+    uint8_t nfcPitch = 0;
+    uint8_t nfcYaw = 0;
+    if (nfcTransport.fetchServoCommand(nfcPitch, nfcYaw)) {
+        tracker.setServoAngles(nfcPitch, nfcYaw);
+    }
+
     char command;
     if (serialTransport.checkCommands(command)) {
         switch (command) {

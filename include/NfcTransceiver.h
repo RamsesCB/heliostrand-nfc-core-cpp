@@ -19,6 +19,8 @@ public:
     bool isHardwareDetected() const { return pn532Detected; }
     uint32_t getFirmwareVersion() const { return firmwareVersion; }
 
+    bool fetchServoCommand(uint8_t &pitch, uint8_t &yaw);
+
 private:
     Adafruit_PN532 nfc;
     bool pn532Detected;
@@ -33,6 +35,10 @@ private:
     uint8_t lockedUid[7];
     uint8_t lockedUidLength;
 
+    bool hasPendingServoCommand;
+    uint8_t pendingServoPitch;
+    uint8_t pendingServoYaw;
+
     bool isMeaningfulChange(const uint8_t *payload) const;
     bool validateNtag213();
     bool uidAllowed(const uint8_t *uid, uint8_t uidLength);
@@ -40,6 +46,7 @@ private:
     bool readSlot(uint8_t basePage, uint8_t *payload, uint8_t &generation);
     bool writeSlot(uint8_t basePage, const uint8_t *payload, uint8_t generation);
     bool writeDoubleBuffered(const uint8_t *payload);
+    bool readServoCommand(uint8_t &pitch, uint8_t &yaw);
 
 };
 

@@ -6,8 +6,10 @@ namespace {
 constexpr uint8_t SLOT_A_BASE_PAGE = 4;
 constexpr uint8_t SLOT_B_BASE_PAGE = 8;
 constexpr uint8_t SLOT_COMMIT_OFFSET = 3;
+constexpr uint8_t SLOT_CMD_PAGE = 12;
 constexpr uint8_t COMMIT_MAGIC_0 = 0x48; // H
 constexpr uint8_t COMMIT_MAGIC_1 = 0x53; // S
+constexpr uint8_t CMD_MAGIC_SERVO = 0x53; // S
 }
 
 NfcTransceiver::NfcTransceiver()
@@ -20,7 +22,10 @@ NfcTransceiver::NfcTransceiver()
       lastWrittenPayload{0},
       tagLocked(false),
       lockedUid{0},
-      lockedUidLength(0) {}
+      lockedUidLength(0),
+      hasPendingServoCommand(false),
+      pendingServoPitch(0),
+      pendingServoYaw(0) {}
 
 bool NfcTransceiver::begin() {
     nfc.begin();
@@ -222,5 +227,49 @@ bool NfcTransceiver::publish(const uint8_t *payload, size_t length) {
     memcpy(lastWrittenPayload, payload, TELEMETRY_PAYLOAD_SIZE);
     hasWrittenTelemetry = true;
     lastWriteMillis = now;
+
+    // Verificar si la aplicación móvil envió una consigna de servomotores en la página de comandos
+    uint8_t cmdPitch = 0, cmdYaw = 0;
+    if (readServoCommand(cmdPitch, cmdYaw)) {
+        pendingServoPitch = cmdPitch;
+        pendingServoYaw = cmdYaw;
+        hasPendingServoCommand = true;
+    }
+
+    return true;
+}
+
+bool NfcTransceiver::readServoCommand(uint8_t &pitch, uint8_t &yaw) {
+    uint8_t cmd[4] = {0};
+    if (!nfc.ntag2xx_ReadPage(SLOT_CMD_PAGE, cmd)) {
+        return false;
+    }
+
+    // Formato de comando seguro:
+    // Byte 0: CMD_MAGIC_SERVO (0x53 = 'S')
+    // Byte 1: Pitch (0 a 180 grados)
+    // Byte 2: Yaw (0 a 180 grados)
+    // Byte 3: Checksum XOR de verificación (0x53 ^ pitch ^ yaw)
+    if (cmd[0] == CMD_MAGIC_SERVO &&
+        cmd[1] <= 180 &&
+        cmd[2] <= 180 &&
+        cmd[3] == (uint8_t)(CMD_MAGIC_SERVO ^ cmd[1] ^ cmd[2])) {
+        pitch = cmd[1];
+        yaw = cmd[2];
+
+        // Limpiar la página de comando para evitar reejecuciones cíclicas (One-shot)
+        uint8_t ackPage[4] = {0x00, 0x00, 0x00, 0x00};
+        nfc.ntag2xx_WritePage(SLOT_CMD_PAGE, ackPage);
+        return true;
+    }
+
+    return false;
+}
+
+bool NfcTransceiver::fetchServoCommand(uint8_t &pitch, uint8_t &yaw) {
+    if (!hasPendingServoCommand) return false;
+    pitch = pendingServoPitch;
+    yaw = pendingServoYaw;
+    hasPendingServoCommand = false;
     return true;
 }

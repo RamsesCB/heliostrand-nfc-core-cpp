@@ -285,8 +285,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ServosCard(
                           pitch: _pitch.round(),
                           yaw: _yaw.round(),
-                          onPitchChanged: (val) => setState(() => _pitch = val),
-                          onYawChanged: (val) => setState(() => _yaw = val),
+                          onPitchChanged: (val) {
+                            setState(() => _pitch = val);
+                            _nfcService.queueServoCommand(_pitch.round(), _yaw.round());
+                            if (_isSimulationMode) {
+                              _simulationService.setManualServoAngles(_pitch.round(), _yaw.round());
+                            }
+                          },
+                          onYawChanged: (val) {
+                            setState(() => _yaw = val);
+                            _nfcService.queueServoCommand(_pitch.round(), _yaw.round());
+                            if (_isSimulationMode) {
+                              _simulationService.setManualServoAngles(_pitch.round(), _yaw.round());
+                            }
+                          },
                         ),
                         const SizedBox(height: 12),
                         MotorBatteryCard(
@@ -316,7 +328,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // 1. Header 56px blanco con logo negro 32x32 radius 9px + sol #E9A000, toggle NFC iOS 44x26
+  // 1. Header 56px blanco con logo 32x32 radius 9px, toggle NFC iOS 44x26
   Widget _buildHeader() {
     return Container(
       height: 56,
@@ -328,47 +340,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: SolarTrackerTheme.buttonDark,
+          Expanded(
+            child: Row(
+              children: [
+                ClipRRect(
                   borderRadius: BorderRadius.circular(9),
-                ),
-                child: const Icon(
-                  Icons.wb_sunny_rounded,
-                  size: 16,
-                  color: SolarTrackerTheme.sunPitchAmber,
-                ),
-              ),
-              const SizedBox(width: 10),
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Theo Jansen',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: SolarTrackerTheme.textDark,
-                      height: 1.1,
-                    ),
+                  child: Image.asset(
+                    'assets/icons/app_icon.png',
+                    width: 32,
+                    height: 32,
+                    fit: BoxFit.cover,
                   ),
-                  Text(
-                    'Solar Tracker',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: SolarTrackerTheme.textSecondary,
-                    ),
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Solar Tracker',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: SolarTrackerTheme.textDark,
+                          height: 1.1,
+                        ),
+                      ),
+                      Text(
+                        'Theo Jansen',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: SolarTrackerTheme.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
+          const SizedBox(width: 8),
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 _isSimulationMode ? 'SIM' : 'NFC',

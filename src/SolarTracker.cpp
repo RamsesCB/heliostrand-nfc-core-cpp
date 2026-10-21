@@ -217,6 +217,13 @@ void SolarTracker::toggleMotorDirection() {
     }
 }
 
+void SolarTracker::setServoAngles(uint8_t pitch, uint8_t yaw) {
+    currentPitch = (uint8_t)constrain((int)pitch, SERVO_PITCH_MIN, SERVO_PITCH_MAX);
+    currentYaw   = (uint8_t)constrain((int)yaw, SERVO_YAW_MIN, SERVO_YAW_MAX);
+    pitchServo.write(currentPitch);
+    yawServo.write(currentYaw);
+}
+
 TelemetryPacket SolarTracker::getTelemetrySnapshot() {
     TelemetryPacket packet;
     packet.version = PROTOCOL_VERSION_V2;

@@ -15,6 +15,7 @@ public:
     void updateTracking();
     void setMotorState(TheoJansenMotorState newState);
     void toggleMotorDirection();
+    void setServoAngles(uint8_t pitch, uint8_t yaw);
 
     // Obtener el paquete de telemetría listo para empaquetar
     TelemetryPacket getTelemetrySnapshot();
