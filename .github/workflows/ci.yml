@@ -27,6 +27,10 @@ jobs:
         run: pio run -e uno
       - name: Run native protocol tests
         run: pio test -e native
+      - name: Test NFC commands and interrupted writes
+        run: |
+          c++ -std=c++17 -Wall -Wextra -Werror -Itest/nfc_host/stubs -Iinclude test/nfc_host/main.cpp src/NfcTransceiver.cpp src/TheoJansenTelemetry.cpp -o /tmp/nfc-host-tests
+          /tmp/nfc-host-tests
       - name: Static analysis
         run: pio check -e uno --skip-packages
 
@@ -46,7 +50,7 @@ jobs:
         run: ./mvnw --batch-mode clean test package
       - uses: actions/upload-artifact@v4
         with:
-          name: AplicacionJava-1.1.0
+          name: AplicacionJava
           path: AplicacionJava/target/*-jar-with-dependencies.jar
 
   flutter:

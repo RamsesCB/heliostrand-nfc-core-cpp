@@ -36,7 +36,6 @@ struct TelemetryPacket {
     uint16_t voltageMilliVolts;
     bool batteryValid;
     uint8_t polarityReversals;
-    uint8_t checksumCRC8;
 };
 
 uint8_t computeCRC8(const uint8_t *data, size_t length);

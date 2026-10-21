@@ -1,156 +1,236 @@
-# Heliostrand NFC Core
+<div align="center">
+  <img src="heliostrand_app/assets/icons/app_icon.png" width="104" alt="Icono de Solar Tracker" />
+  <h1>Heliostrand · Solar Tracker</h1>
+  <p><strong>Seguimiento solar biaxial, robótica Theo Jansen y telemetría NFC.</strong></p>
+  <p>Arduino Uno · Java 21 · Flutter · Protocolo V2</p>
 
 [![CI](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/actions/workflows/ci.yml/badge.svg)](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/actions/workflows/ci.yml)
+[![Version](https://img.shields.io/badge/c%C3%B3digo-1.2.0-111111)](#versiones)
+[![Protocol](https://img.shields.io/badge/protocolo-V2-E9A000)](#contrato-de-datos)
+[![License](https://img.shields.io/badge/licencia-HELS--AEL_1.0-0EA5E9)](LICENSE.md)
 
-Monorepositorio para un robot Theo Jansen con seguimiento solar biaxial, telemetría V2, persistencia NFC NTAG213 y clientes Java/Flutter.
+</div>
 
-## Estado de versiones
+---
 
-- v1.0.0 es una release legada y su tag precede la remediación V2 actual. No debe usarse como referencia del código de main.
-- El código fuente actual está preparado como 1.1.0.
-- Las nuevas releases se generan desde tags v* mediante .github/workflows/release.yml. Firmware, JAR, APK y SHA256SUMS.txt nacen del mismo commit.
+## Navegación
 
-## Arquitectura real
+[Visión general](#visión-general) · [Arquitectura](#arquitectura) · [Datos](#contrato-de-datos) · [Hardware](#hardware) · [Desarrollo](#desarrollo-y-validación) · [Distribución](#distribución-y-tamaño) · [Versiones](#versiones) · [Contribuir](#contribuir)
 
-El Arduino genera un frame V2 de 12 bytes. El frame sale por dos transportes independientes:
+## Visión general
 
-1. UART binario: AA 55 + payload de 12 bytes + CR LF.
-2. PN532 por SPI: el PN532 persiste dos slots alternos en NTAG213: páginas 4-7 y 8-11.
+Heliostrand conecta un robot con seguimiento solar de dos ejes a clientes que permiten consultar sus sensores, servos, motor y batería. El firmware produce telemetría binaria; un tag pasivo **NTAG213** permite intercambiarla con un teléfono o un lector de escritorio.
 
-El PN532 actúa como lector/escritor. Los clientes Desktop y Mobile leen el tag pasivo NTAG213; no leen directamente al PN532.
+| Componente | Responsabilidad | Tecnologías |
+|---|---|---|
+| Firmware | Muestreo LDR y batería, seguimiento solar, motor, persistencia NFC | Arduino Uno / ATmega328P, PlatformIO, PN532 SPI |
+| Aplicación móvil | Dashboard, comandos de servos, historial y exportación JSON/CSV | Flutter, Dart, `flutter_nfc_kit` |
+| Escritorio | Lectura NFC, gráficas, simulación y exportación JSON | Java 21, Swing/FlatLaf, JFreeChart, PC/SC |
+| Contratos | Verificación común de serialización y validación | Vectores JSON, Unity, JUnit, Flutter Test |
 
-Desktop Java usa PC/SC. Flutter usa la antena NFC del teléfono.
+El dashboard móvil conserva su diseño claro, tipografía Inter y acentos ámbar/celeste. Android es la plataforma móvil validada por CI. iOS declara el permiso de uso NFC y el entitlement `TAG`; necesita una firma/provisioning con esa capacidad para probarse en dispositivo. Los directorios iOS, macOS, Linux, Windows y Web son bases de plataforma; su presencia no implica una release NFC validada para cada sistema.
 
-## Fuente única de verdad
+## Arquitectura
 
-La definición completa del frame no se duplica en README:
+### 1. Ecosistema y transportes
 
-- [Protocolo V2 normativo](docs/protocol/telemetry-v2.md)
-- [Pinout y batería](docs/hardware/pinout.md)
-- [Vectores dorados compartidos](test/vectors/golden_telemetry_vectors.json)
+```mermaid
+flowchart LR
+    Sensors["4 LDR + batería"] --> Tracker["SolarTracker · Arduino Uno"]
+    Tracker --> Actuators["Servos + motor L298N"]
+    Tracker --> Frame["Telemetría V2 · 12 bytes"]
+    Frame --> Serial["UART · 115200 baud"]
+    Frame --> Writer["NfcTransceiver · PN532 SPI"]
+    Writer <-->|"lectura / escritura"| Tag[("NTAG213")]
+    Tag -->|"PC/SC · lectura"| Java["Desktop Java"]
+    Tag <-->|"telemetría + comandos"| Mobile["Flutter Android"]
+    Writer -->|"comando validado"| Tracker
+```
 
-Resumen: 12 bytes exactos, V2 en bits 7-6, estado del motor en bits 5-4, dirección lumínica en bits 3-0, batería uint16 Big-Endian y CRC-8 con polinomio 0x07.
+El PN532 es lector/escritor del tag. Los clientes leen el **NTAG213**, no directamente el PN532. UART es un transporte binario independiente; no existe un lector UART en el cliente Java actual.
 
-## NFC y resistencia de EEPROM
+### 2. Capas de las aplicaciones
 
-El writer NFC:
+```mermaid
+flowchart TB
+    Hardware["Antena NFC / lector PC/SC"] --> Service["Servicios NFC"]
+    Service --> Parser["Parser · longitud, CRC, versión y rangos"]
+    Parser --> Model["RobotTelemetry"]
+    Simulation["Simulación local"] --> Model
+    Model --> Presentation["Dashboard Flutter / controlador Swing EDT"]
+    Presentation --> Export["Exportación de una copia del historial"]
+    Presentation --> Boundary["Errores recuperables → mensaje visible"]
+```
 
-- valida Capability Container NTAG213;
-- permite fijar un UID esperado en TheoJansenConfig.h; si no se configura, bloquea el primer UID válido por arranque;
-- no usa CRC ni sequenceNumber para decidir cambios de estado;
-- exige 5 minutos entre escrituras posteriores a la primera;
-- refresca un estado sin cambios a los 15 minutos;
-- usa doble buffer: slot A 4-7 y slot B 8-11;\n- escribe el commit de cada slot al final;\n- verifica payload y commit mediante read-after-write.
+- **Dominio y parser:** el mismo frame produce los mismos valores en C++, Java y Dart. El parser no depende de widgets.
+- **Servicios:** NFC, simulación, exportación y política de versiones tienen responsabilidades separadas. Las sesiones NFC no se duplican al pulsar repetidamente.
+- **Presentación:** Flutter consume streams; Java entrega eventos al EDT. La inicialización PC/SC y la escritura de reportes Java se ejecutan fuera de ese hilo.
+- **Resiliencia:** errores de exportación, enlaces y lecturas se comunican al usuario. El historial mantiene hasta 500 muestras; el móvil muestra primero las cinco más recientes.
 
-La escritura multipágina no es atómica. CRC-8 detecta errores accidentales con alta probabilidad, pero no proporciona autenticación.
+### 3. Comandos separados de la política de escritura
+
+```mermaid
+sequenceDiagram
+    participant App as Flutter
+    participant Tag as NTAG213
+    participant MCU as Arduino / PN532
+    App->>Tag: Validar CC y slots de telemetría
+    App->>Tag: WRITE página 12: 53, pitch, yaw, XOR
+    Tag-->>App: ACK
+    MCU->>Tag: Consultar comandos cada ciclo de telemetría
+    MCU->>MCU: Validar magic, rangos y XOR
+    MCU->>Tag: Borrar comando consumido
+    MCU->>MCU: Aplicar límites mecánicos y mover servos
+    Note over MCU,Tag: Escritura de telemetría conserva intervalos 5 / 15 minutos
+```
+
+La consulta de comandos se realiza cada segundo cuando hay hardware disponible; no espera a la siguiente escritura de telemetría. El acuse de borrado debe tener éxito antes de entregar el comando. Un error de escritura conserva el comando móvil para reintento. La consigna ajusta los ángulos y el seguimiento automático continúa; no cambia a un modo manual persistente.
+
+## Contrato de datos
+
+| Canal | Formato | Validación |
+|---|---|---|
+| Telemetría | 12 bytes; batería `uint16` Big-Endian | V2, rangos físicos, CRC-8 `0x07`, inicial `0x00` |
+| UART | `AA 55` + 12 bytes + `CR LF` | Flujo de máquina sin logs de texto |
+| Slot A | Páginas 4–6 + commit en 7 | Magic `48 53`, generación y complemento |
+| Slot B | Páginas 8–10 + commit en 11 | Generación modular, CRC y fallback al otro slot |
+| Servos | Página 12: `53 pitch yaw checksum` | `checksum = 0x53 ^ pitch ^ yaw`; ángulos 0–180 |
+
+La especificación detallada está en [telemetría V2](docs/protocol/telemetry-v2.md) y los [vectores compartidos](test/vectors/golden_telemetry_vectors.json). El checksum de comandos es **XOR**, aunque el dossier QA original lo describe como suma.
+
+Cada actualización NFC invalida primero el commit del slot destino, escribe y verifica el payload y publica el nuevo commit al final. El otro slot permanece disponible. Tras la primera escritura, se exige un cambio significativo y al menos cinco minutos; sin cambios, el refresco ocurre a los quince minutos. CRC y secuencia no cuentan como cambios. CRC y UID no son mecanismos de autenticación criptográfica.
 
 ## Hardware
 
-| Recurso | Asignación |
+| Recurso | Pines / límites |
 |---|---|
-| LDR | A0, A1, A2, A3 |
-| Batería Li-ion 1S | A4, divisor 20 kOhm / 20 kOhm + 100 nF |
-| Motor L298N | D3 ENA, D5 IN1, D6 IN2 |
-| PN532 SPI | D4 CS, D11 MOSI, D12 MISO, D13 SCK |
-| Servos | D9 Pitch, D10 Yaw |
-| LED | D7 |
+| LDR Norte, Sur, Oeste, Este | A0, A1, A2, A3 |
+| Batería Li-ion 1S | A4 · divisor 20 kΩ / 20 kΩ + 100 nF |
+| Motor L298N | D3 ENA · D5 IN1 · D6 IN2 |
+| PN532 SPI | D4 CS · D11 MOSI · D12 MISO · D13 SCK |
+| Servo Pitch | D9 · 15–165° |
+| Servo Yaw | D10 · 10–170° |
+| LED de estado | D7 |
 
-## Estructura
+Ver [pinout y calibración](docs/hardware/pinout.md). El firmware limita físicamente los ángulos recibidos; no se modifica la calibración para reducir tamaño.
 
-- include/: cabeceras firmware
-- src/: firmware
-- test/vectors/: vectores normativos
-- test/test_telemetry/: tests C++ nativos
-- tools/: generadores
-- AplicacionJava/: Java 21, Swing y PC/SC
-- heliostrand_app/: Flutter
-- docs/protocol/: especificación normativa del protocolo
-- docs/hardware/: especificación normativa de hardware
-- .github/workflows/ci.yml: integración continua
-- .github/workflows/release.yml: releases basadas en tag
+## Mapa del repositorio
 
-La UI Java usa el namespace com.ramsescb.heliostrand.desktop.
+```text
+include/                 Contratos y configuración de firmware
+src/                     Control solar, serialización y transportes
+AplicacionJava/
+  src/main/java/         Dominio, parser, PC/SC y Swing
+  src/test/java/         Contratos y regresiones de lector
+heliostrand_app/
+  lib/models/            Datos de telemetría
+  lib/parser/            Decodificación V2
+  lib/services/          NFC, simulación, reportes y actualización
+  lib/ui/                Pantallas, widgets, tema y gestión de errores
+  test/                  Contratos, servicios y widgets
+  android/               Firma y empaquetado Android
+  assets/icons/          Icono utilizado por el dashboard
+test/vectors/            Fuente compartida de vectores
+test/test_telemetry/     Pruebas nativas del protocolo
+test/nfc_host/           PN532 simulado: comandos y fallos de escritura
+tools/                   Generación de cabecera C++ para pruebas
+.github/workflows/       CI, paquetes Maven y releases por tag
+docs/                    Documentación técnica existente
+```
 
-## Compilación y pruebas
+## Desarrollo y validación
+
+Requisitos de referencia: Flutter **3.47.2**, Dart compatible con `^3.13.2`, JDK **21**, Python 3, PlatformIO **6.1.19** y compilador C++ para pruebas nativas. Maven **3.9.9** se obtiene mediante el wrapper con comprobación SHA-256.
 
 ### Firmware
 
-    python3 tools/generate_golden_vectors_header.py
-    pio run -e uno
-    pio test -e native
-    pio check -e uno --skip-packages
+```bash
+python3 tools/generate_golden_vectors_header.py
+pio run -e uno
+pio test -e native
+pio check -e uno --skip-packages
+c++ -std=c++17 -Wall -Wextra -Werror -Itest/nfc_host/stubs -Iinclude test/nfc_host/main.cpp src/NfcTransceiver.cpp src/TheoJansenTelemetry.cpp -o /tmp/nfc-host-tests
+/tmp/nfc-host-tests
+```
 
-El UART es un canal binario de máquina; no se mezclan logs de texto con frames.
+### Escritorio
 
-### Java Desktop
+```bash
+cd AplicacionJava
+./mvnw --batch-mode clean test package
+java --add-modules java.smartcardio -jar target/AplicacionJava-1.2.0-jar-with-dependencies.jar
+```
 
-    cd AplicacionJava
-    mvn clean test package
-    java --add-modules java.smartcardio -jar target/AplicacionJava-1.1.0-jar-with-dependencies.jar
+Para NFC se necesita un lector PC/SC compatible. El modo simulación permite comprobar el dashboard sin lector.
 
-El cliente Desktop actual consume NFC mediante PC/SC. No se anuncia un lector UART Java porque esa capa no existe.
+### Aplicación móvil
 
-### Flutter
+```bash
+cd heliostrand_app
+flutter pub get
+flutter analyze
+flutter test
+flutter run
+```
 
-Versión de referencia: Flutter 3.47.2.
+Se requiere un teléfono Android con NFC para verificar el transporte real. La simulación no requiere el lector. Los tests de transporte usan un canal simulado y no sustituyen una prueba física con PN532, tag y servos.
 
-    cd heliostrand_app
-    flutter pub get
-    flutter analyze
-    flutter test
-    flutter build apk --debug
+## Distribución y tamaño
 
-Un build release exige android/key.properties y una clave de firma configurada explícitamente. No existe fallback automático a firma debug. Para v1.1.0 se conserva el mismo certificado de v1.0.0 para mantener compatibilidad de actualización.
+Android release ya utiliza R8, eliminación de recursos sin uso y reducción de iconos. La limpieza retira dependencias sin consumidores y recursos duplicados; borrar comentarios reduce el fuente, no necesariamente el binario.
 
-## Contratos de cliente
+```bash
+flutter build apk --release
+flutter build apk --release --split-per-abi
+flutter build appbundle --release
+```
 
-Java y Flutter:
+| Artefacto | Uso |
+|---|---|
+| APK universal | Instalación directa compatible con las arquitecturas incluidas |
+| APK `arm64-v8a` | Teléfonos ARM de 64 bits, sin bibliotecas de otras arquitecturas |
+| APK `armeabi-v7a` | Dispositivos ARM de 32 bits |
+| APK `x86_64` | Entornos x86 de 64 bits compatibles |
+| Android App Bundle | Distribución por Google Play con selección por dispositivo |
 
-- exigen 12 bytes;
-- verifican CRC;
-- rechazan versiones distintas de V2;
-- rechazan códigos reservados;
-- validan rangos físicos;
-- muestran batería 0 mV como N/D;
-- deduplican por UID + sequenceNumber;
-- limitan el historial UI a 500 muestras.
+La firma exige `android/key.properties` y el keystore local. No hay fallback a firma debug. No se deben regenerar las claves existentes al actualizar una aplicación publicada.
 
-Los tests Java y Dart leen directamente el JSON normativo. C++ genera su cabecera de prueba desde ese mismo archivo.
+La release por tag valida que Maven y Flutter coincidan, construye firmware/JAR/APK y publica checksums SHA-256. Incluye el APK universal y variantes por ABI. [Releases disponibles](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/releases).
 
-## Descargas v1.1.0
+## Configuración y seguridad
 
-Cuando el tag v1.1.0 esté publicado, estos enlaces apuntan a los artefactos construidos desde ese mismo commit:
+| Configuración | Propósito |
+|---|---|
+| `SENTRY_DSN` | Override mediante `--dart-define` del destino público de errores; vacío desactiva envío |
+| `APP_ENV` | Entorno de Sentry, por defecto `production` |
+| `VERSION_POLICY_URL` | Endpoint HTTPS opcional para el mínimo `versionCode` permitido |
+| `android/key.properties` | Referencias y contraseñas de firma; archivo local ignorado |
+| `.env` / `.env.*` | Ignorados; no se cargan automáticamente en Flutter |
 
-- [Android APK](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/releases/download/v1.1.0/heliostrand-app.apk)
-- [Java 21 JAR](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/releases/download/v1.1.0/AplicacionJava-1.1.0-jar-with-dependencies.jar)
-- [Firmware Arduino HEX](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/releases/download/v1.1.0/heliostrand-firmware.hex)
-- [SHA-256 checksums](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/releases/download/v1.1.0/SHA256SUMS.txt)
+`heliostrand-version.json` expresa un **entero de compilación**, no una versión semántica: `min_required_version_code: 2` conserva la política existente. Cambiarlo a `1.2.0` sería inválido. El servicio limita la respuesta a 4096 bytes y utiliza la última política válida si falla la red.
 
-El artefacto Java también se publica en GitHub Packages con coordenadas Maven:
+Los DSN públicos de Sentry permiten enviar eventos, no leer datos ni administrar la cuenta ([documentación oficial](https://github.com/getsentry/sentry-docs/blob/master/docs/concepts/key-terms/dsn-explainer.mdx)). No deben confundirse con tokens de acceso. Una clave privada expuesta debe revocarse antes de sanear el historial; reescribir Git no elimina copias, forks ni descargas anteriores.
 
-    com.github.ramsescb:aplicacion-java:1.1.0
+## Versiones
 
-## Release 1.1.0
+Esta tabla distingue versiones presentes en el código de tags publicados y verificados en GitHub. Las descargas disponibles se consultan en Releases.
 
-release.yml valida que el tag coincida con las versiones Maven/Flutter, ejecuta pruebas y publica:
+| Versión | Referencia | Cambios |
+|---|---|---|
+| **1.2.0+4** | [Rama 1.2.0](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/tree/feature/v1.2.0-ui-fixes); Maven 1.2.0 | Control de servos por NFC, tarjeta de estado expandible, corrección LDR y revisión de resiliencia |
+| **1.1.0+3** | Commit `c2835c8` | Incremento de compilación para distribución Android |
+| **1.1.0+2** | [Tag v1.1.0](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/releases/tag/v1.1.0) · `2f62e0e` | Protocolo V2, slots NFC alternos, contratos compartidos y reducción de recursos |
+| **1.0.0+1** | Commit `1130983` | Primera aplicación Flutter dentro del monorepositorio |
+| **1.0.0** | [Tag v1.0.0](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/releases/tag/v1.0.0) | Release histórica anterior a la remediación V2 |
 
-- heliostrand-firmware.hex
-- AplicacionJava-<version>-jar-with-dependencies.jar
-- heliostrand-app.apk
-- SHA256SUMS.txt
+Consulta el [historial](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/commits) y los [tags](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/tags) para el estado publicado. Un tag publicado no se mueve para sustituir su contenido.
 
-Android requiere los secrets ANDROID_KEYSTORE_BASE64, ANDROID_STORE_PASSWORD, ANDROID_KEY_PASSWORD y ANDROID_KEY_ALIAS.
+## Contribuir
 
-No se debe mover un tag publicado para hacerlo apuntar a otro commit.
+1. Consulta la [Constitución](CONSTITUTION.md) y las [reglas técnicas](RULES.md).
+2. Sigue la [guía de contribución](CONTRIBUTING.md) y ejecuta los controles del componente afectado.
+3. Describe el fallo, el cambio, las pruebas y las limitaciones de hardware en el PR.
 
-## Documentación
+[Índice documental](DOCUMENTS.md) · [Privacidad](heliostrand_app/PRIVACY_POLICY.md) · [Licencia](LICENSE.md)
 
-- [DOCUMENTS.md](DOCUMENTS.md)
-- [RULES.md](RULES.md)
-- [CONSTITUTION.md](CONSTITUTION.md)
-- [CONTRIBUTING.md](CONTRIBUTING.md)
-- [LICENSE.md](LICENSE.md)
-
-## Licencia
-
-Proyecto Source-Available bajo HELS-AEL 1.0, licencia personalizada de atribución obligatoria y no OSI-approved. Consulte LICENSE.md para los términos completos.
+**Licencia:** HELS-AEL 1.0, Source-Available con atribución obligatoria; no es una licencia aprobada por la OSI.

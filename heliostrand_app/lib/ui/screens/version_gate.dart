@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+
+import '../actions.dart';
 
 import '../../services/update_policy_service.dart';
 
-/// Puerta de entrada: impide navegar con versionCode inferior al minimo remoto.
 class VersionGate extends StatefulWidget {
   const VersionGate({super.key, required this.child});
 
@@ -25,7 +25,6 @@ class _VersionGateState extends State<VersionGate> {
 
   @override
   Widget build(BuildContext context) {
-    // Sin endpoint configurado, no se publica una promesa falsa de force-update.
     if (versionPolicyUrl.isEmpty) return widget.child;
 
     return PopScope(
@@ -87,11 +86,11 @@ class _VersionGateState extends State<VersionGate> {
                     ),
                     const SizedBox(height: 24),
                     FilledButton.icon(
-                      onPressed: () => launchUrl(
+                      onPressed: () => openExternalLink(
+                        context,
                         Uri.https('play.google.com', '/store/apps/details', {
                           'id': 'com.theojansen.heliostrand_app',
                         }),
-                        mode: LaunchMode.externalApplication,
                       ),
                       icon: const Icon(Icons.open_in_new),
                       label: const Text('Actualizar desde Google Play'),

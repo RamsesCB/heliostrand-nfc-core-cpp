@@ -5,17 +5,26 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Se configura durante build: --dart-define=VERSION_POLICY_URL=https://...
 const versionPolicyUrl = String.fromEnvironment('VERSION_POLICY_URL');
 const _minimumVersionCacheKey = 'minimum_android_version_code';
 
-/// El servidor debe responder: {"min_required_version": 3}.
 int? parseMinimumRequiredVersion(Object? response) {
   if (response is! Map<String, dynamic>) return null;
   final value =
       response['min_required_version_code'] ?? response['min_required_version'];
   final number = value is int ? value : int.tryParse(value?.toString() ?? '');
   return number != null && number > 0 ? number : null;
+}
+
+Future<String> readVersionPolicyBody(Stream<List<int>> response) async {
+  final bytes = <int>[];
+  await for (final chunk in response) {
+    if (bytes.length + chunk.length > 4096) {
+      throw const FormatException('Version policy demasiado grande');
+    }
+    bytes.addAll(chunk);
+  }
+  return utf8.decode(bytes);
 }
 
 class UpdatePolicyService {
@@ -54,13 +63,8 @@ class UpdatePolicyService {
             uri: uri,
           );
         }
-        final body = await utf8.decoder
-            .bind(response)
-            .join()
+        final body = await readVersionPolicyBody(response)
             .timeout(const Duration(seconds: 7));
-        if (body.length > 4096) {
-          throw const FormatException('Version policy demasiado grande');
-        }
         final remoteMinimum = parseMinimumRequiredVersion(jsonDecode(body));
         if (remoteMinimum == null) {
           throw const FormatException(
@@ -70,7 +74,6 @@ class UpdatePolicyService {
         requiredVersionCode = remoteMinimum;
         await preferences.setInt(_minimumVersionCacheKey, remoteMinimum);
       } catch (error, stackTrace) {
-        // Si no hay red, se aplica la ultima politica remota validada y guardada.
         if (const String.fromEnvironment('SENTRY_DSN').isNotEmpty) {
           await Sentry.captureException(error, stackTrace: stackTrace);
         }

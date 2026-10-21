@@ -24,7 +24,6 @@ inline bool nfcPayloadMeaningfullyChanged(
     uint16_t batteryDeltaMv) {
     if (!current || !previous) return true;
 
-    // Header: version + motor + light direction.
     if (current[0] != previous[0]) return true;
 
     for (uint8_t i = 2; i <= 5; ++i) {
@@ -45,7 +44,6 @@ inline bool nfcPayloadMeaningfullyChanged(
 
     if (current[10] != previous[10]) return true;
 
-    // Byte 1 (sequence) and byte 11 (CRC) are intentionally ignored.
     return false;
 }
 

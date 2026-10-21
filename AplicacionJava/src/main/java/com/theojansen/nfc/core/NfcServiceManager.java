@@ -20,10 +20,16 @@ public class NfcServiceManager {
     private CardTerminal terminal;
     private ExecutorService executorService;
     private volatile boolean scanningActive = false;
+    private volatile long scanGeneration = 0;
 
     private record NfcSlot(byte[] payload, int generation) {}
 
     public NfcServiceManager() {
+        this(null);
+    }
+
+    NfcServiceManager(CardTerminal terminal) {
+        this.terminal = terminal;
         this.parser = new TheoJansenDataParser();
     }
 
@@ -50,13 +56,20 @@ public class NfcServiceManager {
         }
     }
 
-    public void startContinuousScan(NfcEventListener listener) {
+    public synchronized void startContinuousScan(NfcEventListener listener) {
         if (scanningActive) return;
+        if (terminal == null) {
+            if (listener != null) listener.onErrorEncountered(
+                    new NfcDeviceException("Inicializa un lector NFC antes de escanear."));
+            return;
+        }
         scanningActive = true;
+        final long generation = ++scanGeneration;
         executorService = Executors.newSingleThreadExecutor();
 
         executorService.submit(() -> {
-            while (scanningActive) {
+            while (scanningActive && generation == scanGeneration
+                    && !Thread.currentThread().isInterrupted()) {
                 Card card = null;
                 try {
                     if (terminal != null && terminal.waitForCardPresent(1000)) {
@@ -66,22 +79,29 @@ public class NfcServiceManager {
                         String tagUid = readRealUid(channel, card);
                         RobotTelemetry telemetry = readLatestTelemetry(channel, tagUid);
 
-                        if (isFreshForTag(telemetry) && listener != null) {
+                        if (scanningActive && generation == scanGeneration
+                                && isFreshForTag(telemetry) && listener != null) {
                             listener.onTelemetryReceived(telemetry);
                         }
 
                         terminal.waitForCardAbsent(2000);
                     }
                 } catch (Exception e) {
-                    if (scanningActive && listener != null) {
+                    if (scanningActive && generation == scanGeneration && listener != null) {
                         listener.onErrorEncountered(e);
+                    }
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException interrupted) {
+                        Thread.currentThread().interrupt();
+                        break;
                     }
                 } finally {
                     if (card != null) {
                         try {
                             card.disconnect(false);
                         } catch (CardException ignored) {
-                            // Tag may already have left the RF field.
+
                         }
                     }
                 }
@@ -125,7 +145,12 @@ public class NfcServiceManager {
     }
 
     private NfcSlot readSlot(CardChannel channel, int basePage) throws CardException {
-        byte[] raw = readPages(channel, basePage);
+        byte[] raw;
+        try {
+            raw = readPages(channel, basePage);
+        } catch (CardException e) {
+            return null;
+        }
         if (raw == null || raw.length < 16) return null;
 
         int magic0 = raw[12] & 0xFF;
@@ -175,8 +200,9 @@ public class NfcServiceManager {
         return previous == null || previous != sequence;
     }
 
-    public void stopContinuousScan() {
+    public synchronized void stopContinuousScan() {
         scanningActive = false;
+        scanGeneration++;
         if (executorService != null && !executorService.isShutdown()) {
             executorService.shutdownNow();
         }
@@ -190,7 +216,7 @@ public class NfcServiceManager {
                 return bytesToHex(response.getData());
             }
         } catch (Exception ignored) {
-            // Some PC/SC readers do not implement FF CA.
+
         }
         return "ATR-" + bytesToHex(card.getATR().getBytes());
     }

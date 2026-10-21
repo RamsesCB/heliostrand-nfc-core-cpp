@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../models/light_direction.dart';
 import '../../models/motor_state.dart';
@@ -11,23 +10,11 @@ import '../../services/nfc_service.dart';
 import '../../services/report_service.dart';
 import '../../services/simulation_service.dart';
 import '../theme.dart';
+import '../actions.dart';
 import '../widgets/history_card.dart';
 import '../widgets/ldr_chart_card.dart';
 import '../widgets/motor_battery_card.dart';
 import '../widgets/servos_card.dart';
-
-/// THEO JANSEN SOLAR TRACKER - DASHBOARD MINIMALISTA TRADICIONAL
-///
-/// ESTRUCTURA:
-/// 1. Header 56px blanco con logo negro (32x32 radius 9px) + icono sol #E9A000, toggle NFC iOS (44x26)
-/// 2. Status Card 48px "Listo para escanear"
-/// 3. LDR Card con badge EQUILIBRADO / AJUSTANDO, 4 barras Norte/Sur/Este/Oeste (0-255)
-/// 4. Servos Card con 2 sliders Pitch #E9A000 y Yaw #0EA5E9 (0-180°, trackHeight 4)
-/// 5. Metrics Grid: Theo Jansen DETENIDO/MOVIENDO + Inversiones, Potencia N/D o Voltaje/Batería
-/// 6. Historial con empty state y lista max 5 "P 90° · Y 90°"
-/// 7. CTA sticky bottom blur, botón negro #111 h52 radius 12 "Iniciar Escaneo NFC"
-///
-/// CONEXIONES DE HARDWARE REAL MARCADAS CON "TODO CAMBIAR".
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -37,23 +24,20 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  // ===== SERVICIOS DE PRODUCCIÓN =====
   final NfcService _nfcService = NfcService();
   final SimulationService _simulationService = SimulationService();
 
-  // ===== ESTADOS - TODO CAMBIAR: Valores iniciales si requieres calibrar =====
-  bool nfcEnabled = true; // Toggle NFC (estilo iOS en el Header)
+  bool nfcEnabled = true;
   bool _isScanning = false;
   bool _isSimulationMode = false;
   bool _isMoving = false;
 
-  double _pitch = 90.0; // Rango 0-180
-  double _yaw = 90.0;   // Rango 0-180
+  double _pitch = 90.0;
+  double _yaw = 90.0;
   int _inversiones = 0;
   String _statusMessage = 'Listo para escanear';
   bool _isStatusExpanded = false;
 
-  // Valores de los 4 sensores LDR [0: Norte, 1: Sur, 2: Oeste, 3: Este]
   List<int> _ldrValues = [182, 204, 196, 168];
   LightDirection _dominantDirection = LightDirection.equilibrado;
 
@@ -65,20 +49,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
   StreamSubscription? _statusSub;
   StreamSubscription? _errorSub;
   Timer? _driftTimer;
+  bool _scanActionPending = false;
+  final Random _random = Random();
 
   @override
   void initState() {
     super.initState();
     _setupListeners();
 
-    // TODO CAMBIAR: Simulación de deriva de luz ambiental (±6) cuando no hay escaneo activo
     _driftTimer = Timer.periodic(const Duration(milliseconds: 1800), (_) {
       if (_isScanning) return;
       if (!mounted) return;
       setState(() {
-        final rng = Random();
         _ldrValues = _ldrValues.map((val) {
-          final drift = (rng.nextDouble() * 12 - 6).round();
+          final drift = (_random.nextDouble() * 12 - 6).round();
           return (val + drift).clamp(0, 255);
         }).toList();
       });
@@ -86,38 +70,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _setupListeners() {
-    // 1. Escucha de telemetría real NFC desde el microcontrolador
     _telemetrySub = _nfcService.onTelemetryReceived.listen((telemetry) {
-      if (!mounted) return;
-      setState(() {
-        _latestTelemetry = telemetry;
-        _ldrValues = List<int>.from(telemetry.ldrValues);
-        _dominantDirection = telemetry.primaryLightDirection;
-        _pitch = telemetry.servoPitchAngle.toDouble();
-        _yaw = telemetry.servoYawAngle.toDouble();
-        _inversiones = telemetry.polarityReversalsCount;
-        _isMoving = telemetry.motorDirection != MotorState.detenido;
-        _addToHistory(telemetry);
-        _statusMessage = 'Telemetría NFC recibida (${telemetry.tagUid})';
-      });
+      if (!_isSimulationMode && _isScanning) {
+        _receiveTelemetry(telemetry, fromNfc: true);
+      }
     });
-
-    // 2. Escucha de simulación para desarrollo sin hardware físico
     _simTelemetrySub = _simulationService.telemetryStream.listen((telemetry) {
-      if (!mounted) return;
-      setState(() {
-        _latestTelemetry = telemetry;
-        _ldrValues = List<int>.from(telemetry.ldrValues);
-        _dominantDirection = telemetry.primaryLightDirection;
-        _pitch = telemetry.servoPitchAngle.toDouble();
-        _yaw = telemetry.servoYawAngle.toDouble();
-        _inversiones = telemetry.polarityReversalsCount;
-        _isMoving = telemetry.motorDirection != MotorState.detenido;
-        _addToHistory(telemetry);
-      });
+      if (_isSimulationMode && _isScanning) _receiveTelemetry(telemetry);
     });
 
-    // 3. Estados y notificaciones del servicio NFC
     _statusSub = _nfcService.onStatusChanged.listen((msg) {
       if (!mounted) return;
       setState(() => _statusMessage = msg);
@@ -135,6 +96,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
+  void _receiveTelemetry(RobotTelemetry telemetry, {bool fromNfc = false}) {
+    if (!mounted) return;
+    setState(() {
+      _latestTelemetry = telemetry;
+      _ldrValues = List<int>.from(telemetry.ldrValues);
+      _dominantDirection = telemetry.primaryLightDirection;
+      _pitch = telemetry.servoPitchAngle.toDouble();
+      _yaw = telemetry.servoYawAngle.toDouble();
+      _inversiones = telemetry.polarityReversalsCount;
+      _isMoving = telemetry.motorDirection != MotorState.detenido;
+      _addToHistory(telemetry);
+      if (fromNfc) {
+        _statusMessage = 'Telemetría NFC recibida (${telemetry.tagUid})';
+      }
+    });
+  }
+
+  Future<void> _stopSources() async {
+    _simulationService.stop();
+    await _nfcService.stopScan();
+    if (!mounted) return;
+    setState(() {
+      _isScanning = false;
+      _isMoving = false;
+    });
+  }
+
+  Future<void> _selectMenu(String value) async {
+    if (value == 'sim') {
+      if (_scanActionPending) return;
+      _scanActionPending = true;
+      try {
+        await _stopSources();
+        if (!mounted) return;
+        _simulationService.clearManualServoAngles();
+        setState(() {
+          _isSimulationMode = !_isSimulationMode;
+          _statusMessage = 'Listo para escanear';
+        });
+      } finally {
+        _scanActionPending = false;
+      }
+    } else if (value == 'csv' || value == 'json') {
+      final snapshot = List<RobotTelemetry>.of(_history);
+      await runUiAction(
+        context,
+        () => value == 'csv'
+            ? ReportService.shareCsvReport(snapshot)
+            : ReportService.shareReport(snapshot),
+        'No se pudo exportar el reporte.',
+      );
+    } else if (value == 'privacy') {
+      await openExternalLink(
+        context,
+        Uri.parse(
+          'https://github.com/RamsesCB/heliostrand-nfc-core-cpp/blob/main/heliostrand_app/PRIVACY_POLICY.md',
+        ),
+      );
+    }
+  }
+
   void _addToHistory(RobotTelemetry telemetry) {
     _history.insert(0, telemetry);
     if (_history.length > 500) {
@@ -142,15 +164,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  // TODO CAMBIAR: Lógica de equilibrado solar (umbral 45)
-  bool get isBalanced {
-    if (_dominantDirection == LightDirection.equilibrado) return true;
-    if (_ldrValues.isEmpty) return true;
-    return (_ldrValues.reduce(max) - _ldrValues.reduce(min)) < 45;
+  Future<void> handleScan() async {
+    if (_scanActionPending) return;
+    _scanActionPending = true;
+    try {
+      await runUiAction(context, _handleScan, 'No se pudo iniciar el escaneo.');
+    } finally {
+      _scanActionPending = false;
+    }
   }
 
-  // TODO CAMBIAR: Disparador del escaneo NFC real / Simulación
-  Future<void> handleScan() async {
+  Future<void> _handleScan() async {
     if (!nfcEnabled) {
       setState(() => _statusMessage = 'Activa NFC para escanear');
       await Future.delayed(const Duration(milliseconds: 1500));
@@ -159,12 +183,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     if (_isScanning) {
-      // Pausar escaneo activo
-      if (_isSimulationMode) {
-        _simulationService.stop();
-      } else {
-        await _nfcService.stopScan();
-      }
+      await _stopSources();
       if (mounted) {
         setState(() {
           _isScanning = false;
@@ -175,7 +194,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       return;
     }
 
-    // Iniciar escaneo
     if (_isSimulationMode) {
       _simulationService.start();
       setState(() {
@@ -186,7 +204,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       return;
     }
 
-    // Verificar disponibilidad del hardware NFC
     final available = await _nfcService.isNfcAvailable();
     if (!mounted) return;
 
@@ -254,7 +271,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final motorState = _latestTelemetry?.motorDirection ??
+    final motorState =
+        _latestTelemetry?.motorDirection ??
         (_isMoving ? MotorState.adelante : MotorState.detenido);
     final voltage = _latestTelemetry?.operatingVoltage ?? 0.0;
     final battery = _latestTelemetry?.batteryLevelPercent ?? 0;
@@ -265,7 +283,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
-            // TODO CAMBIAR: Ancho máximo adaptable al marco del teléfono (390px centrado)
             constraints: const BoxConstraints(maxWidth: 390),
             child: Column(
               children: [
@@ -288,16 +305,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           yaw: _yaw.round(),
                           onPitchChanged: (val) {
                             setState(() => _pitch = val);
-                            _nfcService.queueServoCommand(_pitch.round(), _yaw.round());
+                            if (!_isSimulationMode) {
+                              _nfcService.queueServoCommand(
+                                _pitch.round(),
+                                _yaw.round(),
+                              );
+                            }
                             if (_isSimulationMode) {
-                              _simulationService.setManualServoAngles(_pitch.round(), _yaw.round());
+                              _simulationService.setManualServoAngles(
+                                _pitch.round(),
+                                _yaw.round(),
+                              );
                             }
                           },
                           onYawChanged: (val) {
                             setState(() => _yaw = val);
-                            _nfcService.queueServoCommand(_pitch.round(), _yaw.round());
+                            if (!_isSimulationMode) {
+                              _nfcService.queueServoCommand(
+                                _pitch.round(),
+                                _yaw.round(),
+                              );
+                            }
                             if (_isSimulationMode) {
-                              _simulationService.setManualServoAngles(_pitch.round(), _yaw.round());
+                              _simulationService.setManualServoAngles(
+                                _pitch.round(),
+                                _yaw.round(),
+                              );
                             }
                           },
                         ),
@@ -315,7 +348,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           history: _history,
                           onClear: () => setState(() => _history.clear()),
                         ),
-                        const SizedBox(height: 85), // Espacio para el sticky CTA
+                        const SizedBox(height: 85),
                       ],
                     ),
                   ),
@@ -329,7 +362,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // 1. Header 56px blanco con logo 32x32 radius 9px, toggle NFC iOS 44x26
   Widget _buildHeader() {
     return Container(
       height: 56,
@@ -398,18 +430,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
               const SizedBox(width: 8),
-              // Toggle NFC estilo iOS (44x26)
+
               GestureDetector(
-                onTap: () {
-                  setState(() {
-                    nfcEnabled = !nfcEnabled;
-                    if (!nfcEnabled && _isScanning) {
-                      _isScanning = false;
-                      _isMoving = false;
-                      _statusMessage = 'NFC desactivado';
-                      _nfcService.stopScan();
+                onTap: () async {
+                  if (_scanActionPending) return;
+                  _scanActionPending = true;
+                  try {
+                    setState(() => nfcEnabled = !nfcEnabled);
+                    if (!nfcEnabled) {
+                      await _stopSources();
+                      if (mounted) {
+                        setState(() => _statusMessage = 'NFC desactivado');
+                      }
                     }
-                  });
+                  } finally {
+                    _scanActionPending = false;
+                  }
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
@@ -423,8 +459,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   child: AnimatedAlign(
                     duration: const Duration(milliseconds: 200),
-                    alignment:
-                        nfcEnabled ? Alignment.centerRight : Alignment.centerLeft,
+                    alignment: nfcEnabled
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
                     child: Container(
                       margin: const EdgeInsets.all(2),
                       width: 22,
@@ -445,7 +482,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
               const SizedBox(width: 4),
-              // Menú contextual para exportaciones y opciones de sistema
+
               PopupMenuButton<String>(
                 icon: const Icon(
                   Icons.more_vert,
@@ -454,22 +491,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 padding: EdgeInsets.zero,
                 tooltip: 'Opciones',
-                onSelected: (val) {
-                  if (val == 'sim') {
-                    setState(() {
-                      _isSimulationMode = !_isSimulationMode;
-                    });
-                  } else if (val == 'csv') {
-                    ReportService.shareCsvReport(_history);
-                  } else if (val == 'json') {
-                    ReportService.shareReport(_history);
-                  } else if (val == 'privacy') {
-                    final uri = Uri.parse(
-                      'https://github.com/RamsesCB/heliostrand-nfc-core-cpp/blob/main/heliostrand_app/PRIVACY_POLICY.md',
-                    );
-                    launchUrl(uri, mode: LaunchMode.externalApplication);
-                  }
-                },
+                onSelected: _selectMenu,
                 itemBuilder: (ctx) => [
                   PopupMenuItem(
                     value: 'sim',
@@ -482,10 +504,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           size: 18,
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          _isSimulationMode
-                              ? 'Usar NFC Real'
-                              : 'Modo Simulación',
+                        Expanded(
+                          child: Text(
+                            _isSimulationMode
+                                ? 'Usar NFC Real'
+                                : 'Modo Simulación',
+                          ),
                         ),
                       ],
                     ),
@@ -497,7 +521,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         children: [
                           Icon(Icons.data_object, size: 18),
                           SizedBox(width: 8),
-                          Text('Exportar JSON'),
+                          Expanded(child: Text('Exportar JSON')),
                         ],
                       ),
                     ),
@@ -507,7 +531,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         children: [
                           Icon(Icons.table_chart, size: 18),
                           SizedBox(width: 8),
-                          Text('Exportar CSV'),
+                          Expanded(child: Text('Exportar CSV')),
                         ],
                       ),
                     ),
@@ -519,7 +543,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       children: [
                         Icon(Icons.privacy_tip_outlined, size: 18),
                         SizedBox(width: 8),
-                        Text('Política de Privacidad'),
+                        Expanded(child: Text('Política de Privacidad')),
                       ],
                     ),
                   ),
@@ -532,7 +556,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // 2. Status Card "Listo para escanear" / expandible al tocar para mensajes largos
   Widget _buildNfcStatusCard() {
     return GestureDetector(
       onTap: () {
@@ -603,16 +626,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // 7. CTA sticky bottom blur, botón negro #111 h52 radius 12 "Iniciar Escaneo NFC"
   Widget _buildStickyCta() {
     final active = nfcEnabled;
 
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFF8F9FA).withValues(alpha: 0.95),
-        border: const Border(
-          top: BorderSide(color: Color(0xFFEFEFEF)),
-        ),
+        border: const Border(top: BorderSide(color: Color(0xFFEFEFEF))),
       ),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       child: SizedBox(
@@ -624,8 +644,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             backgroundColor: !active
                 ? const Color(0xFFE9ECEF)
                 : (_isScanning
-                    ? SolarTrackerTheme.badgeRedText
-                    : SolarTrackerTheme.buttonDark),
+                      ? SolarTrackerTheme.badgeRedText
+                      : SolarTrackerTheme.buttonDark),
             foregroundColor: !active
                 ? SolarTrackerTheme.textSecondary
                 : Colors.white,
@@ -647,9 +667,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                const Text(
-                  'Escaneando... (Toca para pausar)',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                const Flexible(
+                  child: Text(
+                    'Escaneando... (Toca para pausar)',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
                 ),
               ] else ...[
                 const Icon(Icons.play_arrow_rounded, size: 20),

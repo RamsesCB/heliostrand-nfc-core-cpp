@@ -20,8 +20,10 @@ jobs:
         run: |
           set -euo pipefail
           VERSION="${GITHUB_REF_NAME#v}"
-          grep -q "<version>${VERSION}</version>" AplicacionJava/pom.xml
-          grep -q "^version: ${VERSION}+" heliostrand_app/pubspec.yaml
+          MAVEN_VERSION=$(python3 -c 'import xml.etree.ElementTree as E; print(E.parse("AplicacionJava/pom.xml").getroot().findtext("{http://maven.apache.org/POM/4.0.0}version"))')
+          test "$MAVEN_VERSION" = "$VERSION"
+          FLUTTER_VERSION=$(sed -n 's/^version: \([^+]*\)+.*/\1/p' heliostrand_app/pubspec.yaml)
+          test "$FLUTTER_VERSION" = "$VERSION"
 
       - uses: actions/setup-python@v5
         with:
@@ -77,10 +79,14 @@ jobs:
           flutter analyze
           flutter test
           flutter build apk --release
+          cp build/app/outputs/flutter-apk/app-release.apk ../dist/heliostrand-app.apk
+          flutter build apk --release --split-per-abi
       - name: Collect Android artifact and checksums
         shell: bash
         run: |
-          cp heliostrand_app/build/app/outputs/flutter-apk/app-release.apk dist/heliostrand-app.apk
+          for ABI in armeabi-v7a arm64-v8a x86_64; do
+            cp "heliostrand_app/build/app/outputs/flutter-apk/app-${ABI}-release.apk" "dist/heliostrand-app-${ABI}.apk"
+          done
           (cd dist && sha256sum * > SHA256SUMS.txt)
 
       - name: Publish immutable GitHub Release assets
@@ -90,5 +96,5 @@ jobs:
           files: |
             dist/heliostrand-firmware.hex
             dist/AplicacionJava-*-jar-with-dependencies.jar
-            dist/heliostrand-app.apk
+            dist/heliostrand-app*.apk
             dist/SHA256SUMS.txt

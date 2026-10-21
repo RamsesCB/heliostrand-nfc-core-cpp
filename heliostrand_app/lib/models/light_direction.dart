@@ -1,4 +1,3 @@
-/// Dirección lumínica predominante basada en los sensores LDR.
 enum LightDirection {
   norte,
   sur,

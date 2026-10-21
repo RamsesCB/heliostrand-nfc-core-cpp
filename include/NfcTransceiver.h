@@ -19,6 +19,8 @@ public:
     bool isHardwareDetected() const { return pn532Detected; }
     uint32_t getFirmwareVersion() const { return firmwareVersion; }
 
+    void pollServoCommand();
+
     bool fetchServoCommand(uint8_t &pitch, uint8_t &yaw);
 
 private:
@@ -41,6 +43,7 @@ private:
 
     bool isMeaningfulChange(const uint8_t *payload) const;
     bool validateNtag213();
+    bool selectTag();
     bool uidAllowed(const uint8_t *uid, uint8_t uidLength);
 
     bool readSlot(uint8_t basePage, uint8_t *payload, uint8_t &generation);

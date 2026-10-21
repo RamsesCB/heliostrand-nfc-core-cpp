@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../../models/light_direction.dart';
@@ -32,17 +33,32 @@ class LdrChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Orden de hardware: [0: Norte, 1: Sur, 2: Oeste, 3: Este]
     final int norte = ldrValues.isNotEmpty ? ldrValues[0] : 0;
     final int sur = ldrValues.length > 1 ? ldrValues[1] : 0;
     final int este = ldrValues.length > 3 ? ldrValues[3] : 0;
     final int oeste = ldrValues.length > 2 ? ldrValues[2] : 0;
 
     final sensors = [
-      LdrItemData('Norte', norte, isDominant: dominantDirection == LightDirection.norte),
-      LdrItemData('Sur', sur, isDominant: dominantDirection == LightDirection.sur),
-      LdrItemData('Este', este, isDominant: dominantDirection == LightDirection.este),
-      LdrItemData('Oeste', oeste, isDominant: dominantDirection == LightDirection.oeste),
+      LdrItemData(
+        'Norte',
+        norte,
+        isDominant: dominantDirection == LightDirection.norte,
+      ),
+      LdrItemData(
+        'Sur',
+        sur,
+        isDominant: dominantDirection == LightDirection.sur,
+      ),
+      LdrItemData(
+        'Este',
+        este,
+        isDominant: dominantDirection == LightDirection.este,
+      ),
+      LdrItemData(
+        'Oeste',
+        oeste,
+        isDominant: dominantDirection == LightDirection.oeste,
+      ),
     ];
 
     final balanced = isBalanced;
@@ -85,7 +101,10 @@ class LdrChartCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: balanced
                       ? SolarTrackerTheme.badgeGreenBg
@@ -120,8 +139,11 @@ class LdrChartCard extends StatelessWidget {
                         Expanded(
                           child: LayoutBuilder(
                             builder: (context, constraints) {
-                              final barHeight = (constraints.maxHeight * heightFactor)
-                                  .clamp(6.0, constraints.maxHeight);
+                              final barHeight =
+                                  (constraints.maxHeight * heightFactor).clamp(
+                                    6.0,
+                                    constraints.maxHeight,
+                                  );
                               return Align(
                                 alignment: Alignment.bottomCenter,
                                 child: AnimatedContainer(
@@ -131,12 +153,14 @@ class LdrChartCard extends StatelessWidget {
                                   width: double.infinity,
                                   decoration: BoxDecoration(
                                     color: ldr.isDominant
-                                        ? SolarTrackerTheme.sunPitchAmber.withValues(alpha: 0.35)
+                                        ? SolarTrackerTheme.sunPitchAmber
+                                              .withValues(alpha: 0.35)
                                         : const Color(0xFFE9ECEF),
                                     borderRadius: BorderRadius.circular(8),
                                     border: ldr.isDominant
                                         ? Border.all(
-                                            color: SolarTrackerTheme.sunPitchAmber,
+                                            color:
+                                                SolarTrackerTheme.sunPitchAmber,
                                             width: 1.2,
                                           )
                                         : null,

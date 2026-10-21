@@ -11,7 +11,6 @@ bool SerialTelemetryTransport::begin() {
 bool SerialTelemetryTransport::publish(const uint8_t *payload, size_t length) {
     if (!payload || length != TELEMETRY_PAYLOAD_SIZE) return false;
 
-    // Machine-only stream: sync word + 12-byte payload + CRLF.
     Serial.write(0xAA);
     Serial.write(0x55);
     Serial.write(payload, TELEMETRY_PAYLOAD_SIZE);

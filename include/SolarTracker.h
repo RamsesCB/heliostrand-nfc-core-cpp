@@ -17,7 +17,6 @@ public:
     void toggleMotorDirection();
     void setServoAngles(uint8_t pitch, uint8_t yaw);
 
-    // Obtener el paquete de telemetría listo para empaquetar
     TelemetryPacket getTelemetrySnapshot();
 
     uint8_t getPitchAngle() const { return currentPitch; }
@@ -39,7 +38,6 @@ private:
     uint8_t ldrEste;
 
     uint16_t voltageMilliVolts;
-    uint8_t batteryPercent;
     bool batteryValid;
 
     uint8_t polarityReversals;
@@ -52,4 +50,4 @@ private:
     void computeLightDirection();
 };
 
-#endif // SOLAR_TRACKER_H
+#endif

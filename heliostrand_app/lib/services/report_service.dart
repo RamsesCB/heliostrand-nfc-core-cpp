@@ -68,7 +68,9 @@ class ReportService {
   static Future<File> saveReportToFile(List<RobotTelemetry> history) async {
     final directory = await getApplicationDocumentsDirectory();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final file = File('${directory.path}/telemetria_theojansen_$timestamp.json');
+    final file = File(
+      '${directory.path}/telemetria_theojansen_$timestamp.json',
+    );
     return file.writeAsString(await generateJsonString(history));
   }
 

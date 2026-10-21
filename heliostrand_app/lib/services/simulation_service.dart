@@ -35,7 +35,7 @@ class SimulationService {
   bool get isActive => _active;
 
   void start({Duration interval = const Duration(milliseconds: 1500)}) {
-    if (_active) return;
+    if (_active || _telemetryController.isClosed) return;
     _active = true;
 
     _timer = Timer.periodic(interval, (_) {

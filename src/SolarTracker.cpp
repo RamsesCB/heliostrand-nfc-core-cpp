@@ -30,7 +30,6 @@ SolarTracker::SolarTracker()
       ldrOeste(0),
       ldrEste(0),
       voltageMilliVolts(0),
-      batteryPercent(0),
       batteryValid(false),
       polarityReversals(0),
       sequenceNumber(0),
@@ -38,47 +37,40 @@ SolarTracker::SolarTracker()
       lightDirection(DIR_EQUILIBRADO) {}
 
 void SolarTracker::begin() {
-    // Configurar pines de LDRs y batería
+
     pinMode(PIN_LDR_NORTE, INPUT);
     pinMode(PIN_LDR_SUR, INPUT);
     pinMode(PIN_LDR_OESTE, INPUT);
     pinMode(PIN_LDR_ESTE, INPUT);
     pinMode(PIN_BATTERY_SENSE, INPUT);
 
-    // Configurar LED de estado reasignado a D7
     pinMode(PIN_STATUS_LED, OUTPUT);
     digitalWrite(PIN_STATUS_LED, LOW);
 
-    // Configurar pines del motor Theo Jansen
     pinMode(PIN_MOTOR_IN1, OUTPUT);
     pinMode(PIN_MOTOR_IN2, OUTPUT);
     pinMode(PIN_MOTOR_ENABLE, OUTPUT);
-    analogWrite(PIN_MOTOR_ENABLE, 200); // Velocidad de crucero PWM
+    analogWrite(PIN_MOTOR_ENABLE, 200);
 
-    // Inicializar servomotores
     pitchServo.attach(PIN_SERVO_PITCH);
     yawServo.attach(PIN_SERVO_YAW);
 
     pitchServo.write(currentPitch);
     yawServo.write(currentYaw);
 
-    // Inicializar tracción
     setMotorState(MOTOR_ADELANTE);
 
-    // Primera lectura de sensores
     updateSensors();
 }
 
 uint8_t SolarTracker::readLdr8Bit(uint8_t pin) {
-    int raw = analogRead(pin); // 0 a 1023
-    // Mapear cuantizado: 10-bit ADC (0..1023) a 8-bit (0..255)
+    int raw = analogRead(pin);
+
     return (uint8_t)(raw >> 2);
 }
 
 void SolarTracker::readPowerSensors() {
-    // Discard the first sample after channel switching, then average multiple
-    // samples. A 100 nF capacitor from A4 to GND is part of the documented
-    // divider network and improves settling/noise performance.
+
     (void)analogRead(PIN_BATTERY_SENSE);
     delayMicroseconds(ADC_SETTLING_US);
 
@@ -90,7 +82,6 @@ void SolarTracker::readPowerSensors() {
 
     if (rawVoltage < BATTERY_CUTOFF_ADC) {
         voltageMilliVolts = 0;
-        batteryPercent = 0;
         batteryValid = false;
         return;
     }
@@ -103,7 +94,6 @@ void SolarTracker::readPowerSensors() {
     if (batteryMv < BATTERY_VALID_MIN_MV ||
         batteryMv > BATTERY_VALID_MAX_MV) {
         voltageMilliVolts = 0;
-        batteryPercent = 0;
         batteryValid = false;
         return;
     }
@@ -111,15 +101,6 @@ void SolarTracker::readPowerSensors() {
     voltageMilliVolts = (uint16_t)batteryMv;
     batteryValid = true;
 
-    if (voltageMilliVolts >= BATTERY_MAX_MV) {
-        batteryPercent = 100;
-    } else if (voltageMilliVolts <= BATTERY_MIN_MV) {
-        batteryPercent = 0;
-    } else {
-        batteryPercent = (uint8_t)(
-            ((uint32_t)(voltageMilliVolts - BATTERY_MIN_MV) * 100UL) /
-            (BATTERY_MAX_MV - BATTERY_MIN_MV));
-    }
 }
 
 void SolarTracker::computeLightDirection() {
@@ -160,7 +141,6 @@ void SolarTracker::updateSensors() {
 void SolarTracker::updateTracking() {
     updateSensors();
 
-    // 1. Control de elevación (Pitch): Norte vs Sur con constrain seguro
     int diffVertical = (int)ldrNorte - (int)ldrSur;
     if (abs(diffVertical) > LIGHT_DEADBAND) {
         if (diffVertical > 0) {
@@ -171,7 +151,6 @@ void SolarTracker::updateTracking() {
         pitchServo.write(currentPitch);
     }
 
-    // 2. Control de azimut (Yaw): Este vs Oeste con constrain seguro
     int diffHorizontal = (int)ldrEste - (int)ldrOeste;
     if (abs(diffHorizontal) > LIGHT_DEADBAND) {
         if (diffHorizontal > 0) {
@@ -184,7 +163,7 @@ void SolarTracker::updateTracking() {
 }
 
 void SolarTracker::setMotorState(TheoJansenMotorState newState) {
-    // Incrementar inversiones estrictamente ante un cambio efectivo de marcha entre ADELANTE y ATRAS
+
     if ((motorState == MOTOR_ADELANTE && newState == MOTOR_ATRAS) ||
         (motorState == MOTOR_ATRAS && newState == MOTOR_ADELANTE)) {
         polarityReversals++;
@@ -239,7 +218,6 @@ TelemetryPacket SolarTracker::getTelemetrySnapshot() {
     packet.voltageMilliVolts = voltageMilliVolts;
     packet.batteryValid = batteryValid;
     packet.polarityReversals = polarityReversals;
-    packet.checksumCRC8 = 0; // Se calcula en packTelemetry
 
     return packet;
 }

@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 
-// Hardware target: Arduino Uno R3 / ATmega328P
 #define PIN_LDR_NORTE        A0
 #define PIN_LDR_SUR          A1
 #define PIN_LDR_OESTE        A2
@@ -37,8 +36,6 @@
 #define LIGHT_DEADBAND       12
 #define SERVO_STEP_SIZE      2
 
-// Battery hardware: 1S Li-ion, 20k/20k divider + 100 nF from A4 to GND.
-// 20k || 20k = 10k source impedance, matching the ATmega328P ADC guidance.
 #define R1_OHM                   20000UL
 #define R2_OHM                   20000UL
 #define BATTERY_MIN_MV           3000
@@ -56,9 +53,6 @@
 #define TRACKING_INTERVAL_MS     250
 #define TELEMETRY_INTERVAL_MS    1000
 
-// NTAG213 endurance policy.
-// First write is immediate. Subsequent writes require at least 5 minutes.
-// Unchanged state is refreshed only every 15 minutes.
 #define NFC_WRITE_MIN_INTERVAL_MS        300000UL
 #define NFC_PERIODIC_REFRESH_MS          900000UL
 #define NFC_WRITE_RETRY_BACKOFF_MS       5000UL

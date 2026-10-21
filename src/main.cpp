@@ -40,8 +40,8 @@ void loop() {
         const TelemetryPacket snapshot = tracker.getTelemetrySnapshot();
         packTelemetry(snapshot, telemetryBuffer);
 
-        // Binary UART and NFC are independent transports.
         serialTransport.publish(telemetryBuffer, TELEMETRY_PAYLOAD_SIZE);
+        nfcTransport.pollServoCommand();
         nfcTransport.publish(telemetryBuffer, TELEMETRY_PAYLOAD_SIZE);
 
         ledState = !ledState;

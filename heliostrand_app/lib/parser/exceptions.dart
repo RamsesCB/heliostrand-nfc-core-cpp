@@ -18,7 +18,9 @@ class UnsupportedProtocolVersionException extends InvalidTelemetryException {
   final int receivedVersion;
 
   const UnsupportedProtocolVersionException(this.receivedVersion)
-      : super('Versión de protocolo no soportada. Este cliente acepta únicamente V2.');
+    : super(
+        'Versión de protocolo no soportada. Este cliente acepta únicamente V2.',
+      );
 
   @override
   String toString() =>

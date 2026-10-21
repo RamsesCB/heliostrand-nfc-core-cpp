@@ -32,7 +32,8 @@ jobs:
         shell: bash
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          grep -q "<version>${VERSION}</version>" AplicacionJava/pom.xml
+          MAVEN_VERSION=$(python3 -c 'import xml.etree.ElementTree as E; print(E.parse("AplicacionJava/pom.xml").getroot().findtext("{http://maven.apache.org/POM/4.0.0}version"))')
+          test "$MAVEN_VERSION" = "$VERSION"
 
       - name: Publish Maven package
         working-directory: AplicacionJava

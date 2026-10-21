@@ -29,7 +29,6 @@ class MotorBatteryCard extends StatelessWidget {
 
     return Row(
       children: [
-        // 1. Tarjeta Mecanismo Theo Jansen
         Expanded(
           child: Container(
             constraints: const BoxConstraints(minHeight: 110),
@@ -60,7 +59,10 @@ class MotorBatteryCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: moving
                             ? SolarTrackerTheme.badgeGreenBg
@@ -84,8 +86,8 @@ class MotorBatteryCard extends StatelessWidget {
                 Text(
                   moving
                       ? (motorState != MotorState.detenido
-                          ? motorState.displayName
-                          : '12 rpm')
+                            ? motorState.displayName
+                            : '12 rpm')
                       : '—',
                   style: const TextStyle(
                     fontSize: 20,
@@ -111,7 +113,6 @@ class MotorBatteryCard extends StatelessWidget {
         ),
         const SizedBox(width: 12),
 
-        // 2. Tarjeta Potencia y Batería
         Expanded(
           child: Container(
             constraints: const BoxConstraints(minHeight: 110),

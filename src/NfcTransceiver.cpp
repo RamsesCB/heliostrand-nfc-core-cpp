@@ -7,9 +7,9 @@ constexpr uint8_t SLOT_A_BASE_PAGE = 4;
 constexpr uint8_t SLOT_B_BASE_PAGE = 8;
 constexpr uint8_t SLOT_COMMIT_OFFSET = 3;
 constexpr uint8_t SLOT_CMD_PAGE = 12;
-constexpr uint8_t COMMIT_MAGIC_0 = 0x48; // H
-constexpr uint8_t COMMIT_MAGIC_1 = 0x53; // S
-constexpr uint8_t CMD_MAGIC_SERVO = 0x53; // S
+constexpr uint8_t COMMIT_MAGIC_0 = 0x48;
+constexpr uint8_t COMMIT_MAGIC_1 = 0x53;
+constexpr uint8_t CMD_MAGIC_SERVO = 0x53;
 }
 
 NfcTransceiver::NfcTransceiver()
@@ -115,7 +115,7 @@ bool NfcTransceiver::writeSlot(
     uint8_t generation) {
     uint8_t page[4] = {0};
 
-    // Payload first; commit page is written last.
+    if (!nfc.ntag2xx_WritePage(basePage + SLOT_COMMIT_OFFSET, page)) return false;
     for (uint8_t i = 0; i < 3; ++i) {
         memcpy(page, payload + i * 4, 4);
         if (!nfc.ntag2xx_WritePage((uint8_t)(basePage + i), page)) {
@@ -123,7 +123,6 @@ bool NfcTransceiver::writeSlot(
         }
     }
 
-    // Verify payload before committing the slot.
     for (uint8_t i = 0; i < 3; ++i) {
         if (!nfc.ntag2xx_ReadPage((uint8_t)(basePage + i), page)) {
             return false;
@@ -205,6 +204,21 @@ bool NfcTransceiver::publish(const uint8_t *payload, size_t length) {
         return true;
     }
 
+    if (!selectTag()) return false;
+
+    lastAttemptMillis = now;
+    if (!writeDoubleBuffered(payload)) {
+        return false;
+    }
+
+    memcpy(lastWrittenPayload, payload, TELEMETRY_PAYLOAD_SIZE);
+    hasWrittenTelemetry = true;
+    lastWriteMillis = now;
+
+    return true;
+}
+
+bool NfcTransceiver::selectTag() {
     uint8_t uid[7] = {0};
     uint8_t uidLength = 0;
     if (!nfc.readPassiveTargetID(
@@ -219,24 +233,12 @@ bool NfcTransceiver::publish(const uint8_t *payload, size_t length) {
         return false;
     }
 
-    lastAttemptMillis = now;
-    if (!writeDoubleBuffered(payload)) {
-        return false;
-    }
-
-    memcpy(lastWrittenPayload, payload, TELEMETRY_PAYLOAD_SIZE);
-    hasWrittenTelemetry = true;
-    lastWriteMillis = now;
-
-    // Verificar si la aplicación móvil envió una consigna de servomotores en la página de comandos
-    uint8_t cmdPitch = 0, cmdYaw = 0;
-    if (readServoCommand(cmdPitch, cmdYaw)) {
-        pendingServoPitch = cmdPitch;
-        pendingServoYaw = cmdYaw;
-        hasPendingServoCommand = true;
-    }
-
     return true;
+}
+
+void NfcTransceiver::pollServoCommand() {
+    if (!pn532Detected || hasPendingServoCommand || !selectTag()) return;
+    hasPendingServoCommand = readServoCommand(pendingServoPitch, pendingServoYaw);
 }
 
 bool NfcTransceiver::readServoCommand(uint8_t &pitch, uint8_t &yaw) {
@@ -245,11 +247,6 @@ bool NfcTransceiver::readServoCommand(uint8_t &pitch, uint8_t &yaw) {
         return false;
     }
 
-    // Formato de comando seguro:
-    // Byte 0: CMD_MAGIC_SERVO (0x53 = 'S')
-    // Byte 1: Pitch (0 a 180 grados)
-    // Byte 2: Yaw (0 a 180 grados)
-    // Byte 3: Checksum XOR de verificación (0x53 ^ pitch ^ yaw)
     if (cmd[0] == CMD_MAGIC_SERVO &&
         cmd[1] <= 180 &&
         cmd[2] <= 180 &&
@@ -257,10 +254,8 @@ bool NfcTransceiver::readServoCommand(uint8_t &pitch, uint8_t &yaw) {
         pitch = cmd[1];
         yaw = cmd[2];
 
-        // Limpiar la página de comando para evitar reejecuciones cíclicas (One-shot)
         uint8_t ackPage[4] = {0x00, 0x00, 0x00, 0x00};
-        nfc.ntag2xx_WritePage(SLOT_CMD_PAGE, ackPage);
-        return true;
+        return nfc.ntag2xx_WritePage(SLOT_CMD_PAGE, ackPage);
     }
 
     return false;
