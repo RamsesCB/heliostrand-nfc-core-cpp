@@ -1,259 +1,237 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <mxfile host="app.diagrams.net" modified="2026-10-21T23:20:00.000Z" agent="Antigravity" version="24.0.0" type="device">
   <diagram id="mobile-app-class-diagram" name="Diagrama de Clases - Flutter Mobile App (V1.2.0)">
-    <mxGraphModel dx="1800" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1200" math="0" shadow="0">
+    <mxGraphModel dx="2100" dy="1250" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3900" pageHeight="2070" math="0" shadow="0">
       <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
 
         <!-- Titulo y Metadatos -->
         <mxCell id="title_banner" value="&lt;b&gt;&lt;font size=&quot;4&quot;&gt;HELiOSTRAND - DIAGRAMA DE CLASES ORIENTADO A OBJETOS (FLUTTER MOBILE APP)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;Paquetes: heliostrand_app.ui | heliostrand_app.services | heliostrand_app.parser | heliostrand_app.models" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#0284C7;fontColor=#F8FAFC;align=center;arcSize=10;" vertex="1" parent="1">
-          <mxGeometry x="40" y="20" width="1800" height="50" as="geometry" />
+          <mxGeometry x="35" y="20" width="3340" height="58" as="geometry"/>
         </mxCell>
 
         <!-- =================== COLUMNA 1: SHELL NAVEGACION & CARDS (X = 40) =================== -->
         <!-- HeliostrandApp -->
-        <mxCell id="c_app" value="&amp;lt;b&amp;gt;HeliostrandApp&amp;lt;/b&amp;gt;&#xa;--&#xa;+ build(context: BuildContext): Widget" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#0C4A6E;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="40" y="90" width="280" height="75" as="geometry" />
+        <mxCell id="c_app" value="&amp;lt;b&amp;gt;HeliostrandApp&amp;lt;/b&amp;gt;&#10;--&#10;+ build(context: BuildContext): Widget" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#0C4A6E;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="80" y="115" width="335" height="85" as="geometry"/>
         </mxCell>
 
         <!-- VersionGate -->
-        <mxCell id="c_gate" value="&amp;lt;b&amp;gt;VersionGate&amp;lt;/b&amp;gt;&#xa;--&#xa;+ child: Widget&#xa;--&#xa;+ createState(): _VersionGateState" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#0C4A6E;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="40" y="190" width="280" height="90" as="geometry" />
+        <mxCell id="c_gate" value="&amp;lt;b&amp;gt;VersionGate&amp;lt;/b&amp;gt;&#10;--&#10;+ child: Widget&#10;--&#10;+ createState(): _VersionGateState" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#0C4A6E;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="80" y="290" width="335" height="95" as="geometry"/>
         </mxCell>
 
         <!-- _VersionGateState -->
-        <mxCell id="c_gate_state" value="&amp;lt;b&amp;gt;_VersionGateState&amp;lt;/b&amp;gt;&#xa;--&#xa;- _requiresUpdate: Future&amp;lt;bool&amp;gt;&#xa;--&#xa;- _retry(): void&#xa;+ build(context: BuildContext): Widget" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#0C4A6E;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="40" y="310" width="280" height="110" as="geometry" />
+        <mxCell id="c_gate_state" value="&amp;lt;b&amp;gt;_VersionGateState&amp;lt;/b&amp;gt;&#10;--&#10;- _requiresUpdate: Future&amp;lt;bool&amp;gt;&#10;--&#10;- _retry(): void&#10;+ build(context: BuildContext): Widget" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#0C4A6E;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="80" y="480" width="335" height="125" as="geometry"/>
         </mxCell>
 
         <!-- UpdatePolicyService -->
-        <mxCell id="c_policy_service" value="&amp;lt;b&amp;gt;UpdatePolicyService&amp;lt;/b&amp;gt;&#xa;--&#xa;+ client: http.Client&#xa;--&#xa;+ requiresUpdate(buildNum: int): Future&amp;lt;bool&amp;gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#78350F;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="40" y="450" width="280" height="90" as="geometry" />
+        <mxCell id="c_policy_service" value="&amp;lt;b&amp;gt;UpdatePolicyService&amp;lt;/b&amp;gt;&#10;--&#10;+ client: http.Client&#10;--&#10;+ requiresUpdate(buildNum: int): Future&amp;lt;bool&amp;gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#78350F;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="80" y="705" width="365" height="100" as="geometry"/>
         </mxCell>
 
         <!-- UI Presentation Cards -->
-        <mxCell id="w_ldr" value="&amp;lt;b&amp;gt;LdrChartCard&amp;lt;/b&amp;gt;&#xa;--&#xa;+ ldrValues: List&amp;lt;int&amp;gt;&#xa;+ dominantDirection: LightDirection&#xa;--&#xa;+ isBalanced: bool&#xa;+ build(context: BuildContext): Widget" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#0C4A6E;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="40" y="570" width="280" height="120" as="geometry" />
+        <mxCell id="w_ldr" value="&amp;lt;b&amp;gt;LdrChartCard&amp;lt;/b&amp;gt;&#10;--&#10;+ ldrValues: List&amp;lt;int&amp;gt;&#10;+ dominantDirection: LightDirection&#10;--&#10;+ isBalanced: bool&#10;+ build(context: BuildContext): Widget" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#0C4A6E;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1060" width="345" height="130" as="geometry"/>
         </mxCell>
 
-        <mxCell id="w_servos" value="&amp;lt;b&amp;gt;ServosCard&amp;lt;/b&amp;gt;&#xa;--&#xa;+ pitchAngle: int&#xa;+ yawAngle: int&#xa;+ onProgramCommand: Function(int, int)?&#xa;--&#xa;+ build(context: BuildContext): Widget" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#0C4A6E;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="40" y="710" width="280" height="120" as="geometry" />
+        <mxCell id="w_servos" value="&amp;lt;b&amp;gt;ServosCard&amp;lt;/b&amp;gt;&#10;--&#10;+ pitchAngle: int&#10;+ yawAngle: int&#10;+ onProgramCommand: Function(int, int)?&#10;--&#10;+ build(context: BuildContext): Widget" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#0C4A6E;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1280" width="345" height="130" as="geometry"/>
         </mxCell>
 
-        <mxCell id="w_motor" value="&amp;lt;b&amp;gt;MotorBatteryCard&amp;lt;/b&amp;gt;&#xa;--&#xa;+ motorState: MotorState&#xa;+ batteryLevelPercent: int&#xa;+ operatingVoltage: double&#xa;--&#xa;+ build(context: BuildContext): Widget" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#0C4A6E;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="40" y="850" width="280" height="120" as="geometry" />
+        <mxCell id="w_motor" value="&amp;lt;b&amp;gt;MotorBatteryCard&amp;lt;/b&amp;gt;&#10;--&#10;+ motorState: MotorState&#10;+ batteryLevelPercent: int&#10;+ operatingVoltage: double&#10;--&#10;+ build(context: BuildContext): Widget" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#0C4A6E;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1500" width="345" height="130" as="geometry"/>
         </mxCell>
 
-        <mxCell id="w_history" value="&amp;lt;b&amp;gt;HistoryCard&amp;lt;/b&amp;gt;&#xa;--&#xa;+ history: List&amp;lt;RobotTelemetry&amp;gt;&#xa;+ onClear: VoidCallback?&#xa;--&#xa;+ build(context: BuildContext): Widget" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#0C4A6E;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="40" y="990" width="280" height="120" as="geometry" />
+        <mxCell id="w_history" value="&amp;lt;b&amp;gt;HistoryCard&amp;lt;/b&amp;gt;&#10;--&#10;+ history: List&amp;lt;RobotTelemetry&amp;gt;&#10;+ onClear: VoidCallback?&#10;--&#10;+ build(context: BuildContext): Widget" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#0C4A6E;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1720" width="345" height="130" as="geometry"/>
         </mxCell>
 
         <!-- =================== COLUMNA 2: DASHBOARD SCREEN & STATE (X = 380) =================== -->
         <!-- DashboardScreen -->
-        <mxCell id="c_dashboard" value="&amp;lt;b&amp;gt;DashboardScreen&amp;lt;/b&amp;gt;&#xa;--&#xa;+ createState(): _DashboardScreenState" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#0C4A6E;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="380" y="90" width="340" height="75" as="geometry" />
+        <mxCell id="c_dashboard" value="&amp;lt;b&amp;gt;DashboardScreen&amp;lt;/b&amp;gt;&#10;--&#10;+ createState(): _DashboardScreenState" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#0C4A6E;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="675" y="115" width="400" height="85" as="geometry"/>
         </mxCell>
 
         <!-- _DashboardScreenState -->
-        <mxCell id="c_dashboard_state" value="&amp;lt;b&amp;gt;_DashboardScreenState&amp;lt;/b&amp;gt;&#xa;--&#xa;- _history: List&amp;lt;RobotTelemetry&amp;gt;&#xa;- _nfcService: NfcService&#xa;- _simulationService: SimulationService&#xa;- _isScanning: bool&#xa;- _isSimulationActive: bool&#xa;--&#xa;- _setupListeners(): void&#xa;- _receiveTelemetry(telemetry: RobotTelemetry): void&#xa;- _handleScan(): void&#xa;+ dispose(): void&#xa;+ build(context: BuildContext): Widget" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#0C4A6E;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="380" y="200" width="340" height="230" as="geometry" />
+        <mxCell id="c_dashboard_state" value="&amp;lt;b&amp;gt;_DashboardScreenState&amp;lt;/b&amp;gt;&#10;--&#10;- _history: List&amp;lt;RobotTelemetry&amp;gt;&#10;- _nfcService: NfcService&#10;- _simulationService: SimulationService&#10;- _isScanning: bool&#10;- _isSimulationActive: bool&#10;--&#10;- _setupListeners(): void&#10;- _receiveTelemetry(telemetry: RobotTelemetry): void&#10;- _handleScan(): void&#10;+ dispose(): void&#10;+ build(context: BuildContext): Widget" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#0C4A6E;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="675" y="385" width="440" height="270" as="geometry"/>
         </mxCell>
 
         <!-- ReportService -->
-        <mxCell id="c_report_service" value="&amp;lt;b&amp;gt;ReportService&amp;lt;/b&amp;gt;&#xa;--&#xa;+ generateJsonString(history: List&amp;lt;RobotTelemetry&amp;gt;): String&#xa;+ generateCsvString(history: List&amp;lt;RobotTelemetry&amp;gt;): String&#xa;+ shareReport(history: List&amp;lt;RobotTelemetry&amp;gt;): Future&amp;lt;void&amp;gt;&#xa;+ shareCsvReport(history: List&amp;lt;RobotTelemetry&amp;gt;): Future&amp;lt;void&amp;gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#F3E8FF;strokeColor=#9333EA;fontColor=#581C87;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="380" y="470" width="340" height="140" as="geometry" />
+        <mxCell id="c_report_service" value="&amp;lt;b&amp;gt;ReportService&amp;lt;/b&amp;gt;&#10;--&#10;+ generateJsonString(history: List&amp;lt;RobotTelemetry&amp;gt;): String&#10;+ generateCsvString(history: List&amp;lt;RobotTelemetry&amp;gt;): String&#10;+ shareReport(history: List&amp;lt;RobotTelemetry&amp;gt;): Future&amp;lt;void&amp;gt;&#10;+ shareCsvReport(history: List&amp;lt;RobotTelemetry&amp;gt;): Future&amp;lt;void&amp;gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#F3E8FF;strokeColor=#9333EA;fontColor=#581C87;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="675" y="805" width="430" height="155" as="geometry"/>
         </mxCell>
 
         <!-- =================== COLUMNA 3: CLASE ABSTRACTA & SERVICIOS (X = 780) =================== -->
         <!-- BaseTelemetryService Abstract Class -->
-        <mxCell id="c_base_service" value="&amp;lt;&amp;lt;abstract&amp;gt;&amp;gt;&#xa;&amp;lt;b&amp;gt;&amp;lt;i&amp;gt;BaseTelemetryService&amp;lt;/i&amp;gt;&amp;lt;/b&amp;gt;&#xa;--&#xa;+ telemetryStream: Stream&amp;lt;RobotTelemetry&amp;gt;&#xa;--&#xa;+ dispose(): void" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#78350F;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="780" y="90" width="340" height="110" as="geometry" />
+        <mxCell id="c_base_service" value="&amp;lt;&amp;lt;abstract&amp;gt;&amp;gt;&#10;&amp;lt;b&amp;gt;&amp;lt;i&amp;gt;BaseTelemetryService&amp;lt;/i&amp;gt;&amp;lt;/b&amp;gt;&#10;--&#10;+ telemetryStream: Stream&amp;lt;RobotTelemetry&amp;gt;&#10;--&#10;+ dispose(): void" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#78350F;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="115" width="410" height="125" as="geometry"/>
         </mxCell>
 
         <!-- NfcService -->
-        <mxCell id="c_nfc_service" value="&amp;lt;b&amp;gt;NfcService&amp;lt;/b&amp;gt;&#xa;--&#xa;+ onTelemetryReceived: Stream&amp;lt;RobotTelemetry&amp;gt;&#xa;+ telemetryStream: Stream&amp;lt;RobotTelemetry&amp;gt;&#xa;+ onStatusChanged: Stream&amp;lt;NfcStatus&amp;gt;&#xa;+ onError: Stream&amp;lt;String&amp;gt;&#xa;- _parser: TheoJansenDataParser&#xa;--&#xa;+ startContinuousScan(): Future&amp;lt;void&amp;gt;&#xa;+ queueServoCommand(pitch: int, yaw: int): void&#xa;+ stopScan(): Future&amp;lt;void&amp;gt;&#xa;+ dispose(): Future&amp;lt;void&amp;gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#78350F;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="780" y="240" width="340" height="210" as="geometry" />
+        <mxCell id="c_nfc_service" value="&amp;lt;b&amp;gt;NfcService&amp;lt;/b&amp;gt;&#10;--&#10;+ onTelemetryReceived: Stream&amp;lt;RobotTelemetry&amp;gt;&#10;+ telemetryStream: Stream&amp;lt;RobotTelemetry&amp;gt;&#10;+ onStatusChanged: Stream&amp;lt;NfcStatus&amp;gt;&#10;+ onError: Stream&amp;lt;String&amp;gt;&#10;- _parser: TheoJansenDataParser&#10;--&#10;+ startContinuousScan(): Future&amp;lt;void&amp;gt;&#10;+ queueServoCommand(pitch: int, yaw: int): void&#10;+ stopScan(): Future&amp;lt;void&amp;gt;&#10;+ dispose(): Future&amp;lt;void&amp;gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#78350F;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="395" width="430" height="240" as="geometry"/>
         </mxCell>
 
         <!-- SimulationService -->
-        <mxCell id="c_sim_service" value="&amp;lt;b&amp;gt;SimulationService&amp;lt;/b&amp;gt;&#xa;--&#xa;+ telemetryStream: Stream&amp;lt;RobotTelemetry&amp;gt;&#xa;--&#xa;+ setManualServoAngles(pitch: int, yaw: int): void&#xa;+ start(): void&#xa;+ stop(): void&#xa;+ dispose(): void" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#78350F;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="780" y="490" width="340" height="150" as="geometry" />
+        <mxCell id="c_sim_service" value="&amp;lt;b&amp;gt;SimulationService&amp;lt;/b&amp;gt;&#10;--&#10;+ telemetryStream: Stream&amp;lt;RobotTelemetry&amp;gt;&#10;--&#10;+ setManualServoAngles(pitch: int, yaw: int): void&#10;+ start(): void&#10;+ stop(): void&#10;+ dispose(): void" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#78350F;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="1740" y="395" width="430" height="175" as="geometry"/>
         </mxCell>
 
         <!-- NfcStatus Enumeration -->
-        <mxCell id="e_status" value="&amp;lt;&amp;lt;enumeration&amp;gt;&amp;gt;&#xa;&amp;lt;b&amp;gt;NfcStatus&amp;lt;/b&amp;gt;&#xa;--&#xa;+ idle&#xa;+ scanning&#xa;+ reading&#xa;+ writing&#xa;+ success&#xa;+ error" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontColor=#0F172A;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="780" y="680" width="160" height="150" as="geometry" />
+        <mxCell id="e_status" value="&amp;lt;&amp;lt;enumeration&amp;gt;&amp;gt;&#10;&amp;lt;b&amp;gt;NfcStatus&amp;lt;/b&amp;gt;&#10;--&#10;+ idle&#10;+ scanning&#10;+ reading&#10;+ writing&#10;+ success&#10;+ error" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontColor=#0F172A;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="1740" y="800" width="190" height="165" as="geometry"/>
         </mxCell>
 
         <!-- =================== COLUMNA 4: PROTOCOLO & DATA MODEL (X = 1180) =================== -->
         <!-- TheoJansenDataParser -->
-        <mxCell id="c_parser" value="&amp;lt;b&amp;gt;TheoJansenDataParser&amp;lt;/b&amp;gt;&#xa;--&#xa;+ EXPECTED_PAYLOAD_SIZE: int = 12&#xa;+ SUPPORTED_PROTOCOL_VERSION: int = 2&#xa;- CRC8_POLYNOMIAL: int = 0x07&#xa;--&#xa;+ decodeTelemetryPayload(raw: Uint8List, tagUid: String): RobotTelemetry&#xa;+ verifyCrc8(payload: Uint8List, expectedCrc: int): bool&#xa;+ buildServoCommandPayload(pitch: int, yaw: int): Uint8List" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#14532D;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="1180" y="90" width="350" height="170" as="geometry" />
+        <mxCell id="c_parser" value="&amp;lt;b&amp;gt;TheoJansenDataParser&amp;lt;/b&amp;gt;&#10;--&#10;+ EXPECTED_PAYLOAD_SIZE: int = 12&#10;+ SUPPORTED_PROTOCOL_VERSION: int = 2&#10;- CRC8_POLYNOMIAL: int = 0x07&#10;--&#10;+ decodeTelemetryPayload(raw: Uint8List, tagUid: String): RobotTelemetry&#10;+ verifyCrc8(payload: Uint8List, expectedCrc: int): bool&#10;+ buildServoCommandPayload(pitch: int, yaw: int): Uint8List" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#14532D;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="1050" width="530" height="190" as="geometry"/>
         </mxCell>
 
         <!-- RobotTelemetry -->
-        <mxCell id="c_telemetry" value="&amp;lt;b&amp;gt;RobotTelemetry&amp;lt;/b&amp;gt;&#xa;--&#xa;+ version: int&#xa;+ sequenceNumber: int&#xa;+ ldrValues: List&amp;lt;int&amp;gt;&#xa;+ ldrAverage: double&#xa;+ primaryLightDirection: LightDirection&#xa;+ servoPitchAngle: int&#xa;+ servoYawAngle: int&#xa;+ polarityReversalsCount: int&#xa;+ motorDirection: MotorState&#xa;+ operatingVoltage: double&#xa;+ batteryLevelPercent: int&#xa;+ tagUid: String&#xa;--&#xa;+ toJson(): Map&amp;lt;String, dynamic&amp;gt;&#xa;+ toCsvRow(): String" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#14532D;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="1180" y="300" width="350" height="280" as="geometry" />
+        <mxCell id="c_telemetry" value="&amp;lt;b&amp;gt;RobotTelemetry&amp;lt;/b&amp;gt;&#10;--&#10;+ version: int&#10;+ sequenceNumber: int&#10;+ ldrValues: List&amp;lt;int&amp;gt;&#10;+ ldrAverage: double&#10;+ primaryLightDirection: LightDirection&#10;+ servoPitchAngle: int&#10;+ servoYawAngle: int&#10;+ polarityReversalsCount: int&#10;+ motorDirection: MotorState&#10;+ operatingVoltage: double&#10;+ batteryLevelPercent: int&#10;+ tagUid: String&#10;--&#10;+ toJson(): Map&amp;lt;String, dynamic&amp;gt;&#10;+ toCsvRow(): String" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#14532D;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="2220" y="1050" width="420" height="330" as="geometry"/>
         </mxCell>
 
         <!-- LightDirection Enumeration -->
-        <mxCell id="e_direction" value="&amp;lt;&amp;lt;enumeration&amp;gt;&amp;gt;&#xa;&amp;lt;b&amp;gt;LightDirection&amp;lt;/b&amp;gt;&#xa;--&#xa;+ equilibrado&#xa;+ norte&#xa;+ sur&#xa;+ este&#xa;+ oeste&#xa;--&#xa;+ fromCode(code: int): LightDirection" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontColor=#0F172A;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="1180" y="620" width="160" height="150" as="geometry" />
+        <mxCell id="e_direction" value="&amp;lt;&amp;lt;enumeration&amp;gt;&amp;gt;&#10;&amp;lt;b&amp;gt;LightDirection&amp;lt;/b&amp;gt;&#10;--&#10;+ equilibrado&#10;+ norte&#10;+ sur&#10;+ este&#10;+ oeste&#10;--&#10;+ fromCode(code: int): LightDirection" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontColor=#0F172A;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="2180" y="1530" width="200" height="160" as="geometry"/>
         </mxCell>
 
         <!-- MotorState Enumeration -->
-        <mxCell id="e_motor" value="&amp;lt;&amp;lt;enumeration&amp;gt;&amp;gt;&#xa;&amp;lt;b&amp;gt;MotorState&amp;lt;/b&amp;gt;&#xa;--&#xa;+ detenido&#xa;+ adelante&#xa;+ atras&#xa;--&#xa;+ fromCode(code: int): MotorState" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontColor=#0F172A;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="1370" y="620" width="160" height="130" as="geometry" />
+        <mxCell id="e_motor" value="&amp;lt;&amp;lt;enumeration&amp;gt;&amp;gt;&#10;&amp;lt;b&amp;gt;MotorState&amp;lt;/b&amp;gt;&#10;--&#10;+ detenido&#10;+ adelante&#10;+ atras&#10;--&#10;+ fromCode(code: int): MotorState" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontColor=#0F172A;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="2430" y="1530" width="210" height="145" as="geometry"/>
         </mxCell>
 
         <!-- =================== COLUMNA 5: EXCEPCIONES (X = 1580) =================== -->
         <!-- NfcDeviceException -->
-        <mxCell id="ex_device" value="&amp;lt;&amp;lt;exception&amp;gt;&amp;gt;&#xa;&amp;lt;b&amp;gt;NfcDeviceException&amp;lt;/b&amp;gt;&#xa;--&#xa;+ message: String&#xa;+ cause: dynamic&#xa;--&#xa;+ toString(): String" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#7F1D1D;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="1580" y="90" width="260" height="110" as="geometry" />
+        <mxCell id="ex_device" value="&amp;lt;&amp;lt;exception&amp;gt;&amp;gt;&#10;&amp;lt;b&amp;gt;NfcDeviceException&amp;lt;/b&amp;gt;&#10;--&#10;+ message: String&#10;+ cause: dynamic&#10;--&#10;+ toString(): String" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#7F1D1D;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="2910" y="395" width="420" height="120" as="geometry"/>
         </mxCell>
 
         <!-- InvalidTelemetryException -->
-        <mxCell id="ex_invalid" value="&amp;lt;&amp;lt;exception&amp;gt;&amp;gt;&#xa;&amp;lt;b&amp;gt;InvalidTelemetryException&amp;lt;/b&amp;gt;&#xa;--&#xa;+ message: String&#xa;--&#xa;+ toString(): String" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#7F1D1D;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="1580" y="240" width="260" height="100" as="geometry" />
+        <mxCell id="ex_invalid" value="&amp;lt;&amp;lt;exception&amp;gt;&amp;gt;&#10;&amp;lt;b&amp;gt;InvalidTelemetryException&amp;lt;/b&amp;gt;&#10;--&#10;+ message: String&#10;--&#10;+ toString(): String" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#7F1D1D;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="2910" y="1495" width="420" height="120" as="geometry"/>
         </mxCell>
 
         <!-- CorruptedPayloadException -->
-        <mxCell id="ex_corrupt" value="&amp;lt;&amp;lt;exception&amp;gt;&amp;gt;&#xa;&amp;lt;b&amp;gt;CorruptedPayloadException&amp;lt;/b&amp;gt;&#xa;--&#xa;+ message: String&#xa;--&#xa;+ toString(): String" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#7F1D1D;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="1580" y="380" width="260" height="100" as="geometry" />
+        <mxCell id="ex_corrupt" value="&amp;lt;&amp;lt;exception&amp;gt;&amp;gt;&#10;&amp;lt;b&amp;gt;CorruptedPayloadException&amp;lt;/b&amp;gt;&#10;--&#10;+ message: String&#10;--&#10;+ toString(): String" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#7F1D1D;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="2820" y="1790" width="420" height="120" as="geometry"/>
         </mxCell>
 
         <!-- UnsupportedProtocolVersionException -->
-        <mxCell id="ex_version" value="&amp;lt;&amp;lt;exception&amp;gt;&amp;gt;&#xa;&amp;lt;b&amp;gt;UnsupportedProtocolVersionException&amp;lt;/b&amp;gt;&#xa;--&#xa;+ receivedVersion: int&#xa;--&#xa;+ toString(): String" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#7F1D1D;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="1580" y="520" width="260" height="110" as="geometry" />
+        <mxCell id="ex_version" value="&amp;lt;&amp;lt;exception&amp;gt;&amp;gt;&#10;&amp;lt;b&amp;gt;UnsupportedProtocolVersionException&amp;lt;/b&amp;gt;&#10;--&#10;+ receivedVersion: int&#10;--&#10;+ toString(): String" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#7F1D1D;rounded=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="3290" y="1790" width="440" height="145" as="geometry"/>
         </mxCell>
 
         <!-- =================== RELACIONES & CONEXIONES =================== -->
         <!-- NfcService implements BaseTelemetryService -->
-        <mxCell id="rel_nfc_base" value="implements" style="endArrow=block;endFill=0;dashed=1;html=1;rounded=0;exitX=0.5;exitY=0;entryX=0.5;entryY=1;strokeColor=#D97706;strokeWidth=2;" edge="1" parent="1" source="c_nfc_service" target="c_base_service">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="rel_nfc_base" value="implements" style="endArrow=block;endFill=0;dashed=1;html=1;strokeColor=#D97706;strokeWidth=2;exitX=0.46;exitY=0;entryX=0.3;entryY=1;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;" edge="1" parent="1" source="c_nfc_service" target="c_base_service">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
         <!-- SimulationService implements BaseTelemetryService -->
-        <mxCell id="rel_sim_base" value="implements" style="endArrow=block;endFill=0;dashed=1;html=1;rounded=0;exitX=0.9;exitY=0;entryX=0.9;entryY=1;strokeColor=#D97706;strokeWidth=2;" edge="1" parent="1" source="c_sim_service" target="c_base_service">
+        <mxCell id="rel_sim_base" value="implements" style="endArrow=block;endFill=0;dashed=1;html=1;strokeColor=#D97706;strokeWidth=2;exitX=0.43;exitY=0;entryX=0.76;entryY=1;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;" edge="1" parent="1" source="c_sim_service" target="c_base_service">
           <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1086" y="460" />
-              <mxPoint x="1086" y="220" />
-            </Array>
-          </mxGeometry>
+            </mxGeometry>
         </mxCell>
 
         <!-- HeliostrandApp builds VersionGate -->
-        <mxCell id="rel_app_gate" value="builds" style="endArrow=open;endSize=10;dashed=1;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeColor=#0284C7;strokeWidth=1.5;" edge="1" parent="1" source="c_app" target="c_gate">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="rel_app_gate" value="builds" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#0284C7;strokeWidth=1.5;exitX=0.5;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;" edge="1" parent="1" source="c_app" target="c_gate">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
         <!-- VersionGate createState _VersionGateState -->
-        <mxCell id="rel_gate_state" value="createState" style="endArrow=open;endSize=10;dashed=1;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeColor=#0284C7;strokeWidth=1.5;" edge="1" parent="1" source="c_gate" target="c_gate_state">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="rel_gate_state" value="createState" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#0284C7;strokeWidth=1.5;exitX=0.5;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;" edge="1" parent="1" source="c_gate" target="c_gate_state">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
         <!-- _VersionGateState consults UpdatePolicyService -->
-        <mxCell id="rel_gate_policy" value="consults" style="endArrow=open;endSize=10;dashed=1;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeColor=#D97706;strokeWidth=1.5;" edge="1" parent="1" source="c_gate_state" target="c_policy_service">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="rel_gate_policy" value="consults" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#D97706;strokeWidth=1.5;exitX=0.5;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;" edge="1" parent="1" source="c_gate_state" target="c_policy_service">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
         <!-- _VersionGateState displays DashboardScreen -->
-        <mxCell id="rel_gate_dashboard" value="child: DashboardScreen" style="endArrow=open;endSize=10;html=1;rounded=0;exitX=1;exitY=0.3;entryX=0;entryY=0.5;strokeColor=#0284C7;strokeWidth=1.5;" edge="1" parent="1" source="c_gate_state" target="c_dashboard">
+        <mxCell id="rel_gate_dashboard" value="child: DashboardScreen" style="endArrow=open;endSize=10;html=1;strokeColor=#0284C7;strokeWidth=1.5;exitX=1;exitY=0.31;entryX=0;entryY=0.42;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;" edge="1" parent="1" source="c_gate_state" target="c_dashboard">
           <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="350" y="343" />
-              <mxPoint x="350" y="128" />
-            </Array>
-          </mxGeometry>
+            <Array as="points"><mxPoint x="510" y="518"/><mxPoint x="510" y="270"/><mxPoint x="630" y="270"/><mxPoint x="630" y="150"/></Array></mxGeometry>
         </mxCell>
 
         <!-- DashboardScreen createState _DashboardScreenState -->
-        <mxCell id="rel_dash_state" value="createState" style="endArrow=open;endSize=10;dashed=1;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeColor=#0284C7;strokeWidth=1.5;" edge="1" parent="1" source="c_dashboard" target="c_dashboard_state">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="rel_dash_state" value="createState" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#0284C7;strokeWidth=1.5;exitX=0.5;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;" edge="1" parent="1" source="c_dashboard" target="c_dashboard_state">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
         <!-- _DashboardScreenState has NfcService -->
-        <mxCell id="rel_dash_nfc" value="- _nfcService" style="endArrow=diamondThin;endFill=1;endSize=14;html=1;rounded=0;exitX=1;exitY=0.3;entryX=0;entryY=0.3;strokeColor=#D97706;strokeWidth=1.5;" edge="1" parent="1" source="c_dashboard_state" target="c_nfc_service">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="rel_dash_nfc" value="- _nfcService" style="endArrow=none;html=1;strokeColor=#D97706;strokeWidth=1.5;exitX=1;exitY=0.3;entryX=0;entryY=0.29;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;startArrow=diamondThin;startFill=1;startSize=16;" edge="1" parent="1" source="c_dashboard_state" target="c_nfc_service">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
         <!-- _DashboardScreenState has SimulationService -->
-        <mxCell id="rel_dash_sim" value="- _simulationService" style="endArrow=diamondThin;endFill=1;endSize=14;html=1;rounded=0;exitX=1;exitY=0.8;entryX=0;entryY=0.4;strokeColor=#D97706;strokeWidth=1.5;" edge="1" parent="1" source="c_dashboard_state" target="c_sim_service">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="rel_dash_sim" value="- _simulationService" style="endArrow=none;html=1;strokeColor=#D97706;strokeWidth=1.5;exitX=1;exitY=0.8;entryX=0;entryY=0.7;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;startArrow=diamondThin;startFill=1;startSize=16;" edge="1" parent="1" source="c_dashboard_state" target="c_sim_service">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1160" y="600"/><mxPoint x="1160" y="720"/><mxPoint x="1910" y="720"/><mxPoint x="1910" y="570"/></Array></mxGeometry>
         </mxCell>
 
         <!-- _DashboardScreenState exports ReportService -->
-        <mxCell id="rel_dash_report" value="uses" style="endArrow=open;endSize=10;dashed=1;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeColor=#9333EA;strokeWidth=1.5;" edge="1" parent="1" source="c_dashboard_state" target="c_report_service">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="rel_dash_report" value="uses" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#9333EA;strokeWidth=1.5;exitX=0.5;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;" edge="1" parent="1" source="c_dashboard_state" target="c_report_service">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
         <!-- _DashboardScreenState renders Cards -->
-        <mxCell id="rel_dash_ldr" value="renders" style="endArrow=open;endSize=10;dashed=1;html=1;rounded=0;exitX=0;exitY=0.8;entryX=1;entryY=0.5;strokeColor=#0284C7;strokeWidth=1.5;" edge="1" parent="1" source="c_dashboard_state" target="w_ldr">
+        <mxCell id="rel_dash_ldr" value="renders" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#0284C7;strokeWidth=1.5;exitX=0;exitY=0.77;entryX=1;entryY=0.48;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;" edge="1" parent="1" source="c_dashboard_state" target="w_ldr">
           <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="350" y="384" />
-              <mxPoint x="350" y="630" />
-            </Array>
-          </mxGeometry>
+            <Array as="points"><mxPoint x="555" y="593"/><mxPoint x="555" y="1122"/></Array></mxGeometry>
         </mxCell>
 
         <!-- NfcService has TheoJansenDataParser -->
-        <mxCell id="rel_nfc_parser" value="- _parser" style="endArrow=diamondThin;endFill=1;endSize=14;html=1;rounded=0;exitX=1;exitY=0.3;entryX=0;entryY=0.5;strokeColor=#16A34A;strokeWidth=1.5;" edge="1" parent="1" source="c_nfc_service" target="c_parser">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="rel_nfc_parser" value="- _parser" style="endArrow=none;html=1;strokeColor=#16A34A;strokeWidth=1.5;exitX=0.53;exitY=1;entryX=0.4;entryY=0;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;startArrow=diamondThin;startFill=1;startSize=16;" edge="1" parent="1" source="c_nfc_service" target="c_parser">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
         <!-- TheoJansenDataParser decodes RobotTelemetry -->
-        <mxCell id="rel_parser_telemetry" value="decodes" style="endArrow=open;endSize=10;dashed=1;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeColor=#16A34A;strokeWidth=1.5;" edge="1" parent="1" source="c_parser" target="c_telemetry">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="rel_parser_telemetry" value="decodes" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#16A34A;strokeWidth=1.5;exitX=1;exitY=0.55;entryX=0;entryY=0.42;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;" edge="1" parent="1" source="c_parser" target="c_telemetry">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
         <!-- SimulationService produces RobotTelemetry -->
-        <mxCell id="rel_sim_telemetry" value="produces" style="endArrow=open;endSize=10;dashed=1;html=1;rounded=0;exitX=1;exitY=0.4;entryX=0;entryY=0.5;strokeColor=#16A34A;strokeWidth=1.5;" edge="1" parent="1" source="c_sim_service" target="c_telemetry">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="rel_sim_telemetry" value="produces" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#16A34A;strokeWidth=1.5;exitX=1;exitY=0.43;entryX=1;entryY=0.46;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;" edge="1" parent="1" source="c_sim_service" target="c_telemetry">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="2760" y="470"/><mxPoint x="2760" y="1202"/></Array></mxGeometry>
         </mxCell>
 
         <!-- RobotTelemetry uses LightDirection -->
-        <mxCell id="rel_telemetry_direction" value="uses" style="endArrow=open;endSize=10;dashed=1;html=1;rounded=0;exitX=0.3;exitY=1;entryX=0.5;entryY=0;strokeColor=#64748B;strokeWidth=1.5;" edge="1" parent="1" source="c_telemetry" target="e_direction">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="rel_telemetry_direction" value="uses" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#64748B;strokeWidth=1.5;exitX=0.28;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;" edge="1" parent="1" source="c_telemetry" target="e_direction">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
         <!-- RobotTelemetry uses MotorState -->
-        <mxCell id="rel_telemetry_motor" value="uses" style="endArrow=open;endSize=10;dashed=1;html=1;rounded=0;exitX=0.7;exitY=1;entryX=0.5;entryY=0;strokeColor=#64748B;strokeWidth=1.5;" edge="1" parent="1" source="c_telemetry" target="e_motor">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="rel_telemetry_motor" value="uses" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#64748B;strokeWidth=1.5;exitX=0.73;exitY=1;entryX=0.5;entryY=0;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;" edge="1" parent="1" source="c_telemetry" target="e_motor">
+          <mxGeometry relative="1" as="geometry"/>
         </mxCell>
 
         <!-- UnsupportedProtocolVersionException extends InvalidTelemetryException -->
-        <mxCell id="rel_version_invalid" value="extends" style="endArrow=block;endFill=0;html=1;rounded=0;exitX=0.5;exitY=0;entryX=0.5;entryY=1;strokeColor=#DC2626;strokeWidth=2;" edge="1" parent="1" source="ex_version" target="ex_invalid">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="rel_version_invalid" value="extends" style="endArrow=block;endFill=0;html=1;strokeColor=#DC2626;strokeWidth=2;exitX=0.4;exitY=0;entryX=0.88;entryY=1;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;" edge="1" parent="1" source="ex_version" target="ex_invalid">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="3460" y="1710"/><mxPoint x="3280" y="1710"/></Array></mxGeometry>
         </mxCell>
 
         <!-- CorruptedPayloadException extends InvalidTelemetryException -->
-        <mxCell id="rel_corrupt_invalid" value="extends" style="endArrow=block;endFill=0;html=1;rounded=0;exitX=0.5;exitY=0;entryX=0.5;entryY=1;strokeColor=#DC2626;strokeWidth=2;" edge="1" parent="1" source="ex_corrupt" target="ex_invalid">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="rel_corrupt_invalid" value="extends" style="endArrow=block;endFill=0;html=1;strokeColor=#DC2626;strokeWidth=2;exitX=0.5;exitY=0;entryX=0.25;entryY=1;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;" edge="1" parent="1" source="ex_corrupt" target="ex_invalid">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="3030" y="1690"/><mxPoint x="3015" y="1690"/></Array></mxGeometry>
         </mxCell>
 
         <!-- TheoJansenDataParser throws InvalidTelemetryException -->
-        <mxCell id="rel_parser_throws" value="throws" style="endArrow=open;endSize=10;dashed=1;html=1;rounded=0;exitX=1;exitY=0.7;entryX=0;entryY=0.5;strokeColor=#DC2626;strokeWidth=1.5;" edge="1" parent="1" source="c_parser" target="ex_invalid">
+        <mxCell id="rel_parser_throws" value="throws" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#DC2626;strokeWidth=1.5;exitX=1;exitY=0.88;entryX=0;entryY=0.5;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;" edge="1" parent="1" source="c_parser" target="ex_invalid">
           <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1550" y="209" />
-              <mxPoint x="1550" y="290" />
-            </Array>
-          </mxGeometry>
+            <Array as="points"><mxPoint x="1810" y="1470"/><mxPoint x="2830" y="1470"/><mxPoint x="2830" y="1555"/></Array></mxGeometry>
         </mxCell>
 
         <!-- NfcService throws NfcDeviceException -->
-        <mxCell id="rel_service_throws" value="throws" style="endArrow=open;endSize=10;dashed=1;html=1;rounded=0;exitX=1;exitY=0.2;entryX=0;entryY=0.5;strokeColor=#DC2626;strokeWidth=1.5;" edge="1" parent="1" source="c_nfc_service" target="ex_device">
+        <mxCell id="rel_service_throws" value="throws" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#DC2626;strokeWidth=1.5;exitX=0.87;exitY=0;entryX=0;entryY=0.4;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;rounded=1;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;" edge="1" parent="1" source="c_nfc_service" target="ex_device">
           <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1140" y="282" />
-              <mxPoint x="1140" y="60" />
-              <mxPoint x="1550" y="60" />
-              <mxPoint x="1550" y="145" />
-            </Array>
-          </mxGeometry>
+            <Array as="points"><mxPoint x="1580" y="325"/><mxPoint x="2830" y="325"/><mxPoint x="2830" y="440"/></Array></mxGeometry>
         </mxCell>
 
       </root>
