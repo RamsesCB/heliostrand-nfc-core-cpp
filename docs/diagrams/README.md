@@ -29,6 +29,8 @@ Los dos archivos maestros son las fuentes recomendadas. **Cada uno contiene exac
 - **Casos de uso:** «include» apunta al caso incluido; «extend» parte del caso opcional y apunta al extendido. El lector NFC y el servidor de políticas son actores secundarios físicos/externos, no clases internas.
 - No representar **agregación** ni composición solo por conveniencia gráfica. No sustituir un constructor que admite inyección por una composición estricta.
 
+Para los enlaces de casos de uso de Astah se ocultó el **nombre genérico redundante** `include` / `extend`, mostrando el estereotipo UML una sola vez. Si se observa una flecha visualmente invertida en una versión antigua de Astah, verificar la semántica con el modelo UML en lugar de invertir a ciegas sus extremos.
+
 ## Legibilidad y rutas
 
 - Todas las conexiones Draw.io del maestro tienen anclajes explícitos a los bordes de las figuras, tramos ortogonales y puntos intermedios editables.
