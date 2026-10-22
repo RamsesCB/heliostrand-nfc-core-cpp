@@ -195,3 +195,15 @@ Esta matriz garantiza la correspondencia biunívoca entre los requerimientos del
 | **RF-MA06** | — | CU-MA06 | `ReportService`, `HistoryCard`, `RobotTelemetry` | Clases, Casos de Uso |
 | **RF-MA07** | — | CU-MA07 | `SimulationService`, `BaseTelemetryService`, `DashboardScreen` | Clases, Casos de Uso, Procesos |
 | **RF-MA08** | RN-11 | CU-MA08 | `VersionGate`, `UpdateRequiredScreen` | Clases, Casos de Uso, Procesos |
+
+
+---
+
+## 7. Seguimiento de correspondencia entre requisitos, implementación y UML (2026-10-21)
+
+Esta sección no cambia los requisitos aprobados; registra diferencias entre **lo solicitado** y **lo implementado**:
+
+- **RF-JD01 / CU-JD01 — pendiente parcial:** el requisito exige selección manual de lectores PC/SC; el código `MainTrackerFrame` llama actualmente `NfcServiceManager.initializeReader(null)` para elegir un lector disponible sin selector desplegable. El diagrama operativo vigente refleja esa implementación. Mantener RF-JD01 abierto hasta implementar y probar selección o aprobar formalmente un cambio del requisito.
+- **Flutter — implementación verificada en código:** polling `Duration(seconds: 10)` y emisión de simulación con período de 1500 ms. Son valores de implementación, no garantías de latencia RF ni de FPS.
+- **UML:** tres composiciones Flutter sustentadas por propiedad y `dispose()`; dos realizaciones hacia el contrato `BaseTelemetryService`; sin agregaciones inferidas arbitrariamente. Conservar relaciones de asociación Java para objetos potencialmente inyectados.
+- **Fuentes editables:** `Heliostrand_Modelos_Completos.asta` y `Heliostrand_Diagramas_Completos.drawio` (seis diagramas cada uno). Validación de rutas: `python3 tools/validate_uml_diagrams.py`.

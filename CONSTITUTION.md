@@ -40,4 +40,17 @@ Marco técnico y de contribución para firmware Arduino, cliente Java y aplicaci
 - Ante una clave privada expuesta: revocar/rotar, identificar referencias afectadas y sanearlas coordinadamente. Borrar un commit no revoca la credencial ni borra copias externas.
 - Los contribuyentes conservan atribución y autoría. Los tags publicados son inmutables.
 - Las ramas `feature/*` y `fix/*` se integran mediante revisión y CI. No se publica una release solo por cambiar las versiones del fuente.
-- La documentación se actualiza dentro del alcance autorizado. En esta revisión, `DOCUMENTS.md` y `docs/` permanecen intactos; el README documenta la arquitectura actual.
+- La documentación se mantiene sincronizada con el código y con los diagramas UML maestros. Los históricos conservan su condición de históricos; los artefactos de diseño vigentes están en `docs/diagrams/`.
+
+
+## VI. Constitución de los diagramas UML
+
+- Existen seis diagramas por formato: clases Java, clases Flutter, casos de uso Java, casos de uso Flutter, procesos Java y procesos Flutter.
+- Fuentes maestras editables: `docs/diagrams/Heliostrand_Modelos_Completos.asta` y `docs/diagrams/Heliostrand_Diagramas_Completos.drawio`. Las versiones individuales deben mantener sus relaciones y contenido equivalentes.
+- Las realizaciones `implements` de `NfcService` y `SimulationService` apuntan a la interfaz contractual `BaseTelemetryService`; en Dart el contrato se declara `abstract class`.
+- La composición (rombo negro en el **propietario**) se emplea únicamente en `_DashboardScreenState`→`NfcService`, `_DashboardScreenState`→`SimulationService` y `NfcService`→`TheoJansenDataParser`. No se añaden diamantes vacíos/negros por motivos decorativos.
+- La asociación simple refleja el historial de telemetría, controladores inyectados y el parser Java que puede recibirse desde fuera. Las flechas de herencia, realización, dependencias, «include» y «extend» deben conservar su dirección UML correcta.
+- Los conectores deben entrar/salir por límites de los objetos y esquivar toda figura no participante. Preferir tramos horizontales/verticales con canales libres y etiquetas que no oculten nodos.
+- Toda edición UML significativa requiere revisar código y requisitos, actualizar ambos maestros y sus diagramas individuales, validar `python3 tools/validate_uml_diagrams.py` y dejar constancia del alcance en `docs/diagrams/README.md` y el informe de auditoría.
+- Una diferencia entre requisito deseado y función implementada no puede declararse resuelta únicamente cambiando el diagrama: se registra explícitamente como brecha (por ejemplo, RF-JD01 selector manual PC/SC).
+- No mezclar ramas ni modificar `main` por una actualización local de documentación y diagramas. Los cambios se revisan en su rama de trabajo.

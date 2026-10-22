@@ -61,4 +61,6 @@ No confundir un DSN público con una credencial de administración. Si se confir
 
 ## Documentación
 
-README describe arquitectura, comandos y versiones verificadas; CONTRIBUTING describe el flujo de aporte; CONSTITUTION define invariantes. `DOCUMENTS.md` y `docs/` están fuera del alcance de esta revisión. No sustituir diagramas existentes ni inventar releases publicadas.
+README describe arquitectura, comandos y versiones verificadas; CONTRIBUTING describe el flujo de aporte; CONSTITUTION define invariantes. Los modelos activos de `docs/diagrams/` y `DOCUMENTS.md` se actualizan al cambiar código, requerimientos o semántica UML. Conservar respaldos de los originales y los diagramas históricos; nunca inventar releases.
+
+Para modificar diagramas: leer el código fuente, documentar propiedades y ciclos de vida, conservar los seis modelos en Astah y Draw.io, aplicar rutas ortogonales que no entren en figuras ajenas, revisar dirección de `include`, `extend`, generalización y realización, y ejecutar `python3 tools/validate_uml_diagrams.py`. Revisar también `docs/diagrams/README.md` y el informe de auditoría. El maestro `.asta` se abre en Astah Professional, no en un navegador; `.drawio` es editable con diagrams.net o la extensión Draw.io de VS Code.

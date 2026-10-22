@@ -1,6 +1,6 @@
 # Heliostrand NFC Core — Documento técnico y manual operativo
 
-> Versión de código: 1.1.0
+> Versión del código documentada: 1.2.0 (21 de octubre de 2026)
 > Protocolo normativo: [docs/protocol/telemetry-v2.md](docs/protocol/telemetry-v2.md)
 > Hardware normativo: [docs/hardware/pinout.md](docs/hardware/pinout.md)
 
@@ -92,8 +92,8 @@ El historial y JTable se limitan a 500 muestras.
 Ejecución:
 
     cd AplicacionJava
-    mvn clean test package
-    java --add-modules java.smartcardio -jar AplicacionJava-1.1.0-jar-with-dependencies.jar
+    ./mvnw clean test package
+    java --add-modules java.smartcardio -jar target/AplicacionJava-1.2.0-jar-with-dependencies.jar
 
 ## 8. Flutter
 
@@ -143,7 +143,7 @@ C++:
 Java:
 
     cd AplicacionJava
-    mvn clean test package
+    ./mvnw clean test package
 
 Flutter:
 
@@ -167,3 +167,14 @@ A partir de v1.1.0, el tag es la fuente de los binarios. release.yml:
 - no permite release Android con clave debug.
 
 No se debe mover un tag ya publicado.
+
+
+## 12. Diagramas UML y verificación de trazabilidad (2026-10-21)
+
+Los maestros actuales son [Astah](docs/diagrams/Heliostrand_Modelos_Completos.asta) y [Draw.io](docs/diagrams/Heliostrand_Diagramas_Completos.drawio). Cada uno conserva los modelos Java y Flutter de clases, casos de uso y procesos. Los archivos individuales están inventariados en [docs/diagrams/README.md](docs/diagrams/README.md).
+
+Los rombos de composición corresponden a la propiedad y ciclo de vida de dos servicios por el estado Flutter y del parser por el servicio NFC; no se deduce agregación por el mero uso de una lista. La relación Dart `implements BaseTelemetryService` es realización de contrato. Las asociaciones Java admiten dependencias inyectadas.
+
+Las flechas del Draw.io maestro se distribuyen en 96 recorridos ortogonales, sin atravesar cuadros no relacionados, verificados con `python3 tools/validate_uml_diagrams.py`. Astah se verifica mediante su API e inspección visual. No se confunde la prueba de diagramas con validación eléctrica en laboratorio.
+
+Diferencia por resolver: el requisito RF-JD01 todavía expresa selección manual del terminal, pero la UI Java actual inicializa automáticamente un lector con `initializeReader(null)`. Para dar RF-JD01 por cumplido es necesario añadir y probar el selector o revisar formalmente el requisito.

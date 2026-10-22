@@ -252,11 +252,11 @@ classDiagram
     Main ..> NfcServiceManager : crea
     MainTrackerFrame --> NfcServiceManager : controla
     MainTrackerFrame --> TrackerUiController : registra
-    MainTrackerFrame o-- RobotTelemetry : historial
+    MainTrackerFrame --> RobotTelemetry : historial
     TrackerUiController ..|> NfcEventListener
     TrackerUiController --> MainTrackerFrame : publica en EDT
     NfcServiceManager ..> NfcEventListener : notifica
-    NfcServiceManager *-- TheoJansenDataParser
+    AbstractNfcService --> TheoJansenDataParser : parser compartible
     TheoJansenDataParser ..> RobotTelemetry : decodifica
     style Main fill:#EDE9FE,color:#4C1D95,stroke:#7C3AED
     style MainTrackerFrame fill:#EDE9FE,color:#4C1D95,stroke:#7C3AED
@@ -393,8 +393,15 @@ classDiagram
     DashboardScreen ..> _DashboardScreenState : createState
     _DashboardScreenState *-- NfcService
     _DashboardScreenState *-- SimulationService
-    _DashboardScreenState o-- RobotTelemetry : historial
+    _DashboardScreenState --> RobotTelemetry : historial
     _DashboardScreenState ..> ReportService
+    class BaseTelemetryService {
+        <<interface>>
+        +telemetryStream
+        +dispose()
+    }
+    NfcService ..|> BaseTelemetryService : implements
+    SimulationService ..|> BaseTelemetryService : implements
     NfcService *-- TheoJansenDataParser
     TheoJansenDataParser ..> RobotTelemetry
     SimulationService ..> RobotTelemetry
@@ -797,7 +804,17 @@ Consulta el [historial](https://github.com/RamsesCB/heliostrand-nfc-core-cpp/com
 
 ## Catálogo documental
 
-Todos los documentos de proyecto y recursos de modelado versionados se enlazan aquí. Se conserva el contenido de `DOCUMENTS.md` y `docs/`; sus referencias históricas pueden diferir del código 1.2.0. Para el comportamiento actual usa los diagramas de este README junto al código y sus pruebas.
+Los diagramas UML editables se sincronizan con el código de Java y Flutter. El proyecto maestro Astah conserva **seis diagramas** y el maestro Draw.io conserva **seis pestañas equivalentes**: clases, casos de uso y procesos de cada aplicación. Las versiones históricas se mantienen como referencia, pero los maestros actuales son la fuente para la exposición y modificación.
+
+**Abrir los modelos:** [Maestro Astah](docs/diagrams/Heliostrand_Modelos_Completos.asta) · [Maestro Draw.io](docs/diagrams/Heliostrand_Diagramas_Completos.drawio) · [Guía de edición y trazabilidad](docs/diagrams/README.md) · [Auditoría UML](docs/diagrams/AUDITORIA_HELIOSTRAND_MODELOS_20261021.md).
+
+Las relaciones se justifican por el código: composición solo cuando hay propiedad y ciclo de vida (3 relaciones Flutter), implementación de servicios como realización hacia el contrato Dart `BaseTelemetryService`, y asociaciones ordinarias para historial e inyección. No se fuerza agregación donde el ciclo de vida no la demuestra. Los conectores se dibujan en ángulo recto, separados de los cuadros. Verificación reproducible:
+
+```bash
+python3 tools/validate_uml_diagrams.py
+```
+
+Este control revisa las seis páginas y 96 conexiones de Draw.io; la revisión de Astah se realiza con su API y una inspección visual. No sustituye pruebas funcionales ni de hardware. Para observar los cambios, usa la [Constitución](CONSTITUTION.md), [reglas técnicas](RULES.md) y el [manual operativo](DOCUMENTS.md).
 
 ### Gobierno, operación y entrega
 
@@ -823,6 +840,10 @@ Todos los documentos de proyecto y recursos de modelado versionados se enlazan a
 | [Diseño minimalista: README](docs/design_minimalista/README.md) | Guía de la propuesta visual original | Histórico; rutas/TODO no describen necesariamente la estructura actual |
 | [Guía de cambios visuales](docs/design_minimalista/GUIA_CAMBIOS.md) | Personalización de la propuesta de diseño | Referencia histórica |
 | [Prompt maestro](docs/design_minimalista/PROMPT_MAESTRO.txt) | Brief de diseño original | Contexto, no especificación ejecutable |
+| [Maestro Astah](docs/diagrams/Heliostrand_Modelos_Completos.asta) | Clases, casos de uso y actividades Java + Flutter, 6 diagramas | **Vigente: modelado revisado** |
+| [Maestro Draw.io](docs/diagrams/Heliostrand_Diagramas_Completos.drawio) | Seis pestañas y 96 conectores ortogonales editables | **Vigente: 0 cruces sobre cuadros** |
+| [Guía de diagramas](docs/diagrams/README.md) | Inventario, criterios UML, cambios, apertura y validación | **Vigente** |
+| [Auditoría UML](docs/diagrams/AUDITORIA_HELIOSTRAND_MODELOS_20261021.md) | Rutas comprobadas, coherencia de relaciones y límites | **Vigente** |
 | [APPNFC.drawio](docs/diagrams/APPNFC.drawio) | Modelo editable en diagrams.net | Diagrama histórico conservado |
 | [APPNFC PDF](docs/diagrams/APPNFC.drawio.pdf) | Exportación del modelo | Consulta visual del modelo histórico |
 | [Class_Diagram0.asta](docs/diagrams/Class_Diagram0.asta) | Modelo de clases Astah | Fuente histórica editable |

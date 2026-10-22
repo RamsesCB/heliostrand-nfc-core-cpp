@@ -25,6 +25,6 @@ Los cambios se revisan y pasan CI antes de integrarse. No muevas tags publicados
 
 ## Documentación y seguridad
 
-Actualiza los documentos dentro del alcance del cambio. En la revisión actual se mantienen intactos `DOCUMENTS.md` y `docs/`.
+Actualiza los documentos dentro del alcance del cambio, incluido `DOCUMENTS.md`, `CONSTITUTION.md`, `RULES.md` y los modelos de `docs/diagrams/` cuando sean relevantes. Para diagramas comprueba las seis pestañas del Draw.io maestro y el proyecto Astah, ejecuta `python3 tools/validate_uml_diagrams.py`, conserva copia de seguridad y verifica la correspondencia entre relación UML y código antes de guardar.
 
 Si descubres una credencial privada expuesta, informa sin reproducir su valor. Primero se revoca o rota; después se coordina el saneamiento de Git. La historia técnica y la atribución se preservan salvo el contenido sensible que deba retirarse.
