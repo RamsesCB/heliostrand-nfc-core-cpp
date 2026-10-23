@@ -56,6 +56,10 @@ jobs:
           flutter-version: '3.47.2'
           channel: stable
           cache: true
+      - name: Install Android NDK with retry
+        env:
+          ANDROID_NDK_VERSION: '28.2.13676358'
+        run: bash tools/install_android_ndk.sh
       - name: Configure Android release signing
         shell: bash
         env:

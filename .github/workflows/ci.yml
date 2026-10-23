@@ -63,6 +63,10 @@ jobs:
           flutter-version: '3.47.2'
           channel: stable
           cache: true
+      - name: Install Android NDK with retry
+        env:
+          ANDROID_NDK_VERSION: '28.2.13676358'
+        run: bash tools/install_android_ndk.sh
       - name: Resolve dependencies
         working-directory: heliostrand_app
         run: flutter pub get
