@@ -873,3 +873,8 @@ Los diagramas Mermaid son texto versionado dentro del README: pueden modificarse
 [Índice documental](DOCUMENTS.md) · [Privacidad](heliostrand_app/PRIVACY_POLICY.md) · [Licencia](LICENSE.md)
 
 **Licencia:** HELS-AEL 1.0, Source-Available con atribución obligatoria; no es una licencia aprobada por la OSI.
+
+
+## Auditoría UML local — 22 de octubre de 2026
+
+La revisión geométrica y su estado de aceptación se documentan en [el informe UML](docs/diagrams/AUDITORIA_HELIOSTRAND_MODELOS_20261022.md). Draw.io conserva seis páginas y 96 relaciones; el verificador ampliado distingue cruces, solapes, anclajes y límites de etiquetas. La actualización de Astah queda pendiente: las copias candidatas fallan la comparación semántica de siete relaciones `include`/`extend`, y no se ha podido inspeccionar su editor nativo. No considerar la auditoría completa ni publicar esas copias.

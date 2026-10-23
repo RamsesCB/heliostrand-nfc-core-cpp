@@ -64,3 +64,10 @@ No confundir un DSN público con una credencial de administración. Si se confir
 README describe arquitectura, comandos y versiones verificadas; CONTRIBUTING describe el flujo de aporte; CONSTITUTION define invariantes. Los modelos activos de `docs/diagrams/` y `DOCUMENTS.md` se actualizan al cambiar código, requerimientos o semántica UML. Conservar respaldos de los originales y los diagramas históricos; nunca inventar releases.
 
 Para modificar diagramas: leer el código fuente, documentar propiedades y ciclos de vida, conservar los seis modelos en Astah y Draw.io, aplicar rutas ortogonales que no entren en figuras ajenas, revisar dirección de `include`, `extend`, generalización y realización, y ejecutar `python3 tools/validate_uml_diagrams.py`. Revisar también `docs/diagrams/README.md` y el informe de auditoría. El maestro `.asta` se abre en Astah Professional, no en un navegador; `.drawio` es editable con diagrams.net o la extensión Draw.io de VS Code.
+
+
+## Auditoría UML local — 22 de octubre de 2026
+
+La revisión geométrica y su estado de aceptación se documentan en [el informe UML](docs/diagrams/AUDITORIA_HELIOSTRAND_MODELOS_20261022.md). Draw.io conserva seis páginas y 96 relaciones; el verificador ampliado distingue cruces, solapes, anclajes y límites de etiquetas. La actualización de Astah queda pendiente: las copias candidatas fallan la comparación semántica de siete relaciones `include`/`extend`, y no se ha podido inspeccionar su editor nativo. No considerar la auditoría completa ni publicar esas copias.
+
+Una corrección de presentación debe preservar las identidades, los extremos UML y los marcadores de composición/herencia/realización. Una comparación semántica fallida impide sustituir el maestro aunque el control geométrico no encuentre colisiones.

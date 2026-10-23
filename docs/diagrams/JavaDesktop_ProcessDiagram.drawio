@@ -1,140 +1,198 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<mxfile host="app.diagrams.net" modified="2026-10-22T01:05:00.000Z" agent="Antigravity" version="24.0.0" type="device">
-  <diagram id="java-desktop-process-diagram" name="Procesos - Java Desktop">
+<mxfile host="app.diagrams.net" modified="2026-10-22T01:10:00.000Z" agent="Antigravity" version="24.0.0" type="device"><diagram id="tab-05-java-processes" name="5. Procesos - Java Desktop">
     <mxGraphModel dx="2100" dy="1250" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1850" pageHeight="1450" math="0" shadow="0">
       <root>
-        <mxCell id="0"/>
-        <mxCell id="1" parent="0"/>
-
-        <!-- Titulo -->
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
         <mxCell id="jd_proc_title" value="&lt;b&gt;&lt;font size=&quot;4&quot;&gt;HELiOSTRAND - DIAGRAMA DE ACTIVIDADES Y PROCESOS (JAVA DESKTOP SWING)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;Proceso: Ciclo de Vida de Conexión, Lectura Ping-Pong NTAG213, Verificación CRC-8 y Actualización UI con Buffer FIFO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#0F172A;fontColor=#F8FAFC;align=center;arcSize=10;" vertex="1" parent="1">
-          <mxGeometry x="40" y="20" width="1680" height="58" as="geometry"/>
+          <mxGeometry x="40" y="20" width="1680" height="58" as="geometry" />
         </mxCell>
-
-        <!-- Swimlanes (Calles) -->
-        <mxCell id="lane_jd_hw" value="&lt;b&gt;Lector NFC PC/SC &amp;amp; Hardware NTAG213&lt;/b&gt;" style="swimlane;startSize=40;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#78350F;fontStyle=1;fontSize=13;swimlaneLine=1;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="40" y="100" width="480" height="1280" as="geometry"/>
+        <mxCell id="lane_jd_hw" value="Lector NFC PC/SC &amp; Hardware NTAG213" style="fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#78350F;fontStyle=1;fontSize=12;swimlaneLine=1;strokeWidth=2;align=left;verticalAlign=top;spacing=10;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="480" height="1280" as="geometry" />
         </mxCell>
-
-        <mxCell id="lane_jd_core" value="&lt;b&gt;Núcleo y Parser (AbstractNfcService &amp;amp; TheoJansenDataParser)&lt;/b&gt;" style="swimlane;startSize=40;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#14532D;fontStyle=1;fontSize=13;swimlaneLine=1;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="520" y="100" width="640" height="1280" as="geometry"/>
+        <mxCell id="lane_jd_core" value="Núcleo y Parser (AbstractNfcService &amp; TheoJansenDataParser)" style="fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#14532D;fontStyle=1;fontSize=12;swimlaneLine=1;strokeWidth=2;align=left;verticalAlign=top;spacing=10;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="520" y="100" width="640" height="1280" as="geometry" />
         </mxCell>
-
-        <mxCell id="lane_jd_ui" value="&lt;b&gt;Presentación UI (TrackerUiController &amp;amp; MainTrackerFrame)&lt;/b&gt;" style="swimlane;startSize=40;fillColor=#EDE9FE;strokeColor=#7C3AED;fontColor=#4C1D95;fontStyle=1;fontSize=13;swimlaneLine=1;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="1160" y="100" width="560" height="1280" as="geometry"/>
+        <mxCell id="lane_jd_ui" value="Presentación UI (TrackerUiController &amp; MainTrackerFrame)" style="fillColor=#EDE9FE;strokeColor=#7C3AED;fontColor=#4C1D95;fontStyle=1;fontSize=12;swimlaneLine=1;strokeWidth=2;align=left;verticalAlign=top;spacing=10;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1160" y="100" width="560" height="1280" as="geometry" />
         </mxCell>
-
-        <!-- Nodos de Inicio y Acciones -->
-        <!-- UI: Inicio -->
         <mxCell id="p_node_start" value="" style="ellipse;fillColor=#1E293B;strokeColor=#0F172A;" vertex="1" parent="lane_jd_ui">
-          <mxGeometry x="260" y="60" width="40" height="40" as="geometry"/>
+          <mxGeometry x="260" y="60" width="40" height="40" as="geometry" />
         </mxCell>
-
         <mxCell id="p_act_ui_start" value="Operador inicia monitoreo y el sistema selecciona lector PC/SC disponible &lt;b&gt;'Iniciar Monitoreo'&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=15;fillColor=#FFFFFF;strokeColor=#7C3AED;fontColor=#4C1D95;strokeWidth=2;" vertex="1" parent="lane_jd_ui">
-          <mxGeometry x="140" y="130" width="280" height="68" as="geometry"/>
+          <mxGeometry x="140" y="130" width="280" height="68" as="geometry" />
         </mxCell>
-
-        <!-- Core: Iniciar Servicio -->
         <mxCell id="p_act_core_init" value="&lt;b&gt;NfcServiceManager.initializeReader() y startContinuousScan()&lt;/b&gt;&lt;br&gt;Selecciona CardTerminal disponible y crea ExecutorService" style="rounded=1;whiteSpace=wrap;html=1;arcSize=15;fillColor=#FFFFFF;strokeColor=#16A34A;fontColor=#14532D;strokeWidth=2;" vertex="1" parent="lane_jd_core">
-          <mxGeometry x="160" y="210" width="320" height="78" as="geometry"/>
+          <mxGeometry x="160" y="210" width="320" height="78" as="geometry" />
         </mxCell>
-
-        <!-- HW: Polling Tarjeta -->
         <mxCell id="p_act_hw_wait" value="&lt;b&gt;CardTerminal.waitForCardPresent(1000)&lt;/b&gt;&lt;br&gt;Sondear campo electromagnético de 13.56 MHz" style="rounded=1;whiteSpace=wrap;html=1;arcSize=15;fillColor=#FFFFFF;strokeColor=#D97706;fontColor=#78350F;strokeWidth=2;" vertex="1" parent="lane_jd_hw">
-          <mxGeometry x="80" y="290" width="320" height="60" as="geometry"/>
+          <mxGeometry x="80" y="290" width="320" height="60" as="geometry" />
         </mxCell>
-
         <mxCell id="p_dec_card_present" value="¿Tarjeta NTAG213&lt;br&gt;presente?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#78350F;fontStyle=1;strokeWidth=2;" vertex="1" parent="lane_jd_hw">
-          <mxGeometry x="160" y="380" width="160" height="90" as="geometry"/>
+          <mxGeometry x="160" y="380" width="160" height="90" as="geometry" />
         </mxCell>
-
         <mxCell id="p_act_hw_read_apdu" value="Transmitir APDU PC/SC:&lt;br&gt;&lt;code&gt;FF B0 00 04 10&lt;/code&gt;&lt;br&gt;Lectura de 16 bytes: Slot A (pág 4-7) y Slot B (pág 8-11)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=15;fillColor=#FFFFFF;strokeColor=#D97706;fontColor=#78350F;strokeWidth=2;" vertex="1" parent="lane_jd_hw">
-          <mxGeometry x="60" y="510" width="360" height="75" as="geometry"/>
+          <mxGeometry x="60" y="510" width="360" height="75" as="geometry" />
         </mxCell>
-
-        <!-- Core: Comparación de Slots Ping-Pong -->
         <mxCell id="p_act_core_slots" value="&lt;b&gt;Resolver Wear Leveling Ping-Pong&lt;/b&gt;&lt;br&gt;Extraer byte de versión y número de generación de Slot A y Slot B.&lt;br&gt;Seleccionar payload con generación más reciente." style="rounded=1;whiteSpace=wrap;html=1;arcSize=15;fillColor=#FFFFFF;strokeColor=#16A34A;fontColor=#14532D;strokeWidth=2;" vertex="1" parent="lane_jd_core">
-          <mxGeometry x="140" y="510" width="360" height="75" as="geometry"/>
+          <mxGeometry x="140" y="510" width="360" height="75" as="geometry" />
         </mxCell>
-
         <mxCell id="p_act_core_crc" value="&lt;b&gt;TheoJansenDataParser.verifyCrc8()&lt;/b&gt;&lt;br&gt;Calcular CRC-8 polinómico (0x07, init 0x00) sobre los primeros 11 bytes del payload." style="rounded=1;whiteSpace=wrap;html=1;arcSize=15;fillColor=#FFFFFF;strokeColor=#16A34A;fontColor=#14532D;strokeWidth=2;" vertex="1" parent="lane_jd_core">
-          <mxGeometry x="140" y="620" width="360" height="70" as="geometry"/>
+          <mxGeometry x="140" y="620" width="360" height="70" as="geometry" />
         </mxCell>
-
         <mxCell id="p_dec_crc_valid" value="¿CRC-8 Válido y&lt;br&gt;Protocolo V2?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#14532D;fontStyle=1;strokeWidth=2;" vertex="1" parent="lane_jd_core">
-          <mxGeometry x="235" y="730" width="170" height="90" as="geometry"/>
+          <mxGeometry x="135" y="730" width="170" height="90" as="geometry" />
         </mxCell>
-
-        <!-- Error Handling -->
         <mxCell id="p_act_core_err" value="Lanzar &lt;b&gt;CorruptedPayloadException&lt;/b&gt; o&lt;br&gt;&lt;b&gt;UnsupportedProtocolVersionException&lt;/b&gt;&lt;br&gt;Notificar a listener.onErrorEncountered()" style="rounded=1;whiteSpace=wrap;html=1;arcSize=15;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#7F1D1D;strokeWidth=2;" vertex="1" parent="lane_jd_core">
-          <mxGeometry x="15" y="860" width="280" height="70" as="geometry"/>
+          <mxGeometry x="350" y="730" width="280" height="70" as="geometry" />
         </mxCell>
-
         <mxCell id="p_act_ui_error" value="&lt;b&gt;TrackerUiController.onErrorEncountered()&lt;/b&gt;&lt;br&gt;Mostrar banner de alerta en rojo en MainTrackerFrame sin bloquear el hilo principal" style="rounded=1;whiteSpace=wrap;html=1;arcSize=15;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#7F1D1D;strokeWidth=2;" vertex="1" parent="lane_jd_ui">
-          <mxGeometry x="140" y="860" width="280" height="70" as="geometry"/>
+          <mxGeometry x="140" y="860" width="280" height="70" as="geometry" />
         </mxCell>
-
-        <!-- Éxito: Decodificación y Dispatch -->
         <mxCell id="p_act_core_decode" value="&lt;b&gt;Instanciar RobotTelemetry inmutable&lt;/b&gt;&lt;br&gt;Mapear 4 sensores LDR, LightDirection, Batería, MotorState y UID del Tag" style="rounded=1;whiteSpace=wrap;html=1;arcSize=15;fillColor=#FFFFFF;strokeColor=#16A34A;fontColor=#14532D;strokeWidth=2;" vertex="1" parent="lane_jd_core">
-          <mxGeometry x="320" y="860" width="300" height="70" as="geometry"/>
+          <mxGeometry x="320" y="860" width="300" height="70" as="geometry" />
         </mxCell>
-
         <mxCell id="p_act_core_dispatch" value="&lt;b&gt;SwingUtilities.invokeLater()&lt;/b&gt;&lt;br&gt;Transferir de forma segura del hilo NFC al Event Dispatch Thread (EDT)" style="rounded=1;whiteSpace=wrap;html=1;arcSize=15;fillColor=#FFFFFF;strokeColor=#16A34A;fontColor=#14532D;strokeWidth=2;" vertex="1" parent="lane_jd_core">
-          <mxGeometry x="320" y="960" width="300" height="60" as="geometry"/>
+          <mxGeometry x="320" y="960" width="300" height="60" as="geometry" />
         </mxCell>
-
-        <!-- UI: Actualizar Dashboard y FIFO -->
         <mxCell id="p_act_ui_fifo" value="&lt;b&gt;Actualizar Buffer FIFO de Lecturas LDR&lt;/b&gt;&lt;br&gt;Desplazar las 5 lecturas históricas por sensor (N, S, E, O). Descartar la muestra más antigua." style="rounded=1;whiteSpace=wrap;html=1;arcSize=15;fillColor=#FFFFFF;strokeColor=#7C3AED;fontColor=#4C1D95;strokeWidth=2;" vertex="1" parent="lane_jd_ui">
-          <mxGeometry x="120" y="960" width="320" height="65" as="geometry"/>
+          <mxGeometry x="120" y="960" width="320" height="65" as="geometry" />
         </mxCell>
-
         <mxCell id="p_act_ui_render" value="&lt;b&gt;CustomBarRenderer &amp;amp; JFreeChart Repaint&lt;/b&gt;&lt;br&gt;Aplicar opacidades escalonadas (0.35, 0.50, 0.65, 0.80, 1.0) y paleta profesional Slate/Cobalt. Actualizar Voltaje y Brújula." style="rounded=1;whiteSpace=wrap;html=1;arcSize=15;fillColor=#FFFFFF;strokeColor=#7C3AED;fontColor=#4C1D95;strokeWidth=2;" vertex="1" parent="lane_jd_ui">
-          <mxGeometry x="110" y="1060" width="340" height="75" as="geometry"/>
+          <mxGeometry x="110" y="1060" width="340" height="75" as="geometry" />
         </mxCell>
-
         <mxCell id="p_dec_keep_scanning" value="¿Continuar&lt;br&gt;monitoreo activo?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#EDE9FE;strokeColor=#7C3AED;fontColor=#4C1D95;fontStyle=1;strokeWidth=2;" vertex="1" parent="lane_jd_ui">
-          <mxGeometry x="195" y="1170" width="170" height="90" as="geometry"/>
+          <mxGeometry x="195" y="1170" width="170" height="90" as="geometry" />
         </mxCell>
-
         <mxCell id="p_node_end" value="" style="ellipse;shape=endState;fillColor=#1E293B;strokeColor=#0F172A;" vertex="1" parent="lane_jd_ui">
-          <mxGeometry x="450" y="1195" width="40" height="40" as="geometry"/>
+          <mxGeometry x="450" y="1195" width="40" height="40" as="geometry" />
         </mxCell>
-
-        <!-- Flujos / Conexiones -->
-        <mxCell id="pf_1" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="p_node_start" target="p_act_ui_start" parent="lane_jd_ui"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="pf_2" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" source="p_act_ui_start" target="p_act_core_init" parent="1"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1022.0" y="264.0"/><mxPoint x="1022.0" y="349.0"/></Array></mxGeometry></mxCell>
-        <mxCell id="pf_3" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" source="p_act_core_init" target="p_act_hw_wait" parent="1"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="462.0" y="349.0"/><mxPoint x="462.0" y="420.0"/></Array></mxGeometry></mxCell>
-        <mxCell id="pf_4" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="p_act_hw_wait" target="p_dec_card_present" parent="lane_jd_hw"><mxGeometry relative="1" as="geometry"/></mxCell>
-
-        <mxCell id="pf_card_no" value="[No / Timeout]" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#D97706;labelBackgroundColor=#FFFFFF;fontColor=#B45309;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" edge="1" source="p_dec_card_present" target="p_act_hw_wait" parent="lane_jd_hw">
-          <mxGeometry relative="1" as="geometry"/>
+        <mxCell id="pf_1" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" edge="1" source="p_node_start" target="p_act_ui_start" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points" />
+          </mxGeometry>
         </mxCell>
-
-        <mxCell id="pf_card_yes" value="[Sí: Tag Detectado]" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#16A34A;labelBackgroundColor=#FFFFFF;fontColor=#15803D;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="p_dec_card_present" target="p_act_hw_read_apdu" parent="lane_jd_hw"><mxGeometry relative="1" as="geometry"/></mxCell>
-
-        <mxCell id="pf_5" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" source="p_act_hw_read_apdu" target="p_act_core_slots" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="pf_6" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="p_act_core_slots" target="p_act_core_crc" parent="lane_jd_core"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="pf_7" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="p_act_core_crc" target="p_dec_crc_valid" parent="lane_jd_core"><mxGeometry relative="1" as="geometry"/></mxCell>
-
-        <mxCell id="pf_crc_fail" value="[Inválido]" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#DC2626;labelBackgroundColor=#FFFFFF;fontColor=#B91C1C;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="p_dec_crc_valid" target="p_act_core_err" parent="lane_jd_core"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="840.0" y="942.0"/><mxPoint x="675.0" y="942.0"/></Array></mxGeometry></mxCell>
-
-        <mxCell id="pf_crc_ok" value="[Válido]" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#16A34A;labelBackgroundColor=#FFFFFF;fontColor=#15803D;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="p_dec_crc_valid" target="p_act_core_decode" parent="lane_jd_core"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="840.0" y="942.0"/><mxPoint x="990.0" y="942.0"/></Array></mxGeometry></mxCell>
-
-        <mxCell id="pf_err_to_ui" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#DC2626;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="p_act_core_err" target="p_act_ui_error" parent="1"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="675.0" y="1052.0"/><mxPoint x="815.0" y="1052.0"/><mxPoint x="815.0" y="938.0"/><mxPoint x="1440.0" y="938.0"/></Array></mxGeometry></mxCell>
-
-        <mxCell id="pf_8" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="p_act_core_decode" target="p_act_core_dispatch" parent="lane_jd_core"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="pf_9" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" source="p_act_core_dispatch" target="p_act_ui_fifo" parent="1"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1258.0" y="1090.0"/><mxPoint x="1258.0" y="1092.5"/></Array></mxGeometry></mxCell>
-        <mxCell id="pf_10" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="p_act_ui_fifo" target="p_act_ui_render" parent="lane_jd_ui"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="pf_11" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" source="p_act_ui_render" target="p_dec_keep_scanning" parent="lane_jd_ui"><mxGeometry relative="1" as="geometry"/></mxCell>
-
-        <mxCell id="pf_scan_yes" value="[Sí: Próximo ciclo]" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#16A34A;labelBackgroundColor=#FFFFFF;fontColor=#15803D;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;entryX=1;entryY=0.5;" edge="1" source="p_dec_keep_scanning" target="p_act_hw_wait" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points"><mxPoint x="1255.0" y="1315.0"/><mxPoint x="1255.0" y="420.0"/></Array></mxGeometry>
+        <mxCell id="pf_2" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" edge="1" source="p_act_ui_start" target="p_act_core_init" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="1022.0" y="264.0" />
+              <mxPoint x="1022.0" y="349.0" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-
-        <mxCell id="pf_scan_no" value="[No: Detener]" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;labelBackgroundColor=#FFFFFF;fontColor=#334155;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" source="p_dec_keep_scanning" target="p_node_end" parent="lane_jd_ui"><mxGeometry relative="1" as="geometry"/></mxCell>
-    
+        <mxCell id="pf_3" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.0;exitY=0.75;entryX=1.0;entryY=0.25;exitPerimeter=0;entryPerimeter=0;" edge="1" source="p_act_core_init" target="p_act_hw_wait" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="464.0" y="368.5" />
+              <mxPoint x="464.0" y="405.0" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pf_4" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.0;exitY=0.75;entryX=0.25;entryY=0.25;exitPerimeter=0;entryPerimeter=0;" edge="1" source="p_act_hw_wait" target="p_dec_card_present" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="96.0" y="435.0" />
+              <mxPoint x="96.0" y="502.5" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pf_card_no" value="[No / Timeout]" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#D97706;labelBackgroundColor=#FFFFFF;fontColor=#B45309;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.75;exitPerimeter=0;entryPerimeter=0;" edge="1" source="p_dec_card_present" target="p_act_hw_wait" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="464.0" y="525.0" />
+              <mxPoint x="464.0" y="435.0" />
+            </Array>
+            <mxPoint x="-31.19999999999999" y="22.799999999999955" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pf_card_yes" value="[Sí: Tag Detectado]" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#16A34A;labelBackgroundColor=#FFFFFF;fontColor=#15803D;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" edge="1" source="p_dec_card_present" target="p_act_hw_read_apdu" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points" />
+            <mxPoint x="-85.10000000000002" y="0.0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pf_5" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" edge="1" source="p_act_hw_read_apdu" target="p_act_core_slots" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pf_6" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" edge="1" source="p_act_core_slots" target="p_act_core_crc" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pf_7" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.25;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" edge="1" source="p_act_core_crc" target="p_dec_crc_valid" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="750.0" y="806.0" />
+              <mxPoint x="740.0" y="806.0" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pf_crc_fail" value="[Inválido]" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#DC2626;labelBackgroundColor=#FFFFFF;fontColor=#B91C1C;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.75;exitPerimeter=0;entryPerimeter=0;" edge="1" source="p_dec_crc_valid" target="p_act_core_err" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="846.0" y="875.0" />
+              <mxPoint x="846.0" y="882.5" />
+            </Array>
+            <mxPoint x="7.2000000000000455" y="56.049999999999955" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pf_crc_ok" value="[Válido]" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#16A34A;labelBackgroundColor=#FFFFFF;fontColor=#15803D;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.75;exitY=0.75;entryX=0.0;entryY=0.25;exitPerimeter=0;entryPerimeter=0;" edge="1" source="p_dec_crc_valid" target="p_act_core_decode" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="782.5" y="977.5" />
+            </Array>
+            <mxPoint x="17.25" y="29.049999999999955" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pf_err_to_ui" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#DC2626;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1.0;exitY=0.75;entryX=0.0;entryY=0.25;exitPerimeter=0;entryPerimeter=0;" edge="1" source="p_act_core_err" target="p_act_ui_error" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="1276.0" y="882.5" />
+              <mxPoint x="1276.0" y="977.5" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pf_8" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" edge="1" source="p_act_core_decode" target="p_act_core_dispatch" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pf_9" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1.0;exitY=0.25;entryX=0.0;entryY=0.25;exitPerimeter=0;entryPerimeter=0;" edge="1" source="p_act_core_dispatch" target="p_act_ui_fifo" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="1256.0" y="1075.0" />
+              <mxPoint x="1256.0" y="1076.25" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pf_10" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" edge="1" source="p_act_ui_fifo" target="p_act_ui_render" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pf_11" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" edge="1" source="p_act_ui_render" target="p_dec_keep_scanning" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pf_scan_yes" value="[Sí: Próximo ciclo]" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#16A34A;labelBackgroundColor=#FFFFFF;fontColor=#15803D;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" edge="1" source="p_dec_keep_scanning" target="p_act_hw_wait" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="80.0" y="1315.0" />
+              <mxPoint x="80.0" y="420.0" />
+            </Array>
+            <mxPoint x="212.5" y="-17.799999999999955" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pf_scan_no" value="[No: Detener]" style="html=1;endArrow=classic;strokeWidth=2;strokeColor=#475569;labelBackgroundColor=#FFFFFF;fontColor=#334155;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" edge="1" source="p_dec_keep_scanning" target="p_node_end" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points" />
+            <mxPoint x="17.0" y="-35.799999999999955" as="offset" />
+          </mxGeometry>
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
-</mxfile>
+  </mxfile>

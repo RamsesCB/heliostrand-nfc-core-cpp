@@ -70,3 +70,8 @@ Los cambios se limitan a la **rama local** `feature/desktop-ui-modernization`; n
 La revisión en Astah de los casos de uso detectó la visualización redundante de nombres genéricos `include`/`extend` junto a sus estereotipos `«include»` y `«extend»`. Se ocultó **solo la visibilidad del nombre** de siete enlaces (cuatro Java, tres Flutter) mediante la propiedad de presentación `name_visibility=false`, conservando nombres y relaciones semánticas del modelo. Se verificaron nuevamente seis diagramas, tres composiciones y dos realizaciones.
 
 Se identificó que algunas ediciones de Astah pueden dibujar flechas `include` / `extend` creadas mediante API en dirección visual opuesta a la relación subyacente. El modelo se verificó a través de `IInclude.getIncludingCase/getAddition` y `IExtend.getExtension/getExtendedCase`: los siete sentidos **del modelo** son correctos. No se invirtieron esas relaciones para compensar un problema de renderizado. La actualización de la versión de Astah y la inspección visual final de esas flechas son actividades independientes antes de utilizar capturas para una evaluación UML.
+
+
+## Revisión posterior
+
+El [informe del 22 de octubre](AUDITORIA_HELIOSTRAND_MODELOS_20261022.md) amplía las comprobaciones de cruces y etiquetas, corrige la interpretación de coordenadas relativas y documenta el bloqueo semántico de Astah. Sus límites sustituyen cualquier interpretación de este informe como certificación visual completa.

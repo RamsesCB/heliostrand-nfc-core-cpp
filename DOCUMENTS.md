@@ -178,3 +178,8 @@ Los rombos de composición corresponden a la propiedad y ciclo de vida de dos se
 Las flechas del Draw.io maestro se distribuyen en 96 recorridos ortogonales, sin atravesar cuadros no relacionados, verificados con `python3 tools/validate_uml_diagrams.py`. Astah se verifica mediante su API e inspección visual. No se confunde la prueba de diagramas con validación eléctrica en laboratorio.
 
 Diferencia por resolver: el requisito RF-JD01 todavía expresa selección manual del terminal, pero la UI Java actual inicializa automáticamente un lector con `initializeReader(null)`. Para dar RF-JD01 por cumplido es necesario añadir y probar el selector o revisar formalmente el requisito.
+
+
+## Auditoría UML local — 22 de octubre de 2026
+
+La revisión geométrica y su estado de aceptación se documentan en [el informe UML](docs/diagrams/AUDITORIA_HELIOSTRAND_MODELOS_20261022.md). Draw.io conserva seis páginas y 96 relaciones; el verificador ampliado distingue cruces, solapes, anclajes y límites de etiquetas. La actualización de Astah queda pendiente: las copias candidatas fallan la comparación semántica de siete relaciones `include`/`extend`, y no se ha podido inspeccionar su editor nativo. No considerar la auditoría completa ni publicar esas copias.

@@ -31,22 +31,22 @@ Los dos archivos maestros son las fuentes recomendadas. **Cada uno contiene exac
 
 Para los enlaces de casos de uso de Astah se ocultó el **nombre genérico redundante** `include` / `extend`, mostrando el estereotipo UML una sola vez. Si se observa una flecha visualmente invertida en una versión antigua de Astah, verificar la semántica con el modelo UML en lugar de invertir a ciegas sus extremos.
 
-## Legibilidad y rutas
+## Validación geométrica — 22 de octubre de 2026
 
-- Todas las conexiones Draw.io del maestro tienen anclajes explícitos a los bordes de las figuras, tramos ortogonales y puntos intermedios editables.
-- La revisión geométrica ejecutada el 21 de octubre de 2026 cubre **96 conexiones** en las seis pestañas sin segmentos diagonales ni trayectos que entren en una figura que no sea origen o destino.
-- Astah contiene **93 enlaces** en seis diagramas; se ajustaron **44 trayectorias** respecto al maestro previo y se verificó que ningún segmento cruce una figura no relacionada.
-- La geometría de la flecha, sus etiquetas, el ancho del zoom y la colocación de leyendas se revisan también visualmente en el editor. El control automático no certifica ausencia absoluta de cruces entre **líneas** o etiquetas, ni calidad estética a todos los niveles de zoom.
+Draw.io: seis páginas, 96 relaciones; 158 incidencias iniciales y cero en el maestro corregido según el verificador ampliado. Las seis vistas individuales canónicas se extraen del maestro. Los archivos históricos sin el sufijo `_Ordenado` se conservan como antecedentes.
 
-### Prueba de rutas Draw.io (sin dependencias externas)
-
-Desde la raíz del repositorio:
+Astah: seis diagramas, 93 relaciones. El maestro y sus individuales originales se conservan. Las copias experimentales llegaron a cero incidencias geométricas, pero cambiaron siete extremos semánticos `include`/`extend` al editar las rutas mediante la API instalada y se rechazaron. La inspección gráfica nativa sigue pendiente.
 
 ```bash
-python3 tools/validate_uml_diagrams.py
+python3 tools/validate_uml_diagrams.py --json /tmp/uml-drawio.json
+python3 -m unittest discover -s tools -p 'test_validate_uml_diagrams.py'
 ```
 
-El comando debe mostrar las seis páginas y terminar con `PASS — 96 orthogonal links`. Si actualizas el número de relaciones intencionalmente, ajusta las expectativas del script y revisa las relaciones nuevas.
+El verificador detecta intersecciones entre líneas y figuras, cruces entre conectores, solapes, anclajes, diagonales y colisiones estimadas de etiquetas. Resuelve las coordenadas relativas de contenedores. Su resultado sin incidencias es `GEOMETRY_CLEAR_VISUAL_REVIEW_REQUIRED`, no una certificación de aspecto visual. Las etiquetas Astah no están disponibles en la exportación TSV.
+
+`tools/ExportAstahGraph.java` exporta geometría y extremos semánticos mediante la API oficial de la instalación local de Astah. Compara los archivos `.semantics` antes y después de cada edición. El exportador valida el proyecto y lo cierra sin guardarlo.
+
+Informe y limitaciones: [auditoría 2026-10-22](AUDITORIA_HELIOSTRAND_MODELOS_20261022.md).
 
 ### Abrir el proyecto
 

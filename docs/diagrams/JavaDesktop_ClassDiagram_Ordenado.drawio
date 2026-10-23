@@ -1,74 +1,186 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<mxfile host="app.diagrams.net" modified="2026-10-21T23:15:00.000Z" agent="Antigravity" version="24.0.0" type="device">
-  <diagram id="java-desktop-class-diagram" name="Clases - Java Desktop">
+<mxfile host="app.diagrams.net" modified="2026-10-22T01:10:00.000Z" agent="Antigravity" version="24.0.0" type="device"><diagram id="tab-01-java-classes" name="1. Clases - Java Desktop">
     <mxGraphModel dx="2100" dy="1250" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2840" pageHeight="1550" math="0" shadow="0">
       <root>
-        <mxCell id="0"/>
-        <mxCell id="1" parent="0"/>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
         <mxCell id="title_banner" value="&lt;b&gt;&lt;font size=&quot;4&quot;&gt;HELiOSTRAND - DIAGRAMA DE CLASES ORIENTADO A OBJETOS (JAVA DESKTOP SWING)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;Paquetes: com.ramsescb.heliostrand.desktop | com.theojansen.nfc.core | com.theojansen.nfc.parser | com.theojansen.nfc.model" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#0F172A;fontColor=#F8FAFC;align=center;arcSize=10;" vertex="1" parent="1">
-          <mxGeometry x="35" y="20" width="2700" height="58" as="geometry"/>
+          <mxGeometry x="35" y="20" width="2700" height="58" as="geometry" />
         </mxCell>
-        <mxCell id="c_main" value="&amp;lt;b&amp;gt;Main&amp;lt;/b&amp;gt;&#10;--&#10;+ main(args: String[]): void" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#EDE9FE;strokeColor=#7C3AED;fontColor=#4C1D95;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="70" y="115" width="360" height="78" as="geometry"/>
+        <mxCell id="c_main" value="&lt;b&gt;Main&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;+ main(args: String[]): void" style="fontStyle=0;align=left;fontSize=12;whiteSpace=wrap;html=1;fillColor=#EDE9FE;strokeColor=#7C3AED;fontColor=#4C1D95;rounded=0;arcSize=8;verticalAlign=top;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="70" y="115" width="360" height="78" as="geometry" />
         </mxCell>
-        <mxCell id="c_frame" value="&amp;lt;b&amp;gt;MainTrackerFrame&amp;lt;/b&amp;gt;&#10;--&#10;- sessionHistory: List&amp;lt;RobotTelemetry&amp;gt;&#10;- ldrSampleHistory: List&amp;lt;int[]&amp;gt;&#10;- scanning: boolean&#10;- simulationActive: boolean&#10;- simTimer: Timer&#10;- terminalCombo: JComboBox&amp;lt;String&amp;gt;&#10;- statusLabel: JLabel&#10;- dataset: DefaultCategoryDataset&#10;- chart: JFreeChart&#10;--&#10;+ initController(nfcManager, uiController): void&#10;+ updateDashboard(telemetry: RobotTelemetry): void&#10;+ showDeviceError(message: String): void&#10;+ toggleSimulation(): void&#10;+ changeTheme(index: int): void&#10;+ dispose(): void" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#EDE9FE;strokeColor=#7C3AED;fontColor=#4C1D95;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="70" y="350" width="360" height="315" as="geometry"/>
+        <mxCell id="c_frame" value="&lt;b&gt;MainTrackerFrame&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;- sessionHistory: List&amp;lt;RobotTelemetry&amp;gt;&lt;br&gt;- ldrSampleHistory: List&amp;lt;int[]&amp;gt;&lt;br&gt;- scanning: boolean&lt;br&gt;- simulationActive: boolean&lt;br&gt;- simTimer: Timer&lt;br&gt;- terminalCombo: JComboBox&amp;lt;String&amp;gt;&lt;br&gt;- statusLabel: JLabel&lt;br&gt;- dataset: DefaultCategoryDataset&lt;br&gt;- chart: JFreeChart&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;+ initController(nfcManager, uiController): void&lt;br&gt;+ updateDashboard(telemetry: RobotTelemetry): void&lt;br&gt;+ showDeviceError(message: String): void&lt;br&gt;+ toggleSimulation(): void&lt;br&gt;+ changeTheme(index: int): void&lt;br&gt;+ dispose(): void" style="fontStyle=0;align=left;fontSize=12;whiteSpace=wrap;html=1;fillColor=#EDE9FE;strokeColor=#7C3AED;fontColor=#4C1D95;rounded=0;arcSize=8;verticalAlign=top;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="70" y="350" width="360" height="315" as="geometry" />
         </mxCell>
-        <mxCell id="c_renderer" value="&amp;lt;b&amp;gt;CustomBarRenderer&amp;lt;/b&amp;gt;&#10;--&#10;- sensorBaseColors: Color[]&#10;- seriesAlphas: float[]&#10;--&#10;+ getItemPaint(row: int, column: int): Paint" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#EDE9FE;strokeColor=#7C3AED;fontColor=#4C1D95;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="70" y="870" width="360" height="130" as="geometry"/>
+        <mxCell id="c_renderer" value="&lt;b&gt;CustomBarRenderer&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;- sensorBaseColors: Color[]&lt;br&gt;- seriesAlphas: float[]&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;+ getItemPaint(row: int, column: int): Paint" style="fontStyle=0;align=left;fontSize=12;whiteSpace=wrap;html=1;fillColor=#EDE9FE;strokeColor=#7C3AED;fontColor=#4C1D95;rounded=0;arcSize=8;verticalAlign=top;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="70" y="870" width="360" height="130" as="geometry" />
         </mxCell>
-        <mxCell id="i_listener" value="&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&#10;&amp;lt;b&amp;gt;NfcEventListener&amp;lt;/b&amp;gt;&#10;--&#10;+ onTelemetryReceived(telemetry: RobotTelemetry): void&#10;+ onErrorEncountered(ex: Exception): void" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0E7FF;strokeColor=#4F46E5;fontColor=#312E81;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="590" y="115" width="390" height="120" as="geometry"/>
+        <mxCell id="i_listener" value="&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;NfcEventListener&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;+ onTelemetryReceived(telemetry: RobotTelemetry): void&lt;br&gt;+ onErrorEncountered(ex: Exception): void" style="fontStyle=0;align=left;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0E7FF;strokeColor=#4F46E5;fontColor=#312E81;rounded=0;arcSize=8;verticalAlign=top;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="590" y="115" width="390" height="120" as="geometry" />
         </mxCell>
-        <mxCell id="c_controller" value="&amp;lt;b&amp;gt;TrackerUiController&amp;lt;/b&amp;gt;&#10;--&#10;- view: MainTrackerFrame&#10;--&#10;+ TrackerUiController(view: MainTrackerFrame)&#10;+ onTelemetryReceived(telemetry: RobotTelemetry): void&#10;+ onErrorEncountered(ex: Exception): void" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0E7FF;strokeColor=#4F46E5;fontColor=#312E81;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="590" y="375" width="395" height="160" as="geometry"/>
+        <mxCell id="c_controller" value="&lt;b&gt;TrackerUiController&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;- view: MainTrackerFrame&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;+ TrackerUiController(view: MainTrackerFrame)&lt;br&gt;+ onTelemetryReceived(telemetry: RobotTelemetry): void&lt;br&gt;+ onErrorEncountered(ex: Exception): void" style="fontStyle=0;align=left;fontSize=12;whiteSpace=wrap;html=1;fillColor=#E0E7FF;strokeColor=#4F46E5;fontColor=#312E81;rounded=0;arcSize=8;verticalAlign=top;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="590" y="375" width="395" height="160" as="geometry" />
         </mxCell>
-        <mxCell id="c_telemetry" value="&amp;lt;b&amp;gt;RobotTelemetry&amp;lt;/b&amp;gt;&#10;--&#10;- version: int&#10;- sequenceNumber: int&#10;- ldrValues: int[]&#10;- ldrAverage: double&#10;- primaryLightDirection: LightDirection&#10;- servoPitchAngle: int&#10;- servoYawAngle: int&#10;- polarityReversalsCount: int&#10;- motorDirection: MotorState&#10;- operatingVoltage: double&#10;- batteryLevelPercent: int&#10;- batteryLevelValid: boolean&#10;- tagUid: String&#10;--&#10;+ getLdrValues(): int[]&#10;+ getPrimaryLightDirection(): LightDirection&#10;+ getMotorDirection(): MotorState&#10;+ getOperatingVoltage(): double&#10;+ getBatteryLevelPercent(): int" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#14532D;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="590" y="785" width="390" height="325" as="geometry"/>
+        <mxCell id="c_telemetry" value="&lt;b&gt;RobotTelemetry&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;- version: int&lt;br&gt;- sequenceNumber: int&lt;br&gt;- ldrValues: int[]&lt;br&gt;- ldrAverage: double&lt;br&gt;- primaryLightDirection: LightDirection&lt;br&gt;- servoPitchAngle: int&lt;br&gt;- servoYawAngle: int&lt;br&gt;- polarityReversalsCount: int&lt;br&gt;- motorDirection: MotorState&lt;br&gt;- operatingVoltage: double&lt;br&gt;- batteryLevelPercent: int&lt;br&gt;- batteryLevelValid: boolean&lt;br&gt;- tagUid: String&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;+ getLdrValues(): int[]&lt;br&gt;+ getPrimaryLightDirection(): LightDirection&lt;br&gt;+ getMotorDirection(): MotorState&lt;br&gt;+ getOperatingVoltage(): double&lt;br&gt;+ getBatteryLevelPercent(): int" style="fontStyle=0;align=left;fontSize=12;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#14532D;rounded=0;arcSize=8;verticalAlign=top;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="590" y="785" width="390" height="335" as="geometry" />
         </mxCell>
-        <mxCell id="e_direction" value="&amp;lt;&amp;lt;enumeration&amp;gt;&amp;gt;&#10;&amp;lt;b&amp;gt;LightDirection&amp;lt;/b&amp;gt;&#10;--&#10;+ EQUILIBRADO&#10;+ NORTE&#10;+ SUR&#10;+ ESTE&#10;+ OESTE&#10;--&#10;+ fromCode(code: int): LightDirection" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontColor=#0F172A;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="585" y="1250" width="185" height="160" as="geometry"/>
+        <mxCell id="e_direction" value="&amp;lt;&amp;lt;enumeration&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;LightDirection&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;+ EQUILIBRADO&lt;br&gt;+ NORTE&lt;br&gt;+ SUR&lt;br&gt;+ ESTE&lt;br&gt;+ OESTE&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;+ fromCode(code: int): LightDirection" style="fontStyle=0;align=left;fontSize=12;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontColor=#0F172A;rounded=0;arcSize=8;verticalAlign=top;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="585" y="1250" width="185" height="185" as="geometry" />
         </mxCell>
-        <mxCell id="e_motor" value="&amp;lt;&amp;lt;enumeration&amp;gt;&amp;gt;&#10;&amp;lt;b&amp;gt;MotorState&amp;lt;/b&amp;gt;&#10;--&#10;+ DETENIDO&#10;+ ADELANTE&#10;+ ATRAS&#10;--&#10;+ fromCode(code: int): MotorState" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontColor=#0F172A;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="825" y="1250" width="185" height="135" as="geometry"/>
+        <mxCell id="e_motor" value="&amp;lt;&amp;lt;enumeration&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;MotorState&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;+ DETENIDO&lt;br&gt;+ ADELANTE&lt;br&gt;+ ATRAS&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;+ fromCode(code: int): MotorState" style="fontStyle=0;align=left;fontSize=12;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontColor=#0F172A;rounded=0;arcSize=8;verticalAlign=top;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="825" y="1250" width="185" height="155" as="geometry" />
         </mxCell>
-        <mxCell id="c_abstract_nfc" value="&amp;lt;&amp;lt;abstract&amp;gt;&amp;gt;&#10;&amp;lt;b&amp;gt;&amp;lt;i&amp;gt;AbstractNfcService&amp;lt;/i&amp;gt;&amp;lt;/b&amp;gt;&#10;--&#10;# parser: TheoJansenDataParser&#10;--&#10;+ initializeReader(preferredTerminal: String): void&#10;+ startContinuousScan(listener: NfcEventListener): void&#10;+ stopContinuousScan(): void&#10;+ isScanningActive(): boolean&#10;+ isReaderAvailable(): boolean" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#78350F;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="1190" y="115" width="440" height="175" as="geometry"/>
+        <mxCell id="c_abstract_nfc" value="&amp;lt;&amp;lt;abstract&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;&lt;i&gt;AbstractNfcService&lt;/i&gt;&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;# parser: TheoJansenDataParser&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;+ initializeReader(preferredTerminal: String): void&lt;br&gt;+ startContinuousScan(listener: NfcEventListener): void&lt;br&gt;+ stopContinuousScan(): void&lt;br&gt;+ isScanningActive(): boolean&lt;br&gt;+ isReaderAvailable(): boolean" style="fontStyle=0;align=left;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#78350F;rounded=0;arcSize=8;verticalAlign=top;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="115" width="440" height="175" as="geometry" />
         </mxCell>
-        <mxCell id="c_nfc_manager" value="&amp;lt;b&amp;gt;NfcServiceManager&amp;lt;/b&amp;gt;&#10;--&#10;- terminal: CardTerminal&#10;- scanningActive: boolean&#10;- scanGeneration: long&#10;- executorService: ExecutorService&#10;--&#10;+ initializeReader(preferredTerminal: String): void&#10;+ startContinuousScan(listener: NfcEventListener): void&#10;+ stopContinuousScan(): void&#10;+ isScanningActive(): boolean&#10;+ isReaderAvailable(): boolean" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#78350F;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="1190" y="410" width="440" height="210" as="geometry"/>
+        <mxCell id="c_nfc_manager" value="&lt;b&gt;NfcServiceManager&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;- terminal: CardTerminal&lt;br&gt;- scanningActive: boolean&lt;br&gt;- scanGeneration: long&lt;br&gt;- executorService: ExecutorService&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;+ initializeReader(preferredTerminal: String): void&lt;br&gt;+ startContinuousScan(listener: NfcEventListener): void&lt;br&gt;+ stopContinuousScan(): void&lt;br&gt;+ isScanningActive(): boolean&lt;br&gt;+ isReaderAvailable(): boolean" style="fontStyle=0;align=left;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#78350F;rounded=0;arcSize=8;verticalAlign=top;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="410" width="440" height="210" as="geometry" />
         </mxCell>
-        <mxCell id="c_parser" value="&amp;lt;b&amp;gt;TheoJansenDataParser&amp;lt;/b&amp;gt;&#10;--&#10;+ EXPECTED_PAYLOAD_SIZE: int = 12&#10;+ SUPPORTED_PROTOCOL_VERSION: int = 2&#10;- CRC8_POLYNOMIAL: int = 0x07&#10;--&#10;+ decodeTelemetryPayload(payload: byte[], tagUid: String): RobotTelemetry&#10;+ verifyCrc8(payload: byte[], expectedCrc: byte): boolean&#10;+ calculateCrc8(data: byte[], offset: int, length: int): byte" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#14532D;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="1190" y="815" width="550" height="180" as="geometry"/>
+        <mxCell id="c_parser" value="&lt;b&gt;TheoJansenDataParser&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;+ EXPECTED_PAYLOAD_SIZE: int = 12&lt;br&gt;+ SUPPORTED_PROTOCOL_VERSION: int = 2&lt;br&gt;- CRC8_POLYNOMIAL: int = 0x07&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;+ decodeTelemetryPayload(payload: byte[], tagUid: String): RobotTelemetry&lt;br&gt;+ verifyCrc8(payload: byte[], expectedCrc: byte): boolean&lt;br&gt;+ calculateCrc8(data: byte[], offset: int, length: int): byte" style="fontStyle=0;align=left;fontSize=12;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#14532D;rounded=0;arcSize=8;verticalAlign=top;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="815" width="550" height="180" as="geometry" />
         </mxCell>
-        <mxCell id="ex_device" value="&amp;lt;&amp;lt;exception&amp;gt;&amp;gt;&#10;&amp;lt;b&amp;gt;NfcDeviceException&amp;lt;/b&amp;gt;&#10;--&#10;+ NfcDeviceException(msg: String)&#10;+ NfcDeviceException(msg: String, cause: Throwable)" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#7F1D1D;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="1910" y="410" width="390" height="115" as="geometry"/>
+        <mxCell id="ex_device" value="&amp;lt;&amp;lt;exception&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;NfcDeviceException&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;+ NfcDeviceException(msg: String)&lt;br&gt;+ NfcDeviceException(msg: String, cause: Throwable)" style="fontStyle=0;align=left;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#7F1D1D;rounded=0;arcSize=8;verticalAlign=top;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="1910" y="410" width="390" height="115" as="geometry" />
         </mxCell>
-        <mxCell id="ex_invalid" value="&amp;lt;&amp;lt;exception&amp;gt;&amp;gt;&#10;&amp;lt;b&amp;gt;InvalidTelemetryException&amp;lt;/b&amp;gt;&#10;--&#10;+ InvalidTelemetryException(msg: String)" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#7F1D1D;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="1910" y="845" width="390" height="105" as="geometry"/>
+        <mxCell id="ex_invalid" value="&amp;lt;&amp;lt;exception&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;InvalidTelemetryException&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;+ InvalidTelemetryException(msg: String)" style="fontStyle=0;align=left;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#7F1D1D;rounded=0;arcSize=8;verticalAlign=top;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="1910" y="845" width="390" height="105" as="geometry" />
         </mxCell>
-        <mxCell id="ex_corrupt" value="&amp;lt;&amp;lt;exception&amp;gt;&amp;gt;&#10;&amp;lt;b&amp;gt;CorruptedPayloadException&amp;lt;/b&amp;gt;&#10;--&#10;+ CorruptedPayloadException(msg: String)" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#7F1D1D;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="1830" y="1190" width="390" height="110" as="geometry"/>
+        <mxCell id="ex_corrupt" value="&amp;lt;&amp;lt;exception&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;CorruptedPayloadException&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;+ CorruptedPayloadException(msg: String)" style="fontStyle=0;align=left;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#7F1D1D;rounded=0;arcSize=8;verticalAlign=top;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="1830" y="1190" width="390" height="110" as="geometry" />
         </mxCell>
-        <mxCell id="ex_version" value="&amp;lt;&amp;lt;exception&amp;gt;&amp;gt;&#10;&amp;lt;b&amp;gt;UnsupportedProtocolVersionException&amp;lt;/b&amp;gt;&#10;--&#10;- receivedVersion: int&#10;--&#10;+ UnsupportedProtocolVersionException(ver: int)&#10;+ getReceivedVersion(): int" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=45;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#7F1D1D;rounded=1;arcSize=8;" vertex="1" parent="1">
-          <mxGeometry x="2310" y="1190" width="390" height="135" as="geometry"/>
+        <mxCell id="ex_version" value="&amp;lt;&amp;lt;exception&amp;gt;&amp;gt;&lt;br&gt;&lt;b&gt;UnsupportedProtocolVersionException&lt;/b&gt;&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;- receivedVersion: int&lt;br&gt;&lt;hr style=&quot;border:0;border-top:1px solid #64748B;margin:5px 0&quot;&gt;+ UnsupportedProtocolVersionException(ver: int)&lt;br&gt;+ getReceivedVersion(): int" style="fontStyle=0;align=left;fontSize=12;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#7F1D1D;rounded=0;arcSize=8;verticalAlign=top;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="2310" y="1190" width="390" height="135" as="geometry" />
         </mxCell>
-        <mxCell id="rel_controller_listener" value="implements" style="endArrow=block;endFill=0;dashed=1;html=1;strokeColor=#4F46E5;strokeWidth=2;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="1" source="c_controller" target="i_listener"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="787.5" y="257.0"/><mxPoint x="785.0" y="257.0"/></Array></mxGeometry></mxCell>
-        <mxCell id="rel_manager_abstract" value="extends" style="endArrow=block;endFill=0;html=1;strokeColor=#D97706;strokeWidth=2;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="1" source="c_nfc_manager" target="c_abstract_nfc"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="rel_version_invalid" value="extends" style="endArrow=block;endFill=0;html=1;strokeColor=#DC2626;strokeWidth=2;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="ex_version" target="ex_invalid"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="2288.0" y="1257.5"/><mxPoint x="2288.0" y="897.5"/></Array></mxGeometry></mxCell>
-        <mxCell id="rel_corrupt_invalid" value="extends" style="endArrow=block;endFill=0;html=1;strokeColor=#DC2626;strokeWidth=2;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="1" source="ex_corrupt" target="ex_invalid"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="2025.0" y="972.0"/><mxPoint x="2105.0" y="972.0"/></Array></mxGeometry></mxCell>
-        <mxCell id="rel_main_frame" value="instantiates" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#7C3AED;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="c_main" target="c_frame"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="rel_frame_renderer" value="uses" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#7C3AED;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="c_frame" target="c_renderer"><mxGeometry relative="1" as="geometry"/></mxCell>
-        <mxCell id="rel_frame_controller" value="- uiController" style="endArrow=none;endFill=0;endSize=14;html=1;strokeColor=#4F46E5;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;startArrow=none;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="c_frame" target="c_controller"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="568.0" y="507.5"/><mxPoint x="568.0" y="455.0"/></Array></mxGeometry></mxCell>
-        <mxCell id="rel_frame_manager" value="- nfcManager" style="endArrow=none;endFill=0;endSize=14;html=1;strokeColor=#D97706;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;startArrow=none;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="c_frame" target="c_nfc_manager"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="452.0" y="507.5"/><mxPoint x="452.0" y="550.0"/><mxPoint x="1168.0" y="550.0"/><mxPoint x="1168.0" y="515.0"/></Array></mxGeometry></mxCell>
-        <mxCell id="rel_abstract_parser" value="# parser" style="endArrow=none;endFill=0;endSize=14;html=1;strokeColor=#16A34A;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;startArrow=none;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="c_abstract_nfc" target="c_parser"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1165.0" y="202.5"/><mxPoint x="1165.0" y="905.0"/></Array></mxGeometry></mxCell>
-        <mxCell id="rel_parser_telemetry" value="decodes" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#16A34A;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="c_parser" target="c_telemetry"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1002.0" y="905.0"/><mxPoint x="1002.0" y="947.5"/></Array></mxGeometry></mxCell>
-        <mxCell id="rel_frame_telemetry" value="- sessionHistory (*)" style="endArrow=none;endFill=0;endSize=14;html=1;strokeColor=#16A34A;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;startArrow=none;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="c_frame" target="c_telemetry"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="455.0" y="507.5"/><mxPoint x="455.0" y="947.5"/></Array></mxGeometry></mxCell>
-        <mxCell id="rel_telemetry_direction" value="uses" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#64748B;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="c_telemetry" target="e_direction"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="785.0" y="1228.0"/><mxPoint x="677.5" y="1228.0"/></Array></mxGeometry></mxCell>
-        <mxCell id="rel_telemetry_motor" value="uses" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#64748B;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="c_telemetry" target="e_motor"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="785.0" y="1132.0"/><mxPoint x="917.5" y="1132.0"/></Array></mxGeometry></mxCell>
-        <mxCell id="rel_parser_throws" value="throws" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#DC2626;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="c_parser" target="ex_invalid"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1888.0" y="905.0"/><mxPoint x="1888.0" y="897.5"/></Array></mxGeometry></mxCell>
-        <mxCell id="rel_abstract_throws" value="throws" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#DC2626;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="c_abstract_nfc" target="ex_device"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1652.0" y="202.5"/><mxPoint x="1652.0" y="467.5"/></Array></mxGeometry></mxCell>
+        <mxCell id="rel_controller_listener" value="implements" style="endArrow=block;endFill=0;dashed=1;html=1;strokeColor=#4F46E5;strokeWidth=2;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=0.0;entryX=0.5;entryY=1.0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="c_controller" target="i_listener">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="787.5" y="257.0" />
+              <mxPoint x="785.0" y="257.0" />
+            </Array>
+            <mxPoint x="-46.75" y="-11.350000000000023" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_manager_abstract" value="extends" style="endArrow=block;endFill=0;html=1;strokeColor=#D97706;strokeWidth=2;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=0.0;entryX=0.5;entryY=1.0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="c_nfc_manager" target="c_abstract_nfc">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points" />
+            <mxPoint x="-36.02500000000009" y="0.0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_version_invalid" value="extends" style="endArrow=block;endFill=0;html=1;strokeColor=#DC2626;strokeWidth=2;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="ex_version" target="ex_invalid">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="2288.0" y="1257.5" />
+              <mxPoint x="2288.0" y="897.5" />
+            </Array>
+            <mxPoint x="-36.02500000000009" y="-5.0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_corrupt_invalid" value="extends" style="endArrow=block;endFill=0;html=1;strokeColor=#DC2626;strokeWidth=2;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=0.0;entryX=0.5;entryY=1.0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="ex_corrupt" target="ex_invalid">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="2025.0" y="972.0" />
+              <mxPoint x="2105.0" y="972.0" />
+            </Array>
+            <mxPoint x="-36.02500000000009" y="7.400000000000091" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_main_frame" value="instantiates" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#7C3AED;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="c_main" target="c_frame">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points" />
+            <mxPoint x="53.89999999999998" y="0.0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_frame_renderer" value="uses" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#7C3AED;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="c_frame" target="c_renderer">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points" />
+            <mxPoint x="-25.30000000000001" y="0.0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_frame_controller" value="- uiController" style="endArrow=none;endFill=0;endSize=14;html=1;strokeColor=#4F46E5;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;startArrow=none;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.75;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="c_frame" target="c_controller">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="566.0" y="507.5" />
+              <mxPoint x="566.0" y="495.0" />
+            </Array>
+            <mxPoint x="8.950000000000045" y="17.149999999999977" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_frame_manager" value="- nfcManager" style="endArrow=none;endFill=0;endSize=14;html=1;strokeColor=#D97706;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;startArrow=none;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1.0;exitY=0.25;entryX=1.0;entryY=0.75;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="c_frame" target="c_nfc_manager">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="566.0" y="428.75" />
+              <mxPoint x="566.0" y="91.0" />
+              <mxPoint x="2324.0" y="91.0" />
+              <mxPoint x="2324.0" y="567.5" />
+            </Array>
+            <mxPoint x="3.224999999999909" y="-17.150000000000006" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_abstract_parser" value="# parser" style="endArrow=none;endFill=0;endSize=14;html=1;strokeColor=#16A34A;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;startArrow=none;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.0;exitY=0.75;entryX=0.0;entryY=0.25;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="c_abstract_nfc" target="c_parser">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="1166.0" y="246.25" />
+              <mxPoint x="1166.0" y="860.0" />
+            </Array>
+            <mxPoint x="-39.59999999999991" y="0.0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_parser_telemetry" value="decodes" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#16A34A;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.0;exitY=0.75;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="c_parser" target="c_telemetry">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="1004.0" y="950.0" />
+              <mxPoint x="1004.0" y="952.5" />
+            </Array>
+            <mxPoint x="13.25" y="-17.149999999999977" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_frame_telemetry" value="- sessionHistory (*)" style="endArrow=none;endFill=0;endSize=14;html=1;strokeColor=#16A34A;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;startArrow=none;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1.0;exitY=0.75;entryX=0.0;entryY=0.25;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="c_frame" target="c_telemetry">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="566.0" y="586.25" />
+              <mxPoint x="566.0" y="868.75" />
+            </Array>
+            <mxPoint x="82.5" y="-0.5" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_telemetry_direction" value="uses" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#64748B;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.25;exitY=1.0;entryX=0.5;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="c_telemetry" target="e_direction">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="687.5" y="1226.0" />
+              <mxPoint x="677.5" y="1226.0" />
+            </Array>
+            <mxPoint x="-25.299999999999955" y="4.2000000000000455" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_telemetry_motor" value="uses" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#64748B;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.75;exitY=1.0;entryX=0.25;entryY=0.0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="c_telemetry" target="e_motor">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="882.5" y="1226.0" />
+              <mxPoint x="871.25" y="1226.0" />
+            </Array>
+            <mxPoint x="-25.299999999999955" y="3.5750000000000455" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_parser_throws" value="throws" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#DC2626;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="c_parser" target="ex_invalid">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="1888.0" y="905.0" />
+              <mxPoint x="1888.0" y="897.5" />
+            </Array>
+            <mxPoint x="-14.75" y="-17.149999999999977" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel_abstract_throws" value="throws" style="endArrow=open;endSize=10;dashed=1;html=1;strokeColor=#DC2626;strokeWidth=1.5;labelBackgroundColor=#FFFFFF;fontSize=11;fontColor=#334155;labelBorderColor=none;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1.0;exitY=0.75;entryX=0.0;entryY=0.25;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="c_abstract_nfc" target="ex_device">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="1886.0" y="246.25" />
+              <mxPoint x="1886.0" y="438.75" />
+            </Array>
+            <mxPoint x="-12.700000000000045" y="57.75" as="offset" />
+          </mxGeometry>
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
-</mxfile>
+  </mxfile>

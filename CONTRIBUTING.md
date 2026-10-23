@@ -28,3 +28,10 @@ Los cambios se revisan y pasan CI antes de integrarse. No muevas tags publicados
 Actualiza los documentos dentro del alcance del cambio, incluido `DOCUMENTS.md`, `CONSTITUTION.md`, `RULES.md` y los modelos de `docs/diagrams/` cuando sean relevantes. Para diagramas comprueba las seis pestañas del Draw.io maestro y el proyecto Astah, ejecuta `python3 tools/validate_uml_diagrams.py`, conserva copia de seguridad y verifica la correspondencia entre relación UML y código antes de guardar.
 
 Si descubres una credencial privada expuesta, informa sin reproducir su valor. Primero se revoca o rota; después se coordina el saneamiento de Git. La historia técnica y la atribución se preservan salvo el contenido sensible que deba retirarse.
+
+
+## Auditoría UML local — 22 de octubre de 2026
+
+La revisión geométrica y su estado de aceptación se documentan en [el informe UML](docs/diagrams/AUDITORIA_HELIOSTRAND_MODELOS_20261022.md). Draw.io conserva seis páginas y 96 relaciones; el verificador ampliado distingue cruces, solapes, anclajes y límites de etiquetas. La actualización de Astah queda pendiente: las copias candidatas fallan la comparación semántica de siete relaciones `include`/`extend`, y no se ha podido inspeccionar su editor nativo. No considerar la auditoría completa ni publicar esas copias.
+
+Antes de entregar cambios UML, ejecuta `python3 tools/validate_uml_diagrams.py` y `python3 -m unittest discover -s tools -p "test_validate_uml_diagrams.py"`. Reabre los archivos en sus editores y compara los extremos semánticos de las relaciones antes y después del guardado. El estado `GEOMETRY_CLEAR_VISUAL_REVIEW_REQUIRED` no certifica legibilidad visual.

@@ -54,3 +54,10 @@ Marco técnico y de contribución para firmware Arduino, cliente Java y aplicaci
 - Toda edición UML significativa requiere revisar código y requisitos, actualizar ambos maestros y sus diagramas individuales, validar `python3 tools/validate_uml_diagrams.py` y dejar constancia del alcance en `docs/diagrams/README.md` y el informe de auditoría.
 - Una diferencia entre requisito deseado y función implementada no puede declararse resuelta únicamente cambiando el diagrama: se registra explícitamente como brecha (por ejemplo, RF-JD01 selector manual PC/SC).
 - No mezclar ramas ni modificar `main` por una actualización local de documentación y diagramas. Los cambios se revisan en su rama de trabajo.
+
+
+## Auditoría UML local — 22 de octubre de 2026
+
+La revisión geométrica y su estado de aceptación se documentan en [el informe UML](docs/diagrams/AUDITORIA_HELIOSTRAND_MODELOS_20261022.md). Draw.io conserva seis páginas y 96 relaciones; el verificador ampliado distingue cruces, solapes, anclajes y límites de etiquetas. La actualización de Astah queda pendiente: las copias candidatas fallan la comparación semántica de siete relaciones `include`/`extend`, y no se ha podido inspeccionar su editor nativo. No considerar la auditoría completa ni publicar esas copias.
+
+Una corrección de presentación debe preservar las identidades, los extremos UML y los marcadores de composición/herencia/realización. Una comparación semántica fallida impide sustituir el maestro aunque el control geométrico no encuentre colisiones.

@@ -1,111 +1,133 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<mxfile host="app.diagrams.net" modified="2026-10-22T01:05:00.000Z" agent="Antigravity" version="24.0.0" type="device">
-  <diagram id="java-desktop-use-cases" name="Casos de Uso - Java Desktop">
+<mxfile host="app.diagrams.net" modified="2026-10-22T01:10:00.000Z" agent="Antigravity" version="24.0.0" type="device"><diagram id="tab-03-java-usecases" name="3. Casos de Uso - Java Desktop">
     <mxGraphModel dx="2100" dy="1250" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1000" math="0" shadow="0">
       <root>
-        <mxCell id="0"/>
-        <mxCell id="1" parent="0"/>
-
-        <!-- Titulo -->
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
         <mxCell id="jd_uc_title" value="&lt;b&gt;&lt;font size=&quot;4&quot;&gt;HELiOSTRAND - DIAGRAMA DE CASOS DE USO (JAVA DESKTOP SWING)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;Alcance: Estación de Monitoreo PC/SC V2.0.0 | Paquete: com.ramsescb.heliostrand.desktop" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1E293B;strokeColor=#0F172A;fontColor=#F8FAFC;align=center;arcSize=10;" vertex="1" parent="1">
-          <mxGeometry x="40" y="20" width="1600" height="58" as="geometry"/>
+          <mxGeometry x="40" y="20" width="1600" height="58" as="geometry" />
         </mxCell>
-
-        <!-- Limite del Sistema -->
-        <mxCell id="jd_sys_boundary" value="&lt;b&gt;Sistema Heliostrand Java Desktop (Swing / PC-SC)&lt;/b&gt;" style="swimlane;startSize=30;horizontal=1;fillColor=#F8FAFC;strokeColor=#94A3B8;strokeWidth=2;dashed=1;rounded=1;arcSize=4;fontColor=#334155;align=left;spacingLeft=15;" vertex="1" parent="1">
-          <mxGeometry x="280" y="110" width="1080" height="740" as="geometry"/>
+        <mxCell id="jd_sys_boundary" value="Sistema Heliostrand Java Desktop (Swing / PC-SC)" style="fillColor=#F8FAFC;strokeColor=#94A3B8;strokeWidth=2;dashed=1;rounded=0;arcSize=4;fontColor=#334155;align=left;spacingLeft=15;verticalAlign=top;spacing=10;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="280" y="110" width="1080" height="740" as="geometry" />
         </mxCell>
-
-        <!-- Actores -->
         <mxCell id="act_jd_operator" value="&lt;b&gt;Operador de&lt;br&gt;Estación&lt;/b&gt;" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#EDE9FE;strokeColor=#7C3AED;fontColor=#4C1D95;strokeWidth=2;" vertex="1" parent="1">
-          <mxGeometry x="80" y="380" width="80" height="150" as="geometry"/>
+          <mxGeometry x="80" y="380" width="80" height="150" as="geometry" />
         </mxCell>
-
         <mxCell id="act_jd_reader" value="&lt;b&gt;&amp;lt;&amp;lt;device&amp;gt;&amp;gt;&lt;br&gt;Lector NFC USB&lt;br&gt;(ACR122U / PC-SC)&lt;/b&gt;" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#78350F;strokeWidth=2;size=15;" vertex="1" parent="1">
-          <mxGeometry x="1440" y="270" width="160" height="120" as="geometry"/>
+          <mxGeometry x="1440" y="270" width="160" height="120" as="geometry" />
         </mxCell>
-
         <mxCell id="act_jd_tag" value="&lt;b&gt;&amp;lt;&amp;lt;hardware&amp;gt;&amp;gt;&lt;br&gt;Robot Strandbeest&lt;br&gt;Tag NTAG213&lt;/b&gt;" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#14532D;strokeWidth=2;size=15;" vertex="1" parent="1">
-          <mxGeometry x="1440" y="470" width="160" height="120" as="geometry"/>
+          <mxGeometry x="1440" y="470" width="160" height="120" as="geometry" />
         </mxCell>
-
-        <!-- Casos de Uso (Dentro de Boundary) -->
         <mxCell id="uc_jd_01" value="&lt;b&gt;CU-JD01&lt;/b&gt;&lt;br&gt;Inicializar lector PC/SC disponible" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#0369A1;strokeWidth=2;fontSize=12;" vertex="1" parent="jd_sys_boundary">
-          <mxGeometry x="90" y="50" width="260" height="80" as="geometry"/>
+          <mxGeometry x="90" y="50" width="260" height="80" as="geometry" />
         </mxCell>
-
         <mxCell id="uc_jd_02" value="&lt;b&gt;CU-JD02&lt;/b&gt;&lt;br&gt;Iniciar / Detener Monitoreo Continuo" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#14532D;strokeWidth=2;fontSize=12;" vertex="1" parent="jd_sys_boundary">
-          <mxGeometry x="90" y="180" width="260" height="90" as="geometry"/>
+          <mxGeometry x="90" y="180" width="260" height="90" as="geometry" />
         </mxCell>
-
         <mxCell id="uc_jd_03" value="&lt;b&gt;CU-JD03&lt;/b&gt;&lt;br&gt;Validar Integridad CRC-8 y Protocolo V2" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#14532D;strokeWidth=2;fontSize=12;" vertex="1" parent="jd_sys_boundary">
-          <mxGeometry x="460" y="140" width="280" height="85" as="geometry"/>
+          <mxGeometry x="460" y="140" width="280" height="85" as="geometry" />
         </mxCell>
-
         <mxCell id="uc_jd_04" value="&lt;b&gt;CU-JD04&lt;/b&gt;&lt;br&gt;Visualizar Telemetría y Buffer FIFO LDR" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#14532D;strokeWidth=2;fontSize=12;" vertex="1" parent="jd_sys_boundary">
-          <mxGeometry x="460" y="270" width="280" height="90" as="geometry"/>
+          <mxGeometry x="460" y="270" width="280" height="90" as="geometry" />
         </mxCell>
-
         <mxCell id="uc_jd_05" value="&lt;b&gt;CU-JD05&lt;/b&gt;&lt;br&gt;Activar Modo Simulación Manual" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#64748B;fontColor=#334155;strokeWidth=2;fontSize=12;" vertex="1" parent="jd_sys_boundary">
-          <mxGeometry x="90" y="360" width="260" height="80" as="geometry"/>
+          <mxGeometry x="90" y="360" width="260" height="80" as="geometry" />
         </mxCell>
-
         <mxCell id="uc_jd_06" value="&lt;b&gt;CU-JD06&lt;/b&gt;&lt;br&gt;Cambiar Tema Visual FlatLaf" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F3E8FF;strokeColor=#9333EA;fontColor=#581C87;strokeWidth=2;fontSize=12;" vertex="1" parent="jd_sys_boundary">
-          <mxGeometry x="90" y="480" width="260" height="80" as="geometry"/>
+          <mxGeometry x="90" y="480" width="260" height="80" as="geometry" />
         </mxCell>
-
         <mxCell id="uc_jd_07" value="&lt;b&gt;CU-JD07&lt;/b&gt;&lt;br&gt;Manejar Excepciones de Conexión y Payload" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#DC2626;fontColor=#7F1D1D;strokeWidth=2;fontSize=12;" vertex="1" parent="jd_sys_boundary">
-          <mxGeometry x="460" y="420" width="280" height="85" as="geometry"/>
+          <mxGeometry x="460" y="420" width="280" height="85" as="geometry" />
         </mxCell>
-
         <mxCell id="uc_jd_08" value="&lt;b&gt;CU-JD08&lt;/b&gt;&lt;br&gt;Leer Slots A/B y Resolver Generación Ping-Pong" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#78350F;strokeWidth=2;fontSize=12;" vertex="1" parent="jd_sys_boundary">
-          <mxGeometry x="780" y="200" width="280" height="90" as="geometry"/>
+          <mxGeometry x="780" y="200" width="280" height="90" as="geometry" />
         </mxCell>
-
-        <!-- Asociaciones Operador -> Casos de Uso -->
-        <mxCell id="rel_op_01" style="html=1;endArrow=none;strokeWidth=2;strokeColor=#475569;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" source="act_jd_operator" target="uc_jd_01" parent="1">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="182.0" y="455.0"/><mxPoint x="182.0" y="200.0"/></Array></mxGeometry>
+        <mxCell id="rel_op_01" style="html=1;endArrow=none;strokeWidth=2;strokeColor=#475569;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=0.0;entryX=0.06698729810778074;entryY=0.75;exitPerimeter=0;entryPerimeter=0;" edge="1" source="act_jd_operator" target="uc_jd_01" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="120.0" y="220.0" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-
-        <mxCell id="rel_op_02" style="html=1;endArrow=none;strokeWidth=2;strokeColor=#475569;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" source="act_jd_operator" target="uc_jd_02" parent="1">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="348.0" y="455.0"/><mxPoint x="348.0" y="335.0"/></Array></mxGeometry>
+        <mxCell id="rel_op_02" style="html=1;endArrow=none;strokeWidth=2;strokeColor=#475569;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.75;exitY=0.0;entryX=0.06698729810778074;entryY=0.75;exitPerimeter=0;entryPerimeter=0;" edge="1" source="act_jd_operator" target="uc_jd_02" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="140.0" y="357.5" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-
-        <mxCell id="rel_op_05" style="html=1;endArrow=none;strokeWidth=2;strokeColor=#475569;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" source="act_jd_operator" target="uc_jd_05" parent="1">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="182.0" y="455.0"/><mxPoint x="182.0" y="510.0"/></Array></mxGeometry>
+        <mxCell id="rel_op_05" style="html=1;endArrow=none;strokeWidth=2;strokeColor=#475569;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1.0;exitY=0.75;entryX=0.06698729810778074;entryY=0.25;exitPerimeter=0;entryPerimeter=0;" edge="1" source="act_jd_operator" target="uc_jd_05" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="346.0" y="492.5" />
+              <mxPoint x="346.0" y="490.0" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-
-        <mxCell id="rel_op_06" style="html=1;endArrow=none;strokeWidth=2;strokeColor=#475569;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;entryX=0;entryY=0.5;" edge="1" source="act_jd_operator" target="uc_jd_06" parent="1">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="120.0" y="630.0"/></Array></mxGeometry>
+        <mxCell id="rel_op_06" style="html=1;endArrow=none;strokeWidth=2;strokeColor=#475569;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1.0;entryX=0.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" edge="1" source="act_jd_operator" target="uc_jd_06" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="120.0" y="630.0" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-
-        <!-- Asociaciones Hardware -> Casos de Uso -->
-        <mxCell id="rel_hw_02" style="html=1;endArrow=none;strokeWidth=2;strokeColor=#D97706;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=0;entryX=1;entryY=0.5;" edge="1" source="act_jd_reader" target="uc_jd_02" parent="1">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1520.0" y="225.0"/><mxPoint x="652.0" y="225.0"/><mxPoint x="652.0" y="335.0"/></Array></mxGeometry>
+        <mxCell id="rel_hw_02" style="html=1;endArrow=none;strokeWidth=2;strokeColor=#D97706;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.25;exitY=0.0;entryX=0.75;entryY=0.06698729810778066;exitPerimeter=0;entryPerimeter=0;" edge="1" source="act_jd_reader" target="uc_jd_02" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="1480.0" y="234.0" />
+              <mxPoint x="654.0" y="234.0" />
+              <mxPoint x="654.0" y="266.0" />
+              <mxPoint x="565.0" y="266.0" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-
-        <mxCell id="rel_tag_08" style="html=1;endArrow=none;strokeWidth=2;strokeColor=#16A34A;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" source="act_jd_tag" target="uc_jd_08" parent="1">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1418.0" y="530.0"/><mxPoint x="1418.0" y="355.0"/></Array></mxGeometry>
+        <mxCell id="rel_tag_08" style="html=1;endArrow=none;strokeWidth=2;strokeColor=#16A34A;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.0;exitY=0.5;entryX=1.0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" edge="1" source="act_jd_tag" target="uc_jd_08" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="1418.0" y="530.0" />
+              <mxPoint x="1418.0" y="355.0" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-
-        <!-- Relaciones Include / Extend -->
-        <mxCell id="inc_02_03" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="html=1;dashed=1;endArrow=open;strokeWidth=2;strokeColor=#16A34A;labelBackgroundColor=#FFFFFF;fontColor=#15803D;fontStyle=1;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" source="uc_jd_02" target="uc_jd_03" parent="jd_sys_boundary">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="718.0" y="335.0"/><mxPoint x="718.0" y="292.5"/></Array></mxGeometry>
+        <mxCell id="inc_02_03" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="html=1;dashed=1;endArrow=open;strokeWidth=2;strokeColor=#16A34A;labelBackgroundColor=#FFFFFF;fontColor=#15803D;fontStyle=1;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.9330127018922195;exitY=0.25;entryX=0.0669872981077808;entryY=0.75;exitPerimeter=0;entryPerimeter=0;" edge="1" source="uc_jd_02" target="uc_jd_03" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="716.0" y="312.5" />
+              <mxPoint x="716.0" y="313.75" />
+            </Array>
+            <mxPoint x="-1.319882233484691" y="-17.80000000000001" as="offset" />
+          </mxGeometry>
         </mxCell>
-
-        <mxCell id="inc_02_04" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="html=1;dashed=1;endArrow=open;strokeWidth=2;strokeColor=#16A34A;labelBackgroundColor=#FFFFFF;fontColor=#15803D;fontStyle=1;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" source="uc_jd_02" target="uc_jd_04" parent="jd_sys_boundary">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="652.0" y="335.0"/><mxPoint x="652.0" y="425.0"/></Array></mxGeometry>
+        <mxCell id="inc_02_04" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="html=1;dashed=1;endArrow=open;strokeWidth=2;strokeColor=#16A34A;labelBackgroundColor=#FFFFFF;fontColor=#15803D;fontStyle=1;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.9330127018922195;exitY=0.75;entryX=0.0669872981077808;entryY=0.25;exitPerimeter=0;entryPerimeter=0;" edge="1" source="uc_jd_02" target="uc_jd_04" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="716.0" y="357.5" />
+              <mxPoint x="716.0" y="402.5" />
+            </Array>
+            <mxPoint x="-23.19488223348469" y="-17.80000000000001" as="offset" />
+          </mxGeometry>
         </mxCell>
-
-        <mxCell id="inc_03_08" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="html=1;dashed=1;endArrow=open;strokeWidth=2;strokeColor=#D97706;labelBackgroundColor=#FFFFFF;fontColor=#B45309;fontStyle=1;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" source="uc_jd_03" target="uc_jd_08" parent="jd_sys_boundary">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1038.0" y="292.5"/><mxPoint x="1038.0" y="355.0"/></Array></mxGeometry>
+        <mxCell id="inc_03_08" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="html=1;dashed=1;endArrow=open;strokeWidth=2;strokeColor=#D97706;labelBackgroundColor=#FFFFFF;fontColor=#B45309;fontStyle=1;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.9330127018922192;exitY=0.75;entryX=0.0669872981077804;entryY=0.25;exitPerimeter=0;entryPerimeter=0;" edge="1" source="uc_jd_03" target="uc_jd_08" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="1036.0" y="313.75" />
+              <mxPoint x="1036.0" y="332.5" />
+            </Array>
+            <mxPoint x="-24.329510429125094" y="22.425000000000068" as="offset" />
+          </mxGeometry>
         </mxCell>
-
-        <mxCell id="ext_02_07" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="html=1;dashed=1;endArrow=open;strokeWidth=2;strokeColor=#DC2626;labelBackgroundColor=#FFFFFF;fontColor=#B91C1C;fontStyle=1;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" source="uc_jd_07" target="uc_jd_02" parent="jd_sys_boundary">
-          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="655.0" y="572.5"/><mxPoint x="655.0" y="335.0"/></Array></mxGeometry>
+        <mxCell id="ext_02_07" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="html=1;dashed=1;endArrow=open;strokeWidth=2;strokeColor=#DC2626;labelBackgroundColor=#FFFFFF;fontColor=#B91C1C;fontStyle=1;edgeStyle=none;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.0669872981077808;exitY=0.25;entryX=0.75;entryY=0.9330127018922193;exitPerimeter=0;entryPerimeter=0;" edge="1" source="uc_jd_07" target="uc_jd_02" parent="1">
+          <mxGeometry relative="1" as="geometry" x="0" y="0">
+            <Array as="points">
+              <mxPoint x="654.0" y="551.25" />
+              <mxPoint x="654.0" y="404.0" />
+              <mxPoint x="565.0" y="404.0" />
+            </Array>
+            <mxPoint x="-44.5" y="-12.6887933202392" as="offset" />
+          </mxGeometry>
         </mxCell>
-    
       </root>
     </mxGraphModel>
   </diagram>
-</mxfile>
+  </mxfile>
