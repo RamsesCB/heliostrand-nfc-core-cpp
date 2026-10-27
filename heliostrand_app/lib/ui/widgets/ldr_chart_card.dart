@@ -126,9 +126,9 @@ class LdrChartCard extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           SizedBox(
-            height: 130,
+            height: 140,
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: sensors.map((ldr) {
                 final heightFactor = (ldr.value / 255.0).clamp(0.0, 1.0);
                 return Expanded(
@@ -171,23 +171,29 @@ class LdrChartCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          ldr.id,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: SolarTrackerTheme.textSecondary,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            ldr.id,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: SolarTrackerTheme.textSecondary,
+                            ),
+                            maxLines: 1,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 2),
-                        Text(
-                          '${ldr.value}',
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontFamily: 'monospace',
-                            color: SolarTrackerTheme.textTertiary,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            '${ldr.value}',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontFamily: 'monospace',
+                              color: SolarTrackerTheme.textTertiary,
+                            ),
+                            maxLines: 1,
                           ),
                         ),
                       ],
