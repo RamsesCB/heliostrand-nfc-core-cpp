@@ -16,10 +16,11 @@ void main() {
 
     expect(find.text('Listo para escanear'), findsOneWidget);
 
-    expect(find.text('Sensores LDR (Luz)'), findsOneWidget);
+    expect(find.text('Sensores LDR'), findsOneWidget);
 
-    expect(find.text('Pitch (Vertical)'), findsOneWidget);
-    expect(find.text('Yaw (Horizontal)'), findsOneWidget);
+    expect(find.text('Ejes de los servomotores'), findsOneWidget);
+    expect(find.text('Eje Y'), findsOneWidget);
+    expect(find.text('Eje X'), findsOneWidget);
 
     expect(find.text('Potencia'), findsOneWidget);
 
@@ -57,7 +58,7 @@ void main() {
         );
 
         expect(tester.takeException(), isNull);
-        expect(find.text('Sensores LDR (Luz)'), findsOneWidget);
+        expect(find.text('Sensores LDR'), findsOneWidget);
       }
     },
   );

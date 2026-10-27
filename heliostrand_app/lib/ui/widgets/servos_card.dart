@@ -25,24 +25,41 @@ class ServosCard extends StatelessWidget {
         border: Border.all(color: SolarTrackerTheme.cardBorder),
       ),
       padding: const EdgeInsets.all(14),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: _servoItem(
-              label: 'Pitch (Vertical)',
-              value: pitch.toDouble().clamp(0.0, 180.0),
-              accent: SolarTrackerTheme.sunPitchAmber,
-              onChanged: onPitchChanged,
+          const Padding(
+            padding: EdgeInsets.only(left: 2, bottom: 8),
+            child: Text(
+              'Ejes de los servomotores',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: SolarTrackerTheme.textTertiary,
+                letterSpacing: 0.2,
+              ),
             ),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _servoItem(
-              label: 'Yaw (Horizontal)',
-              value: yaw.toDouble().clamp(0.0, 180.0),
-              accent: SolarTrackerTheme.yawSkyBlue,
-              onChanged: onYawChanged,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: _servoItem(
+                  label: 'Eje Y',
+                  value: pitch.toDouble().clamp(0.0, 180.0),
+                  accent: SolarTrackerTheme.sunPitchAmber,
+                  onChanged: onPitchChanged,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _servoItem(
+                  label: 'Eje X',
+                  value: yaw.toDouble().clamp(0.0, 180.0),
+                  accent: SolarTrackerTheme.yawSkyBlue,
+                  onChanged: onYawChanged,
+                ),
+              ),
+            ],
           ),
         ],
       ),

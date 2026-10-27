@@ -2,7 +2,7 @@ name: heliostrand_app
 description: "Heliostrand NFC telemetry client for the Theo Jansen solar tracker."
 publish_to: 'none'
 
-version: 1.2.0+4
+version: 1.2.1+5
 
 environment:
   sdk: ^3.13.2

@@ -87,7 +87,7 @@ class LdrChartCard extends StatelessWidget {
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Sensores LDR (Luz)',
+                        'Sensores LDR',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
