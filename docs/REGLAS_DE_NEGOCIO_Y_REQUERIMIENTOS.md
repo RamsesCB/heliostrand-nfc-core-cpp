@@ -157,19 +157,19 @@ Las siguientes reglas gobiernan la lógica de dominio, la integridad de hardware
 ## 5. Diagramas y Modelos Generados en el Repositorio
 
 Todos los diagramas han sido generados y sincronizados en los formatos nativos **Astah Professional (`.asta`)** y **Draw.io (`.drawio`)** bajo la ruta:
-[`docs/diagrams/`](file:///home/ramsescb/Projects/arduino_app_Fundamentos/docs/diagrams/)
+[`docs/diagrams/`](diagrams/)
 
 ### 5.1. Catálogo de Archivos de Diagramas
 
 | Componente | Tipo de Diagrama | Archivo Astah (`.asta`) | Archivo Draw.io (`.drawio`) |
 |---|---|---|---|
-| **Java Desktop** | Diagrama de Clases UML | [JavaDesktop_ClassDiagram_Ordenado.asta](file:///home/ramsescb/Projects/arduino_app_Fundamentos/docs/diagrams/JavaDesktop_ClassDiagram_Ordenado.asta) | [JavaDesktop_ClassDiagram_Ordenado.drawio](file:///home/ramsescb/Projects/arduino_app_Fundamentos/docs/diagrams/JavaDesktop_ClassDiagram_Ordenado.drawio) |
-| **Java Desktop** | Casos de Uso | [JavaDesktop_UseCases.asta](file:///home/ramsescb/Projects/arduino_app_Fundamentos/docs/diagrams/JavaDesktop_UseCases.asta) | [JavaDesktop_UseCases.drawio](file:///home/ramsescb/Projects/arduino_app_Fundamentos/docs/diagrams/JavaDesktop_UseCases.drawio) |
-| **Java Desktop** | Diagrama de Procesos / Actividades | [JavaDesktop_ProcessDiagram.asta](file:///home/ramsescb/Projects/arduino_app_Fundamentos/docs/diagrams/JavaDesktop_ProcessDiagram.asta) | [JavaDesktop_ProcessDiagram.drawio](file:///home/ramsescb/Projects/arduino_app_Fundamentos/docs/diagrams/JavaDesktop_ProcessDiagram.drawio) |
-| **Flutter Mobile** | Diagrama de Clases UML | [MobileApp_ClassDiagram_Ordenado.asta](file:///home/ramsescb/Projects/arduino_app_Fundamentos/docs/diagrams/MobileApp_ClassDiagram_Ordenado.asta) | [MobileApp_ClassDiagram_Ordenado.drawio](file:///home/ramsescb/Projects/arduino_app_Fundamentos/docs/diagrams/MobileApp_ClassDiagram_Ordenado.drawio) |
-| **Flutter Mobile** | Casos de Uso | [MobileApp_UseCases.asta](file:///home/ramsescb/Projects/arduino_app_Fundamentos/docs/diagrams/MobileApp_UseCases.asta) | [MobileApp_UseCases.drawio](file:///home/ramsescb/Projects/arduino_app_Fundamentos/docs/diagrams/MobileApp_UseCases.drawio) |
-| **Flutter Mobile** | Diagrama de Procesos / Actividades | [MobileApp_ProcessDiagram.asta](file:///home/ramsescb/Projects/arduino_app_Fundamentos/docs/diagrams/MobileApp_ProcessDiagram.asta) | [MobileApp_ProcessDiagram.drawio](file:///home/ramsescb/Projects/arduino_app_Fundamentos/docs/diagrams/MobileApp_ProcessDiagram.drawio) |
-| **MASTER UNIFICADO** | **Todas las Clases, Casos de Uso y Procesos Integrados** | [Heliostrand_Modelos_Completos.asta](file:///home/ramsescb/Projects/arduino_app_Fundamentos/docs/diagrams/Heliostrand_Modelos_Completos.asta) | [Heliostrand_Diagramas_Completos.drawio](file:///home/ramsescb/Projects/arduino_app_Fundamentos/docs/diagrams/Heliostrand_Diagramas_Completos.drawio) |
+| **Java Desktop** | Diagrama de Clases UML | [JavaDesktop_ClassDiagram_Ordenado.asta](diagrams/JavaDesktop_ClassDiagram_Ordenado.asta) | [JavaDesktop_ClassDiagram_Ordenado.drawio](diagrams/JavaDesktop_ClassDiagram_Ordenado.drawio) |
+| **Java Desktop** | Casos de Uso | [JavaDesktop_UseCases.asta](diagrams/JavaDesktop_UseCases.asta) | [JavaDesktop_UseCases.drawio](diagrams/JavaDesktop_UseCases.drawio) |
+| **Java Desktop** | Diagrama de Procesos / Actividades | [JavaDesktop_ProcessDiagram.asta](diagrams/JavaDesktop_ProcessDiagram.asta) | [JavaDesktop_ProcessDiagram.drawio](diagrams/JavaDesktop_ProcessDiagram.drawio) |
+| **Flutter Mobile** | Diagrama de Clases UML | [MobileApp_ClassDiagram_Ordenado.asta](diagrams/MobileApp_ClassDiagram_Ordenado.asta) | [MobileApp_ClassDiagram_Ordenado.drawio](diagrams/MobileApp_ClassDiagram_Ordenado.drawio) |
+| **Flutter Mobile** | Casos de Uso | [MobileApp_UseCases.asta](diagrams/MobileApp_UseCases.asta) | [MobileApp_UseCases.drawio](diagrams/MobileApp_UseCases.drawio) |
+| **Flutter Mobile** | Diagrama de Procesos / Actividades | [MobileApp_ProcessDiagram.asta](diagrams/MobileApp_ProcessDiagram.asta) | [MobileApp_ProcessDiagram.drawio](diagrams/MobileApp_ProcessDiagram.drawio) |
+| **MASTER UNIFICADO** | **Todas las Clases, Casos de Uso y Procesos Integrados** | [Heliostrand_Modelos_Completos.asta](diagrams/Heliostrand_Modelos_Completos.asta) | [Heliostrand_Diagramas_Completos.drawio](diagrams/Heliostrand_Diagramas_Completos.drawio) |
 
 ---
 
@@ -207,3 +207,5 @@ Esta sección no cambia los requisitos aprobados; registra diferencias entre **l
 - **Flutter — implementación verificada en código:** polling `Duration(seconds: 10)` y emisión de simulación con período de 1500 ms. Son valores de implementación, no garantías de latencia RF ni de FPS.
 - **UML:** tres composiciones Flutter sustentadas por propiedad y `dispose()`; dos realizaciones hacia el contrato `BaseTelemetryService`; sin agregaciones inferidas arbitrariamente. Conservar relaciones de asociación Java para objetos potencialmente inyectados.
 - **Fuentes editables:** `Heliostrand_Modelos_Completos.asta` y `Heliostrand_Diagramas_Completos.drawio` (seis diagramas cada uno). Validación de rutas: `python3 tools/validate_uml_diagrams.py`.
+
+- **CU-MA05 — límites de servos pendientes de alineación:** el caso de uso prescribe Pitch 15–165° y Yaw 10–170°, pero `NfcService` admite comandos entre 0 y 180°. Esos límites mecánicos específicos no están implementados en el servicio; no asumir esa protección hasta alinear firmware, interfaz y validación con pruebas de hardware.

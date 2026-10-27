@@ -26,3 +26,20 @@ heliostrand_app/android/build/
 *.pem
 key.properties
 *.asta.lock
+
+# Engram AI agent memory
+.engram/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Diagram backups and intermediate artifacts
+*.bak
+docs/diagrams/backup_*/
+docs/diagrams/*_Verificado.*
+docs/diagrams/*_RutasRevisadas.*
+docs/diagrams/*_Composiciones.*
+docs/diagrams/*_Reordenado.*
+docs/diagrams/*_LabelsLegibles.*
+docs/diagrams/*_antes_triangulos_*.asta
