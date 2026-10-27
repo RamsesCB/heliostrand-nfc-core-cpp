@@ -45,9 +45,11 @@ jobs:
           distribution: temurin
           cache: maven
           cache-dependency-path: AplicacionJava/pom.xml
+      - name: Install virtual display for Swing regression tests
+        run: sudo apt-get update && sudo apt-get install -y xvfb xauth
       - name: Test and package
         working-directory: AplicacionJava
-        run: ./mvnw --batch-mode clean test package
+        run: xvfb-run -a ./mvnw --batch-mode clean test package
       - uses: actions/upload-artifact@v4
         with:
           name: AplicacionJava
@@ -75,3 +77,14 @@ jobs:
       - name: Build debug APK as compile check
         working-directory: heliostrand_app
         run: flutter build apk --debug
+
+  uml:
+    name: UML geometry and regression tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python tools/validate_uml_diagrams.py
+      - run: python -m unittest discover -s tools -p 'test_validate_uml_diagrams.py'

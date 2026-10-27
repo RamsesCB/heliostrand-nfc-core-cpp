@@ -7,7 +7,6 @@ import com.ramsescb.heliostrand.desktop.ui.controller.TrackerUiController;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,7 +16,7 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            // Configuración visual moderna con FlatLaf
+
             UIManager.put("Button.arc", 10);
             UIManager.put("Component.arc", 10);
             UIManager.put("ProgressBar.arc", 10);

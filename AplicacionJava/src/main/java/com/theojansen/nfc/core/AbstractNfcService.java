@@ -2,10 +2,6 @@ package com.theojansen.nfc.core;
 
 import com.theojansen.nfc.parser.TheoJansenDataParser;
 
-/**
- * Clase abstracta base para los servicios de adquisición y escaneo NFC.
- * Define el contrato del ciclo de vida del lector y la suscripción a eventos.
- */
 public abstract class AbstractNfcService {
 
     protected final TheoJansenDataParser parser;

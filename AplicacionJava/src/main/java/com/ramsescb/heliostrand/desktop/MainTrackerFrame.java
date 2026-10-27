@@ -58,11 +58,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Ventana Principal de Telemetría Solar Tracker (Heliostrand).
- * Modernizada con FlatLaf, soporte de temas (Claro / Darcula / Oscuro),
- * gráficos personalizados JFreeChart y robustecimiento mediante try-catch.
- */
 public class MainTrackerFrame extends JFrame {
 
     private static final java.util.logging.Logger logger =
@@ -70,7 +65,6 @@ public class MainTrackerFrame extends JFrame {
 
     private static final int MAX_IN_MEMORY_SAMPLES = 500;
 
-    // Componentes principales
     private JButton btnToggleScan;
     private JButton btnToggleSimulate;
     private JButton btnExportReport;
@@ -92,10 +86,11 @@ public class MainTrackerFrame extends JFrame {
     private ChartPanel chartPanel;
 
     private boolean scanning = false;
+    private volatile long acquisitionGeneration;
+    private SwingWorker<Void, Void> initializationWorker;
     private final List<RobotTelemetry> sessionHistory = new ArrayList<>();
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 
-    // Historial de 5 muestras para ventana deslizante de sensores LDR
     private static final int LDR_SAMPLE_COUNT = 5;
     private static final String[] LDR_SERIES_LABELS = {
             "Muestra 1 (t-4)",
@@ -147,12 +142,10 @@ public class MainTrackerFrame extends JFrame {
     private void initComponents() {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        // Panel Raíz con BorderLayout
         JPanel rootPanel = new JPanel(new BorderLayout(0, 10));
         rootPanel.setBorder(BorderFactory.createEmptyBorder(12, 14, 12, 14));
         setContentPane(rootPanel);
 
-        // 1. ZONA NORTE: Header + Toolbar + Métricas
         JPanel northContainer = new JPanel();
         northContainer.setLayout(new BoxLayout(northContainer, BoxLayout.Y_AXIS));
 
@@ -164,10 +157,8 @@ public class MainTrackerFrame extends JFrame {
 
         rootPanel.add(northContainer, BorderLayout.NORTH);
 
-        // 2. ZONA CENTRO: Gráficas LDR y Tabla de Historial
         JPanel centerPanel = new JPanel(new GridLayout(2, 1, 0, 12));
 
-        // Panel de Gráficas
         chartContainerPanel = new JPanel(new BorderLayout());
         chartContainerPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(0xE2, 0xE8, 0xF0)),
@@ -178,7 +169,6 @@ public class MainTrackerFrame extends JFrame {
         ));
         centerPanel.add(chartContainerPanel);
 
-        // Panel de Historial con Tabla
         historyTable = new JTable();
         historyTable.setModel(new DefaultTableModel(
                 new Object[][]{},
@@ -212,7 +202,6 @@ public class MainTrackerFrame extends JFrame {
                 BorderFactory.createEmptyBorder(6, 6, 12, 6)
         ));
 
-        // Izquierda: Logo + Título + Subtítulo
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
 
         JLabel lblLogo = new JLabel();
@@ -242,7 +231,6 @@ public class MainTrackerFrame extends JFrame {
 
         header.add(titlePanel, BorderLayout.WEST);
 
-        // Derecha: Selector de Tema + Badge de Estado
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 8));
 
         lblStatusBadge = new JLabel("● Lector Inactivo");
@@ -299,7 +287,6 @@ public class MainTrackerFrame extends JFrame {
     private JPanel createMetricsPanel() {
         JPanel topMetricsPanel = new JPanel(new GridLayout(1, 3, 14, 0));
 
-        // 1. Tarjeta Servos
         JPanel servoPanel = new JPanel(new GridLayout(2, 2, 8, 8));
         servoPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(0xE2, 0xE8, 0xF0)),
@@ -317,7 +304,7 @@ public class MainTrackerFrame extends JFrame {
         barPitch.setStringPainted(true);
         barPitch.setValue(90);
         barPitch.setString("90°");
-        barPitch.setForeground(new Color(0xD9, 0x77, 0x06)); // Ámbar
+        barPitch.setForeground(new Color(0xD9, 0x77, 0x06));
         servoPanel.add(barPitch);
 
         JLabel jLabel2 = new JLabel("Yaw (Horizontal):");
@@ -328,12 +315,11 @@ public class MainTrackerFrame extends JFrame {
         barYaw.setStringPainted(true);
         barYaw.setValue(90);
         barYaw.setString("90°");
-        barYaw.setForeground(new Color(0x02, 0x84, 0xC7)); // Celeste
+        barYaw.setForeground(new Color(0x02, 0x84, 0xC7));
         servoPanel.add(barYaw);
 
         topMetricsPanel.add(servoPanel);
 
-        // 2. Tarjeta Motor
         JPanel motorPolarityPanel = new JPanel(new GridLayout(2, 1, 4, 4));
         motorPolarityPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(0xE2, 0xE8, 0xF0)),
@@ -354,7 +340,6 @@ public class MainTrackerFrame extends JFrame {
 
         topMetricsPanel.add(motorPolarityPanel);
 
-        // 3. Tarjeta Potencia
         JPanel powerPanel = new JPanel(new GridLayout(2, 2, 8, 8));
         powerPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(0xE2, 0xE8, 0xF0)),
@@ -380,7 +365,7 @@ public class MainTrackerFrame extends JFrame {
         barBattery.setStringPainted(true);
         barBattery.setValue(0);
         barBattery.setString("N/D");
-        barBattery.setForeground(new Color(0x10, 0xB9, 0x81)); // Verde esmeralda
+        barBattery.setForeground(new Color(0x10, 0xB9, 0x81));
         powerPanel.add(barBattery);
 
         topMetricsPanel.add(powerPanel);
@@ -482,7 +467,6 @@ public class MainTrackerFrame extends JFrame {
             rangeAxis.setLabelPaint(textColor);
             rangeAxis.setTickLabelFont(new Font("Segoe UI", Font.PLAIN, 11));
 
-            // Paleta sobria, sólida y profesional (Tech Slate-Blue / Cyan)
             Color baseColor = isDark ? new Color(0x38, 0xBD, 0xF8) : new Color(0x25, 0x63, 0xEB);
             Color[] sensorBases = new Color[]{baseColor, baseColor, baseColor, baseColor};
 
@@ -579,6 +563,8 @@ public class MainTrackerFrame extends JFrame {
     }
 
     private void startScanningProcess() {
+        stopScanningProcess();
+        final long generation = acquisitionGeneration;
         try {
             if (nfcServiceManager == null) {
                 nfcServiceManager = new NfcServiceManager();
@@ -588,7 +574,7 @@ public class MainTrackerFrame extends JFrame {
             }
 
             btnToggleScan.setEnabled(false);
-            new SwingWorker<Void, Void>() {
+            initializationWorker = new SwingWorker<Void, Void>() {
                 @Override
                 protected Void doInBackground() throws NfcDeviceException {
                     nfcServiceManager.initializeReader(null);
@@ -597,15 +583,17 @@ public class MainTrackerFrame extends JFrame {
 
                 @Override
                 protected void done() {
+                    if (generation != acquisitionGeneration || !isDisplayable()) return;
+                    initializationWorker = null;
                     btnToggleScan.setEnabled(true);
-                    if (!isDisplayable()) return;
                     try {
                         get();
-                        nfcServiceManager.startContinuousScan(uiController);
+                        nfcServiceManager.startContinuousScan(
+                                uiController.scoped(() -> generation == acquisitionGeneration));
                         scanning = true;
                         btnToggleScan.setText("⏸ Pausar Escaneo");
                         lblStatusBadge.setText("● Escaneando NFC");
-                        lblStatusBadge.setForeground(new Color(0x16, 0xA3, 0x4A)); // Verde
+                        lblStatusBadge.setForeground(new Color(0x16, 0xA3, 0x4A));
                         JOptionPane.showMessageDialog(MainTrackerFrame.this,
                                 "Lector NFC inicializado correctamente.\nEscaneando tags en segundo plano...",
                                 "NFC Conectado", JOptionPane.INFORMATION_MESSAGE);
@@ -617,28 +605,40 @@ public class MainTrackerFrame extends JFrame {
                         int option = JOptionPane.showConfirmDialog(MainTrackerFrame.this,
                                 errMsg + "\n\n¿Desea iniciar en MODO SIMULACIÓN para verificar la telemetría en el dashboard?",
                                 "Lector NFC no detectado", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                        if (generation != acquisitionGeneration || !isDisplayable()) return;
                         if (option == JOptionPane.YES_OPTION) {
                             startSimulation();
                             scanning = true;
                             btnToggleScan.setText("⏸ Pausar Simulación");
                             lblStatusBadge.setText("● Simulación Activa");
-                            lblStatusBadge.setForeground(new Color(0x25, 0x63, 0xEB)); // Azul
+                            lblStatusBadge.setForeground(new Color(0x25, 0x63, 0xEB));
                         } else {
                             scanning = false;
                             btnToggleScan.setText("▶ Iniciar Escaneo");
                             lblStatusBadge.setText("● Lector Inactivo");
                             lblStatusBadge.setForeground(new Color(0x64, 0x74, 0x8B));
                         }
+                    } catch (RuntimeException ex) {
+                        stopScanningProcess();
+                        showDeviceError("No se pudo iniciar el escaneo: " + ex.getMessage());
                     }
                 }
-            }.execute();
+            };
+            initializationWorker.execute();
         } catch (Exception ex) {
             logger.log(java.util.logging.Level.SEVERE, "Error al iniciar proceso de escaneo", ex);
+            stopScanningProcess();
             showDeviceError("No se pudo iniciar el escaneo: " + ex.getMessage());
         }
     }
 
     private void stopScanningProcess() {
+        acquisitionGeneration++;
+        if (initializationWorker != null) {
+            initializationWorker.cancel(true);
+            initializationWorker = null;
+        }
+        btnToggleScan.setEnabled(true);
         try {
             scanning = false;
             btnToggleScan.setText("▶ Iniciar Escaneo");
@@ -648,36 +648,35 @@ public class MainTrackerFrame extends JFrame {
             if (nfcServiceManager != null) {
                 nfcServiceManager.stopContinuousScan();
             }
-            stopSimulation();
         } catch (Exception ex) {
             logger.log(java.util.logging.Level.WARNING, "Error al detener escaneo", ex);
+        } finally {
+            stopSimulation();
         }
     }
 
     public void toggleSimulation() {
-        if (!simulationActive) {
-            startSimulation();
-            if (btnToggleSimulate != null) {
-                btnToggleSimulate.setText("⏸ Pausar Simulación");
-            }
-            lblStatusBadge.setText("● Simulación Activa");
-            lblStatusBadge.setForeground(new Color(0x25, 0x63, 0xEB)); // Azul
+        if (simulationActive) {
+            stopScanningProcess();
         } else {
-            stopSimulation();
-            if (btnToggleSimulate != null) {
-                btnToggleSimulate.setText("⚡ Simular Telemetría");
-            }
-            lblStatusBadge.setText("● Simulación Pausada");
-            lblStatusBadge.setForeground(new Color(0x64, 0x74, 0x8B));
+            startSimulation();
         }
     }
 
     private void startSimulation() {
-        stopSimulation();
+        stopScanningProcess();
+        final long generation = acquisitionGeneration;
         if (uiController == null) {
             uiController = new TrackerUiController(this);
         }
         simulationActive = true;
+        scanning = true;
+        btnToggleScan.setText("⏸ Pausar Simulación");
+        btnToggleSimulate.setText("⏸ Pausar Simulación");
+        lblStatusBadge.setText("● Simulación Activa");
+        lblStatusBadge.setForeground(new Color(0x25, 0x63, 0xEB));
+        final TrackerUiController simulationController =
+                uiController.scoped(() -> generation == acquisitionGeneration);
         simulationThread = new Thread(() -> {
             Random random = new Random();
             int reversals = 0;
@@ -685,7 +684,7 @@ public class MainTrackerFrame extends JFrame {
             final String simulatedUid = "SIM-TAG-DESKTOP-0001";
             MotorState mState = MotorState.ADELANTE;
 
-            while (simulationActive) {
+            while (simulationActive && generation == acquisitionGeneration) {
                 try {
                     int[] ldr = {
                             random.nextInt(256),
@@ -740,9 +739,7 @@ public class MainTrackerFrame extends JFrame {
                             simulatedUid
                     );
 
-                    if (uiController != null) {
-                        uiController.onTelemetryReceived(telemetry);
-                    }
+                    simulationController.onTelemetryReceived(telemetry);
 
                     Thread.sleep(1500);
                 } catch (InterruptedException e) {
@@ -774,10 +771,10 @@ public class MainTrackerFrame extends JFrame {
     public void updateDashboard(RobotTelemetry telemetry) {
         if (telemetry == null) return;
         try {
-            // 1. Gráfica de LDRs (Ventana deslizante FIFO de 5 muestras por sensor)
+
             int[] valores = telemetry.getLdrValues();
             if (valores != null && valores.length >= 4 && ldrDataset != null) {
-                // valores: [0]=Norte, [1]=Sur, [2]=Oeste, [3]=Este
+
                 int[] currentSample = new int[]{valores[0], valores[1], valores[3], valores[2]};
 
                 synchronized (ldrSampleHistory) {
@@ -797,38 +794,35 @@ public class MainTrackerFrame extends JFrame {
                 }
             }
 
-            // 2. Servomotores
             barPitch.setValue(telemetry.getServoPitchAngle());
             barPitch.setString(telemetry.getServoPitchAngle() + "°");
             barYaw.setValue(telemetry.getServoYawAngle());
             barYaw.setString(telemetry.getServoYawAngle() + "°");
 
-            // 3. Cinemática y Motor
             MotorState motor = telemetry.getMotorDirection();
             if (motor == MotorState.ADELANTE) {
                 lblMotorState.setText("▶ ADELANTE");
-                lblMotorState.setForeground(new Color(0x16, 0xA3, 0x4A)); // Verde
+                lblMotorState.setForeground(new Color(0x16, 0xA3, 0x4A));
             } else if (motor == MotorState.ATRAS) {
                 lblMotorState.setText("◀ ATRÁS (INVERSO)");
-                lblMotorState.setForeground(new Color(0x25, 0x63, 0xEB)); // Azul
+                lblMotorState.setForeground(new Color(0x25, 0x63, 0xEB));
             } else {
                 lblMotorState.setText("■ DETENIDO");
-                lblMotorState.setForeground(new Color(0x64, 0x74, 0x8B)); // Gris
+                lblMotorState.setForeground(new Color(0x64, 0x74, 0x8B));
             }
             lblReversalsCount.setText("Inversiones de Marcha: " + telemetry.getPolarityReversalsCount());
 
-            // 4. Potencia y Batería
             if (telemetry.isBatteryValid()) {
                 lblVoltage.setText(String.format(java.util.Locale.US, "%.2f V", telemetry.getOperatingVoltage()));
                 int bat = telemetry.getBatteryLevelPercent();
                 barBattery.setValue(bat);
                 barBattery.setString(bat + "%");
                 if (bat > 40) {
-                    barBattery.setForeground(new Color(0x10, 0xB9, 0x81)); // Verde
+                    barBattery.setForeground(new Color(0x10, 0xB9, 0x81));
                 } else if (bat >= 20) {
-                    barBattery.setForeground(new Color(0xF5, 0x9E, 0x0B)); // Ámbar
+                    barBattery.setForeground(new Color(0xF5, 0x9E, 0x0B));
                 } else {
-                    barBattery.setForeground(new Color(0xEF, 0x44, 0x44)); // Rojo
+                    barBattery.setForeground(new Color(0xEF, 0x44, 0x44));
                 }
             } else {
                 lblVoltage.setText("N/D");
@@ -837,7 +831,6 @@ public class MainTrackerFrame extends JFrame {
                 barBattery.setForeground(new Color(0x94, 0xA3, 0xB8));
             }
 
-            // 5. Tabla de Historial
             DefaultTableModel model = (DefaultTableModel) historyTable.getModel();
             model.addRow(new Object[]{
                     timeFormat.format(new Date(telemetry.getTimestamp())),
@@ -887,11 +880,6 @@ public class MainTrackerFrame extends JFrame {
         }
     }
 
-    /**
-     * Renderer de barra plano, sólido y profesional para JFreeChart.
-     * Desactiva el brillo tridimensional / gradiente cilíndrico (StandardBarPainter)
-     * y aplica una progresión temporal de opacidad sobre la ventana de 5 lecturas por sensor.
-     */
     private static class CustomBarRenderer extends BarRenderer {
         private final Color[] sensorBaseColors;
         private final float[] seriesAlphas = {0.25f, 0.40f, 0.60f, 0.80f, 1.0f};
