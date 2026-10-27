@@ -12,22 +12,40 @@ static SerialTelemetryTransport serialTransport;
 
 static unsigned long lastTrackingTime = 0;
 static unsigned long lastTelemetryTime = 0;
+static unsigned long lastStatusSignalTime = 0;
 static bool ledState = false;
+static bool nfcReady = false;
 static uint8_t telemetryBuffer[TELEMETRY_PAYLOAD_SIZE];
+
+static void updateStatusSignal(unsigned long currentMillis) {
+    const unsigned long signalInterval = nfcReady ? 1000UL : 250UL;
+    if (currentMillis - lastStatusSignalTime < signalInterval) return;
+
+    lastStatusSignalTime = currentMillis;
+    ledState = !ledState;
+    digitalWrite(PIN_STATUS_LED, ledState ? HIGH : LOW);
+}
 
 void setup() {
     pinMode(PIN_STATUS_LED, OUTPUT);
     digitalWrite(PIN_STATUS_LED, HIGH);
 
-    serialTransport.begin();
-    nfcTransport.begin();
+    const bool serialReady = serialTransport.begin();
+    nfcReady = nfcTransport.begin();
     tracker.begin();
 
+    if (!serialReady) {
+        nfcReady = false;
+    }
+
+    lastStatusSignalTime = millis();
+    ledState = true;
     digitalWrite(PIN_STATUS_LED, LOW);
 }
 
 void loop() {
     const unsigned long currentMillis = millis();
+    updateStatusSignal(currentMillis);
 
     if (currentMillis - lastTrackingTime >= TRACKING_INTERVAL_MS) {
         lastTrackingTime = currentMillis;
@@ -43,9 +61,6 @@ void loop() {
         serialTransport.publish(telemetryBuffer, TELEMETRY_PAYLOAD_SIZE);
         nfcTransport.pollServoCommand();
         nfcTransport.publish(telemetryBuffer, TELEMETRY_PAYLOAD_SIZE);
-
-        ledState = !ledState;
-        digitalWrite(PIN_STATUS_LED, ledState ? HIGH : LOW);
     }
 
     uint8_t nfcPitch = 0;
